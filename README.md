@@ -51,6 +51,8 @@ This repo uses semantic versioning via git tags:
 | `minor` | New agent/skill, significant improvement      |
 | `major` | Breaking change (renamed file, removed agent) |
 
+To release this kit, use `python3 scripts/release-kit.py <major|minor|patch>`.
+
 ## Project-specific overrides
 
 Local adaptations (e.g. project-specific rules in an agent) can be kept in the concrete project. They will be overwritten on the next `sync-config.sh` run — keep a note of what to re-apply.

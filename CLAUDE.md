@@ -47,7 +47,7 @@ Use semantic versioning via git tags:
 | `minor` | New agent/skill, significant improvement      |
 | `major` | Breaking change (renamed file, removed agent) |
 
-Run releases via `python3 scripts/release.py` (interactive).
+Run releases via `python3 scripts/release-kit.py` (interactive).
 
 ## Git hooks
 
