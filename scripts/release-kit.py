@@ -45,11 +45,16 @@ class ReleaseManager:
             re.DOTALL,
         )
         if not match:
-            return {"type": "other", "breaking": "BREAKING CHANGE" in message}
+            return {
+                "type": "other",
+                "description": message,
+                "breaking": "BREAKING CHANGE" in message,
+            }
 
-        commit_type, _, bang, _ = match.groups()
+        commit_type, _, bang, description = match.groups()
         return {
             "type": commit_type,
+            "description": description,
             "breaking": bang == "!" or "BREAKING CHANGE" in message,
         }
 
@@ -64,6 +69,7 @@ class ReleaseManager:
 
         for entry in entries:
             commit = self.parse_commit(entry)
+            self.commits.append(commit)
             if commit["breaking"]:
                 self.breaking_changes += 1
             elif commit["type"] == "feat":
@@ -87,7 +93,22 @@ class ReleaseManager:
         print(f"{BLUE}Updating CHANGELOG.md...{NC}")
         changelog = self.repo_root / "CHANGELOG.md"
         today = datetime.now().strftime("%Y-%m-%d")
-        new_entry = f"## [{new_version}] - {today}\n- Release {new_version}\n\n"
+
+        new_entry = f"## [{new_version}] - {today}\n"
+
+        if self.features > 0:
+            new_entry += "\n### Added\n"
+            for commit in self.commits:
+                if commit["type"] == "feat":
+                    new_entry += f"- {commit['description']}\n"
+
+        if self.fixes > 0:
+            new_entry += "\n### Fixed\n"
+            for commit in self.commits:
+                if commit["type"] == "fix":
+                    new_entry += f"- {commit['description']}\n"
+
+        new_entry += "\n"
 
         content = new_entry
         if changelog.exists():
