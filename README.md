@@ -35,6 +35,7 @@ chmod +x scripts/sync-config.sh
 ```
 
 This will:
+
 - Update `.claude/agents/` and `.claude/skills/`
 - Update `scripts/check.py` and `scripts/release.py`
 - Update `.githooks/`
@@ -44,10 +45,10 @@ This will:
 
 This repo uses semantic versioning via git tags:
 
-| Bump | When |
-|------|------|
-| `patch` | Bug fix in a script or agent wording |
-| `minor` | New agent/skill, significant improvement |
+| Bump    | When                                          |
+| ------- | --------------------------------------------- |
+| `patch` | Bug fix in a script or agent wording          |
+| `minor` | New agent/skill, significant improvement      |
 | `major` | Breaking change (renamed file, removed agent) |
 
 ## Project-specific overrides
