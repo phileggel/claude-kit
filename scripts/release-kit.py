@@ -110,9 +110,24 @@ class ReleaseManager:
 
         new_entry += "\n"
 
-        content = new_entry
         if changelog.exists():
-            content += changelog.read_text(encoding="utf-8")
+            content = changelog.read_text(encoding="utf-8")
+            # Look for the first existing version header
+            match = re.search(r"(## \[v\d+\.\d+\.\d+\])", content)
+            if match:
+                idx = match.start()
+                content = content[:idx] + new_entry + content[idx:]
+            else:
+                # If no version header found, append after intro
+                if "# Changelog" in content:
+                    content = content.replace(
+                        "# Changelog", "# Changelog\n\n" + new_entry.strip()
+                    )
+                else:
+                    content = "# Changelog\n\n" + new_entry + content
+        else:
+            content = "# Changelog\n\n" + new_entry
+
         changelog.write_text(content, encoding="utf-8")
 
     def format_files(self) -> bool:
