@@ -1,3 +1,9 @@
+## [v1.4.0] - 2026-04-05
+
+### Added
+
+- improve kit-release script
+
 ## [v1.3.3] - 2026-04-05
 
 ### Fixed
