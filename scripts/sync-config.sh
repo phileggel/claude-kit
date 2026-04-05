@@ -4,11 +4,9 @@ set -euo pipefail
 # sync-config.sh — Pull tauri-claude-kit into the current project
 #
 # Usage:
-#   ./scripts/sync-config.sh          # pulls latest main
-#   ./scripts/sync-config.sh v1.2.0   # pulls a specific tag
+#   ./scripts/sync-config.sh          # pulls latest release tag
 
 REPO="https://github.com/phileggel/tauri-claude-kit"
-VERSION="${1:-main}"
 
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
@@ -18,7 +16,11 @@ NC='\033[0m'
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
 
-# Step 1: Clone the kit (needed for self-update check and sync)
+# Fetch latest tag from remote
+LATEST_TAG=$(git ls-remote --tags --sort="v:refname" "$REPO" | tail -n1 | sed 's/.*\///; s/\^{}//')
+VERSION="$LATEST_TAG"
+
+# Step 1: Clone the kit
 TMP=$(mktemp -d)
 
 echo -e "${BLUE}⬇  Cloning tauri-claude-kit@${VERSION}...${NC}"
@@ -30,7 +32,7 @@ if ! diff -q "$SELF" "$TMP/scripts/sync-config.sh" >/dev/null 2>&1; then
     cp "$TMP/scripts/sync-config.sh" "$SELF"
     chmod +x "$SELF"
     rm -rf "$TMP"
-    exec "$SELF" "$@"
+    exec "$SELF"
 fi
 
 # Step 3: Sync all files (repo already cloned in $TMP)

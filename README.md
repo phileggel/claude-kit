@@ -21,17 +21,17 @@ scripts/
 ```bash
 # 1. Copy the sync script into your project
 curl -o scripts/sync-config.sh \
-  https://raw.githubusercontent.com/your-username/tauri-claude-kit/main/scripts/sync-config.sh
+  https://raw.githubusercontent.com/phileggel/tauri-claude-kit/main/scripts/sync-config.sh
 chmod +x scripts/sync-config.sh
 
 # 2. Run initial sync
-./scripts/sync-config.sh v1.0.0
+./scripts/sync-config.sh
 ```
 
 ## Updating an existing project
 
 ```bash
-./scripts/sync-config.sh v1.1.0
+./scripts/sync-config.sh
 ```
 
 This will:
