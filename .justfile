@@ -1,1 +1,1 @@
-import ".justfile-common"
+import "common.just"
