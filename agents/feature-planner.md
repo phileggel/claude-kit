@@ -15,28 +15,36 @@ Given a feature spec document, you must produce a comprehensive, step-by-step im
 ## Process
 
 ### Step 1 — Knowledge Extraction & ADR Analysis
+
 Read the spec doc (e.g., `docs/spec/asset-pricing.md`) and identify:
+
 - All **Rn rules**, their scope (frontend / backend / both), and descriptions.
 - Entities and UI components to be created or modified.
 - Cross-context dependencies.
 - **CRITICAL**: Read `docs/adr/` to identify technical constraints (e.g., ADR-001 for currency types, ADR-002 for soft-delete) that MUST dictate the implementation details.
 
-*If the spec contains no Rn rules, report it and ask the user to complete it via `/spec-writer` before proceeding.*
+_If the spec contains no Rn rules, report it and ask the user to complete it via `/spec-writer` before proceeding._
 
 ### Step 2 — Architectural Contextualization
+
 Read the following to ensure compliance:
+
 - `ARCHITECTURE.md`: Bounded contexts, module layout, data flow, naming conventions.
 - `docs/backend-rules.md`: Factory methods, service layer, repository traits.
 - `docs/frontend-rules.md`: Gateway, hook, component patterns, colocated tests.
 - `docs/testing.md`: Testing conventions (inline `#[cfg(test)]` for Rust, colocated `.test.ts` for React).
 
 ### Step 3 — Codebase Verification
+
 Verify existing paths using `Glob` or `Grep` before referencing them in the plan:
+
 - **Backend**: `src-tauri/src/context/{domain}/` (domain.rs, service.rs, repository.rs, api.rs) and `src-tauri/src/core/specta_builder.rs`.
 - **Frontend**: `src/features/{domain}/` (gateway.ts, hooks, components, i18n) and `src/bindings.ts`.
 
 ### Step 4 — Mapping & Dependency Graph
+
 For each Rn rule, identify concrete tasks:
+
 - Determine if it requires a creation or a modification.
 - Map which layer(s) are affected.
 - **ADR Application**: Explicitly mention ADR constraints in the tasks (e.g., "Implement amount using i64 as per ADR-001").
@@ -49,7 +57,9 @@ For each Rn rule, identify concrete tasks:
 You MUST generate and **WRITE** a file with the following sections:
 
 ### 1. Workflow TaskList (Derived from CLAUDE.md)
+
 A synthetic checklist for mandatory quality and process steps:
+
 - [ ] 📖 Review Architecture & Rules (`ARCHITECTURE.md`, `backend-rules.md`, `frontend-rules.md`)
 - [ ] 🏗️ Backend Implementation (Domain, Repository, Service, API)
 - [ ] 🔗 Type Synchronization (`just generate-types`)
@@ -63,7 +73,9 @@ A synthetic checklist for mandatory quality and process steps:
 - [ ] ✅ Final Validation (`spec-checker` + `workflow-validator`)
 
 ### 2. Detailed Implementation Plan
+
 A granular breakdown by architectural layer:
+
 - **Backend**: Exact file paths, struct names, factory methods (`new`, `update_from`, `from_storage`), service methods, and Tauri handlers.
 - **Frontend**: Exact file paths, gateway methods, custom hooks, and React components.
 - **Rules Coverage**: A table mapping every Rn rule to its corresponding implementation task.
@@ -76,6 +88,6 @@ A granular breakdown by architectural layer:
 2. **Path Verification**: Every file path must be verified with `Glob` before being included—never invent paths.
 3. **Convention Adherence**: Use Rust `snake_case` and TypeScript `camelCase`.
 4. **Synchronization**: Always include `just generate-types` as a mandatory step between Backend and Frontend tasks.
-5. **No Code Implementation**: Your output is a plan describing *what* to do and *where*, not the actual code.
+5. **No Code Implementation**: Your output is a plan describing _what_ to do and _where_, not the actual code.
 6. **Task Tracking**: Ensure the main agent can progressively update the checkboxes in this file during the implementation phase.
 7. **Cross-Context**: If a use case spans multiple bounded contexts, use `src-tauri/src/use_cases/`—never cross-import between `context/` modules directly.

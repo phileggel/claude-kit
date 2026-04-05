@@ -25,7 +25,7 @@ echo -e "${BLUE}⬇  Cloning tauri-claude-kit@${VERSION}...${NC}"
 git clone --depth 1 --branch "$VERSION" "$REPO" "$TMP" --quiet
 
 # Step 2: Self-update check — if sync-config.sh changed, re-exec with new version
-if ! diff -q "$SELF" "$TMP/scripts/sync-config.sh" > /dev/null 2>&1; then
+if ! diff -q "$SELF" "$TMP/scripts/sync-config.sh" >/dev/null 2>&1; then
     echo -e "${YELLOW}🔄 sync-config.sh has changed, self-updating and re-running...${NC}"
     cp "$TMP/scripts/sync-config.sh" "$SELF"
     chmod +x "$SELF"
@@ -42,9 +42,9 @@ cp "$TMP/agents/"*.md "$PROJECT_ROOT/.claude/agents/"
 
 echo -e "${BLUE}📁 Syncing skills...${NC}"
 for skill_dir in "$TMP/skills/"/*/; do
-  skill_name=$(basename "$skill_dir")
-  mkdir -p "$PROJECT_ROOT/.claude/skills/$skill_name"
-  cp "$skill_dir/SKILL.md" "$PROJECT_ROOT/.claude/skills/$skill_name/"
+    skill_name=$(basename "$skill_dir")
+    mkdir -p "$PROJECT_ROOT/.claude/skills/$skill_name"
+    cp "$skill_dir/SKILL.md" "$PROJECT_ROOT/.claude/skills/$skill_name/"
 done
 
 echo -e "${BLUE}📁 Syncing scripts...${NC}"
@@ -60,7 +60,7 @@ cp "$TMP/.githooks/README.md" "$PROJECT_ROOT/.githooks/"
 echo -e "${BLUE}📁 Syncing common justfile...${NC}"
 cp "$TMP/common.just" "$PROJECT_ROOT/common.just"
 
-echo "$VERSION" > "$PROJECT_ROOT/.claude-kit-version"
+echo "$VERSION" >"$PROJECT_ROOT/.claude-kit-version"
 
 echo -e "${GREEN}✅ Synced tauri-claude-kit@${VERSION}${NC}"
 echo -e "${YELLOW}→ Review changes before committing (git diff).${NC}"
