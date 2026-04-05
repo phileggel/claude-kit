@@ -115,6 +115,23 @@ class ReleaseManager:
             content += changelog.read_text(encoding="utf-8")
         changelog.write_text(content, encoding="utf-8")
 
+    def format_files(self) -> bool:
+        """Run 'just format' to ensure CHANGELOG and code are clean."""
+        print(f"{BLUE}Formatting files...{NC}")
+        try:
+            subprocess.run(
+                ["just", "format"],
+                cwd=self.repo_root,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            print(f"{GREEN}✓ Files formatted{NC}")
+            return True
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            print(f"{RED}⚠ Formatting failed: {e}{NC}")
+            return False
+
     def run(self):
         self.analyze_commits()
         new_version = self.calculate_new_version()
@@ -126,6 +143,10 @@ class ReleaseManager:
             return
 
         self.update_changelog(new_version)
+
+        if not self.format_files():
+            print(f"{RED}Release cancelled due to formatting error.{NC}")
+            return
 
         subprocess.run(["git", "add", "CHANGELOG.md"], check=True)
         subprocess.run(
