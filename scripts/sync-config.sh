@@ -53,7 +53,7 @@ cp "$TMP/.githooks/pre-push" "$PROJECT_ROOT/.githooks/"
 cp "$TMP/.githooks/README.md" "$PROJECT_ROOT/.githooks/"
 
 echo -e "${BLUE}📁 Syncing common justfile...${NC}"
-cp "$TMP/.justfile-common" "$PROJECT_ROOT/.justfile-common"
+cp "$TMP/common.just" "$PROJECT_ROOT/common.just"
 
 echo "$REAL_VERSION" > "$PROJECT_ROOT/.claude-kit-version"
 
