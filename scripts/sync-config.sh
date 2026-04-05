@@ -7,7 +7,7 @@ set -euo pipefail
 #   ./scripts/sync-config.sh          # pulls latest main
 #   ./scripts/sync-config.sh v1.2.0   # pulls a specific tag
 
-REPO="https://github.com/phil-demeyer/tauri-claude-kit"
+REPO="https://github.com/phileggel/tauri-claude-kit"
 VERSION="${1:-main}"
 
 YELLOW='\033[1;33m'
@@ -43,6 +43,7 @@ done
 echo -e "${BLUE}📁 Syncing scripts...${NC}"
 cp "$TMP/scripts/check.py" "$PROJECT_ROOT/scripts/"
 cp "$TMP/scripts/release.py" "$PROJECT_ROOT/scripts/"
+cp "$TMP/scripts/sync-config.sh" "$PROJECT_ROOT/scripts/"
 
 echo -e "${BLUE}📁 Syncing .githooks...${NC}"
 mkdir -p "$PROJECT_ROOT/.githooks"
