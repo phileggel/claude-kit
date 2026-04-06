@@ -8,3 +8,6 @@ format:
     ruff check --fix scripts/
     shfmt -i 4 -w scripts/ .githooks/
     npx prettier --write "**/*.md" --ignore-path .gitignore
+
+stat:
+    cloc . --vcs=git
