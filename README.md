@@ -56,3 +56,14 @@ To release this kit, use `python3 scripts/release-kit.py <major|minor|patch>`.
 ## Project-specific overrides
 
 Local adaptations (e.g. project-specific rules in an agent) can be kept in the concrete project. They will be overwritten on the next `sync-config.sh` run — keep a note of what to re-apply.
+
+---
+
+## 👤 Author & Architect
+
+**Philippe Eggel**
+* **Role:** System Architect & AI Workflow Orchestrator
+* **Methodology:** Spec-Driven Development (SDD) & AI-Augmented Engineering
+* **GitHub:** [@phileggel](https://github.com/phileggel)
+
+> "The code is a commodity; the specification and the alignment workflow are the real assets."
