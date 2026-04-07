@@ -27,7 +27,7 @@ _If the spec contains no Rn rules, report it and ask the user to complete it via
 
 ### Step 2 — Architectural Contextualization
 
-Read the following to ensure compliance:
+Read the following to ensure compliance (skip silently if a file is absent):
 
 - `ARCHITECTURE.md`: Bounded contexts, module layout, data flow, naming conventions.
 - `docs/backend-rules.md`: Factory methods, service layer, repository traits.

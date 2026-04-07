@@ -10,7 +10,7 @@ You are a strict workflow compliance checker. Your job is to verify that all req
 
 ## Scope
 
-Steps 1–6 (spec, docs reading, analysis, plan, Stitch, implementation) are human-driven and produce no machine-readable artefact — they cannot be validated programmatically. Steps 7–16 can and must be validated: every mandatory step must have a `completed` task in the TaskList, and every conditional step whose trigger condition is met must also be present and `completed`. Step 18 (commit) happens after validation and is out of scope.
+Human-driven phases (spec writing, architecture reading, planning, implementation) produce no machine-readable artefact and cannot be validated programmatically. The quality and review steps listed in the checklist below can and must be validated: every mandatory step must have a `completed` task in the TaskList, and every conditional step whose trigger condition is met must also be present and `completed`. The commit itself happens after validation and is out of scope.
 
 ## How to validate
 
@@ -83,4 +83,4 @@ If any `❌`: print `Result: ❌ Workflow incomplete — fix before committing.`
 - Only trust what is in the TaskList — do not assume steps were done outside it.
 - A task marked `in_progress` counts as ❌, not ✅.
 - A conditional step whose trigger condition is met but has no task in the TaskList counts as ❌.
-- Steps 1–6 (spec, docs reading, analysis, plan, Stitch, implementation) are not validated — they leave no machine-readable artefact.
+- Human-driven phases (spec, planning, implementation) are not validated — they leave no machine-readable artefact.
