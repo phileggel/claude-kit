@@ -36,7 +36,6 @@ Read for comparison:
 - `ARCHITECTURE.md` — **CRITICAL**: Verify that the feature belongs to the right bounded context and that entity relationships follow the defined data flow.
 - `docs/adr/` — Read all ADRs to ensure the spec doesn't violate a past technical decision (e.g., storage formats, deletion strategies).
 - `docs/*.md` (excluding rules/todo) — to detect functional conflicts between features.
-- `src-tauri/src/context/` — to check the current domain implementation.
 
 ### Step 3 — Apply review checks
 
