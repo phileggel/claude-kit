@@ -1,6 +1,6 @@
 ---
 name: spec-checker
-description: Verifies that all business rules (R1, R2… Rn) in a feature spec doc are fully implemented in code and covered by tests.
+description: Verifies that all business rules (R1, R2… Rn) in a feature spec doc are fully implemented in code and covered by tests. Use when implementation is complete and ready for spec compliance check.
 tools: Read, Grep, Glob, Bash
 ---
 
@@ -23,6 +23,8 @@ The user normally passes the spec path explicitly. If no document is specified, 
 
 ### Step 2 — Check backend implementation
 
+If `src-tauri/src/` does not exist, skip this step and note it in the summary.
+
 For each backend rule:
 
 - Search for relevant code in `src-tauri/src/` using Grep/Glob
@@ -31,6 +33,8 @@ For each backend rule:
 - **ADR Audit**: Verify that the technical implementation (data types, library usage, patterns) respects the active ADRs identified in Step 1.
 
 ### Step 3 — Check frontend implementation
+
+If `src/features/` does not exist, skip this step and note it in the summary.
 
 For each frontend rule:
 

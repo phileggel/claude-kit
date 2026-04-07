@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Code reviewer for Tauri 2 / React 19 / Rust projects. Checks DDD compliance, backend rules, frontend rules, and general code quality on modified files.
+description: Code reviewer for Tauri 2 / React 19 / Rust projects. Checks DDD compliance, backend rules, frontend rules, and general code quality on modified files. Use when any .rs, .ts, or .tsx file is modified.
 tools: Read, Grep, Glob, Bash
 ---
 

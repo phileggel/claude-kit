@@ -130,6 +130,19 @@ class ReleaseManager:
 
         changelog.write_text(content, encoding="utf-8")
 
+    def quality_check(self) -> bool:
+        """Run check-kit.py to validate code quality before release."""
+        print(f"{BLUE}Running quality checks...{NC}")
+        result = subprocess.run(
+            ["python3", "scripts/check-kit.py"],
+            cwd=self.repo_root,
+        )
+        if result.returncode != 0:
+            print(f"{RED}✗ Quality check failed — fix issues before releasing.{NC}")
+            return False
+        print(f"{GREEN}✓ Quality check passed{NC}")
+        return True
+
     def format_files(self) -> bool:
         """Run 'just format' to ensure CHANGELOG and code are clean."""
         print(f"{BLUE}Formatting files...{NC}")
@@ -148,6 +161,9 @@ class ReleaseManager:
             return False
 
     def run(self):
+        if not self.quality_check():
+            return
+
         self.analyze_commits()
         new_version = self.calculate_new_version()
 

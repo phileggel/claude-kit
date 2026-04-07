@@ -4,9 +4,9 @@ kit-release:
 
 # Auto-fix formatting and linting for this kit
 format:
-    ruff format scripts/
-    ruff check --fix scripts/
-    shfmt -i 4 -w scripts/ .githooks/
+    ruff format scripts/ kit/scripts/
+    ruff check --fix scripts/ kit/scripts/
+    shfmt -i 4 -w kit/scripts/ kit/githooks/
     npx prettier --write "**/*.md" --ignore-path .gitignore
 
 stat:

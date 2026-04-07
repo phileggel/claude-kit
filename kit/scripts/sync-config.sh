@@ -27,9 +27,9 @@ echo -e "${BLUE}⬇  Cloning tauri-claude-kit@${VERSION}...${NC}"
 git clone --depth 1 --branch "$VERSION" "$REPO" "$TMP" --quiet
 
 # Step 2: Self-update check — if sync-config.sh changed, re-exec with new version
-if ! diff -q "$SELF" "$TMP/scripts/sync-config.sh" >/dev/null 2>&1; then
+if ! diff -q "$SELF" "$TMP/kit/scripts/sync-config.sh" >/dev/null 2>&1; then
     echo -e "${YELLOW}🔄 sync-config.sh has changed, self-updating and re-running...${NC}"
-    cp "$TMP/scripts/sync-config.sh" "$SELF"
+    cp "$TMP/kit/scripts/sync-config.sh" "$SELF"
     chmod +x "$SELF"
     rm -rf "$TMP"
     exec "$SELF"
@@ -40,27 +40,30 @@ trap 'rm -rf "$TMP"' EXIT
 
 echo -e "${BLUE}📁 Syncing agents...${NC}"
 mkdir -p "$PROJECT_ROOT/.claude/agents"
-cp "$TMP/agents/"*.md "$PROJECT_ROOT/.claude/agents/"
+for agent in "$TMP/kit/agents/"*.md; do
+    cp "$agent" "$PROJECT_ROOT/.claude/agents/"
+done
 
 echo -e "${BLUE}📁 Syncing skills...${NC}"
-for skill_dir in "$TMP/skills/"/*/; do
+for skill_dir in "$TMP/kit/skills/"/*/; do
     skill_name=$(basename "$skill_dir")
     mkdir -p "$PROJECT_ROOT/.claude/skills/$skill_name"
     cp "$skill_dir/SKILL.md" "$PROJECT_ROOT/.claude/skills/$skill_name/"
 done
 
 echo -e "${BLUE}📁 Syncing scripts...${NC}"
-cp "$TMP/scripts/check.py" "$PROJECT_ROOT/scripts/"
-cp "$TMP/scripts/release.py" "$PROJECT_ROOT/scripts/"
+cp "$TMP/kit/scripts/check.py" "$PROJECT_ROOT/scripts/"
+cp "$TMP/kit/scripts/release.py" "$PROJECT_ROOT/scripts/"
+cp "$TMP/kit/scripts/sync-config.sh" "$PROJECT_ROOT/scripts/"
 
 echo -e "${BLUE}📁 Syncing .githooks...${NC}"
-cp "$TMP/.githooks/commit-msg" "$PROJECT_ROOT/.githooks/"
-cp "$TMP/.githooks/pre-commit" "$PROJECT_ROOT/.githooks/"
-cp "$TMP/.githooks/pre-push" "$PROJECT_ROOT/.githooks/"
-cp "$TMP/.githooks/README.md" "$PROJECT_ROOT/.githooks/"
+cp "$TMP/kit/githooks/commit-msg" "$PROJECT_ROOT/.githooks/"
+cp "$TMP/kit/githooks/pre-commit" "$PROJECT_ROOT/.githooks/"
+cp "$TMP/kit/githooks/pre-push" "$PROJECT_ROOT/.githooks/"
+cp "$TMP/kit/githooks/README.md" "$PROJECT_ROOT/.githooks/"
 
 echo -e "${BLUE}📁 Syncing common justfile...${NC}"
-cp "$TMP/common.just" "$PROJECT_ROOT/common.just"
+cp "$TMP/kit/common.just" "$PROJECT_ROOT/common.just"
 
 echo "$VERSION" >"$PROJECT_ROOT/.claude-kit-version"
 

@@ -10,7 +10,7 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
 2.  **Direct Plan**: Propose a concise TODO plan with exact file paths in the chat. Ask user to validate.
 3.  **Tracking**: Use internal `TaskCreate` / `TaskUpdate` tools to track workflow steps (mark `in_progress` when starting, `completed` when done) for user visibility.
 4.  **Implementation**: Execute the code changes.
-5.  **Review & Quality**: Run static checks (`python3 scripts/check.py`), write tests, and run the relevant subagents (`reviewer`, `script-reviewer`, etc.) just like in Phase 3 of the Full Workflow.
+5.  **Review & Quality**: Run static checks (`python3 scripts/check-kit.py`), write tests, and run the relevant subagents (`reviewer`, `script-reviewer`, etc.) just like in Phase 3 of the Full Workflow.
 6.  **Closure**: Ask user if another task is needed before commit, otherwise use **`/smart-commit`** skill.
 
 ## Critical Patterns
@@ -49,20 +49,35 @@ Run releases via `python3 scripts/release-kit.py` (interactive).
 
 ## Git hooks
 
-Hooks in `.githooks/` must be activated in downstream projects:
+Hooks in `kit/githooks/` are synced to `.githooks/` in downstream projects and must be activated:
 
 ```bash
 git config core.hooksPath .githooks
 ```
 
-- **pre-commit**: runs `python3 scripts/check.py --fast` (lint/format only)
+- **pre-commit**: runs `python3 scripts/check-kit.py --fast` (lint/format only)
 - **commit-msg**: enforces conventional commit format (`type: description`, max 72 chars, no co-author lines, no test results in message)
 
 Valid commit types: `feat`, `fix`, `docs`, `test`, `chore`, `refactor`
 
+## Repository layout
+
+```
+kit/            ← everything synced downstream (agents, skills, hooks, scripts)
+  agents/       → .claude/agents/ in downstream projects
+  skills/       → .claude/skills/ in downstream projects
+  githooks/     → .githooks/ in downstream projects
+  scripts/      → scripts/ in downstream projects (check.py, release.py)
+  common.just   → common.just in downstream projects
+
+scripts/        ← kit-only tooling (not synced)
+  sync-config.sh   kit sync script
+  release-kit.py   kit release manager
+```
+
 ## Agents
 
-Defined in `agents/*.md`, synced to `.claude/agents/` in downstream projects:
+Defined in `kit/agents/*.md`, synced to `.claude/agents/` in downstream projects:
 
 | Agent                | Purpose                                                               |
 | -------------------- | --------------------------------------------------------------------- |
@@ -73,13 +88,12 @@ Defined in `agents/*.md`, synced to `.claude/agents/` in downstream projects:
 | `spec-reviewer`      | Spec quality gate before implementation                               |
 | `spec-checker`       | Verifies all spec business rules (R1, R2…) are implemented and tested |
 | `feature-planner`    | Translates spec to implementation plan with exact file paths          |
-| `ia-reviewer`        | Meta-reviewer for agent/skill/CLAUDE.md correctness                   |
 | `i18n-checker`       | Hardcoded strings, missing/unused translation keys                    |
 | `workflow-validator` | Validates all required workflow steps were done before commit         |
 
 ## Skills
 
-Defined in `skills/*/SKILL.md`, synced to `.claude/skills/` in downstream projects:
+Defined in `kit/skills/*/SKILL.md`, synced to `.claude/skills/` in downstream projects:
 
 | Skill          | Purpose                                                                  |
 | -------------- | ------------------------------------------------------------------------ |
@@ -95,15 +109,15 @@ These are available in `.claude/` for working on the kit itself. They are **not 
 | Type | Name | When to use |
 |---|---|---|
 | agent | `kit-ia-reviewer` | After creating or modifying any agent, skill, or CLAUDE.md — validates correctness, clarity, and internal consistency |
-| agent | `kit-maintainer` | Before a release or when touching scripts/hooks referenced from CI |
-| agent | `kit-script-reviewer` | After modifying any file in `scripts/` or `.githooks/` |
+| agent | `kit-maintainer` | Before a release or when touching `scripts/` or CI |
+| agent | `kit-script-reviewer` | After modifying any file in `scripts/` or `kit/githooks/` |
 | skill | `smart-commit` | To create a validated conventional commit (`/smart-commit`) |
 
-> Keep these in sync manually when their sources in `agents/` or `skills/` change.
+> Keep these in sync manually when their sources in `kit/agents/` or `kit/skills/` change.
 
 ## common.just
 
-Shared justfile recipes intended to be imported into downstream project justfiles. Key recipes:
+`kit/common.just` contains shared justfile recipes intended to be imported into downstream project justfiles. Key recipes:
 
 - `just check` — fast quality check (lint/format only)
 - `just check-full` — full quality check including tests and build
