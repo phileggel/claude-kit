@@ -88,6 +88,19 @@ Defined in `skills/*/SKILL.md`, synced to `.claude/skills/` in downstream projec
 | `adr-manager`  | Create/update Architecture Decision Records in `docs/adr/`               |
 | `spec-writer`  | Interactive spec creation (also available as a skill)                    |
 
+## Local agents & skills (kit development only)
+
+These are available in `.claude/` for working on the kit itself. They are **not synced** to downstream projects.
+
+| Type | Name | When to use |
+|---|---|---|
+| agent | `ia-reviewer` | After creating or modifying any agent, skill, or CLAUDE.md — validates correctness, clarity, and internal consistency |
+| agent | `maintainer` | Before a release or when touching scripts/hooks referenced from CI |
+| agent | `script-reviewer` | After modifying any file in `scripts/` or `.githooks/` |
+| skill | `smart-commit` | To create a validated conventional commit (`/smart-commit`) |
+
+> Keep these in sync manually when their sources in `agents/` or `skills/` change.
+
 ## common.just
 
 Shared justfile recipes intended to be imported into downstream project justfiles. Key recipes:
