@@ -1,5 +1,5 @@
 ---
-name: script-reviewer
+name: kit-script-reviewer
 description: Bash and Python script quality reviewer. The authoritative expert on internal script quality. Reviews scripts/ and .githooks/ files for correctness (set -euo pipefail, shebang, quoting), robustness, portability, and security. Use when any .sh, .py, or .githooks file is created or modified.
 tools: Read, Grep, Glob, Bash
 ---

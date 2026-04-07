@@ -94,9 +94,9 @@ These are available in `.claude/` for working on the kit itself. They are **not 
 
 | Type | Name | When to use |
 |---|---|---|
-| agent | `ia-reviewer` | After creating or modifying any agent, skill, or CLAUDE.md — validates correctness, clarity, and internal consistency |
-| agent | `maintainer` | Before a release or when touching scripts/hooks referenced from CI |
-| agent | `script-reviewer` | After modifying any file in `scripts/` or `.githooks/` |
+| agent | `kit-ia-reviewer` | After creating or modifying any agent, skill, or CLAUDE.md — validates correctness, clarity, and internal consistency |
+| agent | `kit-maintainer` | Before a release or when touching scripts/hooks referenced from CI |
+| agent | `kit-script-reviewer` | After modifying any file in `scripts/` or `.githooks/` |
 | skill | `smart-commit` | To create a validated conventional commit (`/smart-commit`) |
 
 > Keep these in sync manually when their sources in `agents/` or `skills/` change.

@@ -59,10 +59,10 @@ For each rule:
 For each rule, output one line:
 
 ```
-R1  ✅ implemented + tested     — BankManualMatchOrchestrator::create_fund_transfer (orchestrator.rs:96)
-R2  ✅ implemented, ⚠️ no test  — BankTransferType enum (domain.rs:12)
-R3  ⚠️ partial                  — amount display present, but not read-only in EditBankTransferModal
-R4  ❌ not found                — no enforcement of immutable transfer_type on update
+R1  ✅ implemented + tested     — CreateSomeEntity::execute (use_case.rs:96)
+R2  ✅ implemented, ⚠️ no test  — SomeStatusEnum (domain.rs:12)
+R3  ⚠️ partial                  — field display present, but not read-only in EditSomeModal
+R4  ❌ not found                — no enforcement of immutable field_name on update
 ```
 
 Status legend:

@@ -1,5 +1,5 @@
 ---
-name: maintainer
+name: kit-maintainer
 description: Project maintainer reviewer for Tauri 2 / React 19 / Rust projects. Reviews GitHub Actions workflows and project config files (tauri.conf.json, Cargo.toml, package.json). Also checks how scripts/, .githooks/, and justfile are referenced and used from CI and config (not their internal quality — use script-reviewer for that). Delegates dependency audit to the /dep-audit skill when invoked before a release. Checks for correctness, security, performance, and consistency issues. Use when any workflow or config file is modified, or before cutting a release.
 tools: Read, Grep, Glob, Bash
 ---
