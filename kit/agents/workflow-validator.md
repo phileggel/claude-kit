@@ -23,6 +23,7 @@ The plan file (`docs/spec/{feature}-plan.md`) is the machine-readable source of 
 ### Step 2 — Extract the Workflow TaskList
 
 Read the plan file and extract every checkbox item from the "Workflow TaskList" section:
+
 - `[x]` → done
 - `[ ]` → not done
 

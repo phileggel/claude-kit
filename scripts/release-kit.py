@@ -160,7 +160,7 @@ class ReleaseManager:
             print(f"{RED}⚠ Formatting failed: {e}{NC}")
             return False
 
-    def run(self):
+    def run(self, yes: bool = False):
         if not self.quality_check():
             return
 
@@ -168,10 +168,11 @@ class ReleaseManager:
         new_version = self.calculate_new_version()
 
         print(f"{BLUE}Current: {self.current_version} | Suggested: {new_version}{NC}")
-        confirm = input(f"{YELLOW}Release {new_version}? (y/n): {NC}")
-        if confirm.lower() != "y":
-            print("Release aborted.")
-            return
+        if not yes:
+            confirm = input(f"{YELLOW}Release {new_version}? (y/n): {NC}")
+            if confirm.lower() != "y":
+                print("Release aborted.")
+                return
 
         self.update_changelog(new_version)
 
@@ -191,4 +192,6 @@ class ReleaseManager:
 
 
 if __name__ == "__main__":
-    ReleaseManager().run()
+    import sys
+
+    ReleaseManager().run(yes="-y" in sys.argv or "--yes" in sys.argv)

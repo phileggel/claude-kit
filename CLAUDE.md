@@ -106,12 +106,12 @@ Defined in `kit/skills/*/SKILL.md`, synced to `.claude/skills/` in downstream pr
 
 These are available in `.claude/` for working on the kit itself. They are **not synced** to downstream projects.
 
-| Type | Name | When to use |
-|---|---|---|
-| agent | `kit-ia-reviewer` | After creating or modifying any agent, skill, or CLAUDE.md — validates correctness, clarity, and internal consistency |
-| agent | `kit-maintainer` | Before a release or when touching `scripts/` or CI |
-| agent | `kit-script-reviewer` | After modifying any file in `scripts/` or `kit/githooks/` |
-| skill | `smart-commit` | To create a validated conventional commit (`/smart-commit`) |
+| Type  | Name                  | When to use                                                                                                           |
+| ----- | --------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| agent | `kit-ia-reviewer`     | After creating or modifying any agent, skill, or CLAUDE.md — validates correctness, clarity, and internal consistency |
+| agent | `kit-maintainer`      | Before a release or when touching `scripts/` or CI                                                                    |
+| agent | `kit-script-reviewer` | After modifying any file in `scripts/` or `kit/githooks/`                                                             |
+| skill | `smart-commit`        | To create a validated conventional commit (`/smart-commit`)                                                           |
 
 > Keep these in sync manually when their sources in `kit/agents/` or `kit/skills/` change.
 

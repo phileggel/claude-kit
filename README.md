@@ -21,7 +21,7 @@ scripts/
 ```bash
 # 1. Copy the sync script into your project
 curl -o scripts/sync-config.sh \
-  https://raw.githubusercontent.com/phileggel/tauri-claude-kit/main/scripts/sync-config.sh
+  https://raw.githubusercontent.com/phileggel/tauri-claude-kit/main/kit/scripts/sync-config.sh
 chmod +x scripts/sync-config.sh
 
 # 2. Run initial sync
@@ -62,8 +62,9 @@ Local adaptations (e.g. project-specific rules in an agent) can be kept in the c
 ## 👤 Author & Architect
 
 **Philippe Eggel**
-* **Role:** System Architect & AI Workflow Orchestrator
-* **Methodology:** Spec-Driven Development (SDD) & AI-Augmented Engineering
-* **GitHub:** [@phileggel](https://github.com/phileggel)
+
+- **Role:** System Architect & AI Workflow Orchestrator
+- **Methodology:** Spec-Driven Development (SDD) & AI-Augmented Engineering
+- **GitHub:** [@phileggel](https://github.com/phileggel)
 
 > "The code is a commodity; the specification and the alignment workflow are the real assets."
