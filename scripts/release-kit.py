@@ -160,12 +160,12 @@ class ReleaseManager:
             print(f"{RED}⚠ Formatting failed: {e}{NC}")
             return False
 
-    def run(self, yes: bool = False):
+    def run(self, yes: bool = False, force_version: str = ""):
         if not self.quality_check():
             return
 
         self.analyze_commits()
-        new_version = self.calculate_new_version()
+        new_version = force_version if force_version else self.calculate_new_version()
 
         print(f"{BLUE}Current: {self.current_version} | Suggested: {new_version}{NC}")
         if not yes:
@@ -194,4 +194,6 @@ class ReleaseManager:
 if __name__ == "__main__":
     import sys
 
-    ReleaseManager().run(yes="-y" in sys.argv or "--yes" in sys.argv)
+    _yes = "-y" in sys.argv or "--yes" in sys.argv
+    _version = next((a for a in sys.argv[1:] if a.startswith("v")), "")
+    ReleaseManager().run(yes=_yes, force_version=_version)
