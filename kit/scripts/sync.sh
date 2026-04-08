@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# sync-config.sh — Pull tauri-claude-kit into the current project
+# sync.sh — Real sync logic for tauri-claude-kit.
 #
-# Usage:
-#   ./scripts/sync-config.sh          # pulls latest release tag
+# Executed from the cloned kit by the bootstrap (kit/sync-config.sh).
+# This script is ephemeral — it runs from $TMP and is cleaned up on exit.
+# Never run this script directly.
 
-REPO="https://github.com/phileggel/tauri-claude-kit"
+TMP="${KIT_TMP:?KIT_TMP not set — run via scripts/sync-config.sh}"
+VERSION="${1:?VERSION not set}"
+
+trap 'rm -rf "$TMP"' EXIT
 
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
@@ -14,29 +18,6 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
-SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
-
-# Fetch latest tag from remote
-LATEST_TAG=$(git ls-remote --tags --sort="v:refname" "$REPO" | tail -n1 | sed 's/.*\///; s/\^{}//')
-VERSION="$LATEST_TAG"
-
-# Step 1: Clone the kit
-TMP=$(mktemp -d)
-
-echo -e "${BLUE}⬇  Cloning tauri-claude-kit@${VERSION}...${NC}"
-git clone --depth 1 --branch "$VERSION" "$REPO" "$TMP" --quiet
-
-# Step 2: Self-update check — if sync-config.sh changed, re-exec with new version
-if ! diff -q "$SELF" "$TMP/kit/scripts/sync-config.sh" >/dev/null 2>&1; then
-    echo -e "${YELLOW}🔄 sync-config.sh has changed, self-updating and re-running...${NC}"
-    cp "$TMP/kit/scripts/sync-config.sh" "$SELF"
-    chmod +x "$SELF"
-    rm -rf "$TMP"
-    exec "$SELF"
-fi
-
-# Step 3: Sync all files (repo already cloned in $TMP)
-trap 'rm -rf "$TMP"' EXIT
 
 echo -e "${BLUE}📁 Syncing agents...${NC}"
 mkdir -p "$PROJECT_ROOT/.claude/agents"
@@ -52,11 +33,12 @@ for skill_dir in "$TMP/kit/skills/"/*/; do
 done
 
 echo -e "${BLUE}📁 Syncing scripts...${NC}"
+mkdir -p "$PROJECT_ROOT/scripts"
 cp "$TMP/kit/scripts/check.py" "$PROJECT_ROOT/scripts/"
 cp "$TMP/kit/scripts/release.py" "$PROJECT_ROOT/scripts/"
-cp "$TMP/kit/scripts/sync-config.sh" "$PROJECT_ROOT/scripts/"
 
 echo -e "${BLUE}📁 Syncing .githooks...${NC}"
+mkdir -p "$PROJECT_ROOT/.githooks"
 cp "$TMP/kit/githooks/commit-msg" "$PROJECT_ROOT/.githooks/"
 cp "$TMP/kit/githooks/pre-commit" "$PROJECT_ROOT/.githooks/"
 cp "$TMP/kit/githooks/pre-push" "$PROJECT_ROOT/.githooks/"

@@ -6,7 +6,7 @@ kit-release:
 format:
     ruff format scripts/ kit/scripts/
     ruff check --fix scripts/ kit/scripts/
-    shfmt -i 4 -w kit/scripts/ kit/githooks/
+    shfmt -i 4 -w kit/scripts/ kit/githooks/ kit/sync-config.sh
     npx prettier --write "**/*.md" --ignore-path .gitignore
 
 stat:

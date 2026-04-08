@@ -15,6 +15,8 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
 
 ## Critical Patterns
 
+- **Never commit without explicit user authorization.** Always use `/smart-commit` and wait for a clear "go" before any `git commit` or `git push` — including hotfixes, release commits, and one-liners. No exceptions.
+
 - **Project Name Neutrality:** Agent files MUST NOT reference a specific project name (e.g., "PortfolioManager").
   - ✅ Correct: "You are a senior code reviewer for a Tauri 2 / React 19 / Rust project."
   - ❌ Wrong: "You are a senior code reviewer for PortfolioManager."
@@ -63,16 +65,20 @@ Valid commit types: `feat`, `fix`, `docs`, `test`, `chore`, `refactor`
 ## Repository layout
 
 ```
-kit/            ← everything synced downstream (agents, skills, hooks, scripts)
-  agents/       → .claude/agents/ in downstream projects
-  skills/       → .claude/skills/ in downstream projects
-  githooks/     → .githooks/ in downstream projects
-  scripts/      → scripts/ in downstream projects (check.py, release.py)
-  common.just   → common.just in downstream projects
+kit/                  ← everything synced downstream
+  sync-config.sh      → scripts/sync-config.sh (bootstrap, copied once — never overwritten by sync)
+  agents/             → .claude/agents/
+  skills/             → .claude/skills/
+  githooks/           → .githooks/
+  scripts/
+    sync.sh           ephemeral sync logic (runs from $TMP, never copied to downstream)
+    check.py          → scripts/check.py
+    release.py        → scripts/release.py
+  common.just         → common.just
 
-scripts/        ← kit-only tooling (not synced)
-  sync-config.sh   kit sync script
-  release-kit.py   kit release manager
+scripts/              ← kit-only tooling (not synced)
+  check-kit.py        kit quality checker
+  release-kit.py      kit release manager
 ```
 
 ## Agents

@@ -5,33 +5,44 @@ Shared Claude Code configuration for Tauri 2 / React 19 / Rust projects.
 ## Contents
 
 ```
-agents/          Claude Code subagent definitions (.claude/agents/)
-skills/          Claude Code skill definitions (.claude/skills/)
-scripts/
-  check.py       Full quality suite (lint, tests, build, SQLx, TSC)
-  release.py     Release manager (semver bump, changelog, tag, push)
-.githooks/
-  commit-msg     Conventional commit validation
-  pre-commit     Fast quality check before commit
-  pre-push       Full quality check before push
+kit/
+  sync-config.sh   Stable bootstrap entry point (copied once to downstream projects)
+  agents/          Claude Code subagent definitions → .claude/agents/
+  skills/          Claude Code skill definitions → .claude/skills/
+  githooks/        Git hooks → .githooks/
+  scripts/
+    sync.sh        Sync logic (ephemeral, runs from $TMP)
+    check.py       Full quality suite (lint, tests, build, SQLx, TSC)
+    release.py     Release manager (semver bump, changelog, tag, push)
+  common.just      Shared justfile recipes
 ```
 
 ## Setup in a new project
 
-```bash
-# 1. Copy the sync script into your project
-curl -o scripts/sync-config.sh \
-  https://raw.githubusercontent.com/phileggel/tauri-claude-kit/main/kit/scripts/sync-config.sh
-chmod +x scripts/sync-config.sh
+Copy the bootstrap once — it never needs to be updated again:
 
-# 2. Run initial sync
+```bash
+# curl
+curl -fsSL https://raw.githubusercontent.com/phileggel/tauri-claude-kit/main/kit/sync-config.sh \
+  -o scripts/sync-config.sh && chmod +x scripts/sync-config.sh
+
+# or wget
+wget -qO scripts/sync-config.sh \
+  https://raw.githubusercontent.com/phileggel/tauri-claude-kit/main/kit/sync-config.sh \
+  && chmod +x scripts/sync-config.sh
+```
+
+Then run the initial sync:
+
+```bash
 ./scripts/sync-config.sh
 ```
 
 ## Updating an existing project
 
 ```bash
-./scripts/sync-config.sh
+./scripts/sync-config.sh           # latest release
+./scripts/sync-config.sh v1.6.0    # specific tag
 ```
 
 This will:
@@ -40,6 +51,8 @@ This will:
 - Update `scripts/check.py` and `scripts/release.py`
 - Update `.githooks/`
 - Write the version to `.claude-kit-version`
+
+> `scripts/sync-config.sh` (the bootstrap) is never overwritten by a sync — it is intentionally stable.
 
 ## Versioning
 
