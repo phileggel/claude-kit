@@ -54,6 +54,23 @@ This will:
 
 > `scripts/sync-config.sh` (the bootstrap) is never overwritten by a sync — it is intentionally stable.
 
+## Migrating from v1.x
+
+The sync architecture changed in v2.0.0: `scripts/sync-config.sh` is now a stable bootstrap that never gets overwritten. Run this one-time command to migrate:
+
+```bash
+# curl
+curl -fsSL https://raw.githubusercontent.com/phileggel/tauri-claude-kit/main/kit/sync-config.sh \
+  -o scripts/sync-config.sh && chmod +x scripts/sync-config.sh && ./scripts/sync-config.sh
+
+# or wget
+wget -qO scripts/sync-config.sh \
+  https://raw.githubusercontent.com/phileggel/tauri-claude-kit/main/kit/sync-config.sh \
+  && chmod +x scripts/sync-config.sh && ./scripts/sync-config.sh
+```
+
+After this, future syncs work as usual with `./scripts/sync-config.sh`.
+
 ## Versioning
 
 This repo uses semantic versioning via git tags:
