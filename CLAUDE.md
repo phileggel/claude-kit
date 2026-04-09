@@ -10,7 +10,7 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
 2.  **Direct Plan**: Propose a concise TODO plan with exact file paths in the chat. Ask user to validate.
 3.  **Tracking**: Use internal `TaskCreate` / `TaskUpdate` tools to track workflow steps (mark `in_progress` when starting, `completed` when done) for user visibility.
 4.  **Implementation**: Execute the code changes.
-5.  **Review & Quality**: Run static checks (`python3 scripts/check-kit.py`), write tests, and run the relevant subagents (`reviewer`, `script-reviewer`, etc.) just like in Phase 3 of the Full Workflow.
+5.  **Review & Quality**: Run static checks (`python3 scripts/check-kit.py`), write tests, and run the relevant subagents (`kit-ia-reviewer`, `kit-script-reviewer`, etc.) as applicable.
 6.  **Closure**: Ask user if another task is needed before commit, otherwise use **`/smart-commit`** skill.
 
 ## Critical Patterns
@@ -60,7 +60,7 @@ git config core.hooksPath .githooks
 - **pre-commit**: runs `python3 scripts/check-kit.py --fast` (lint/format only)
 - **commit-msg**: enforces conventional commit format (`type: description`, max 72 chars, no co-author lines, no test results in message)
 
-Valid commit types: `feat`, `fix`, `docs`, `test`, `chore`, `refactor`
+Valid commit types: `feat`, `fix`, `docs`, `test`, `chore`, `refactor`, `ci`
 
 ## Repository layout
 
@@ -89,7 +89,7 @@ Defined in `kit/agents/*.md`, synced to `.claude/agents/` in downstream projects
 | -------------------- | --------------------------------------------------------------------- |
 | `reviewer`           | Code review: DDD, backend/frontend rules, general quality             |
 | `ux-reviewer`        | M3 design compliance, UX completeness (empty/loading/error states)    |
-| `maintainer`         | GitHub Actions workflows, config files, pre-release checks            |
+| `maintainer`         | GitHub Actions workflows, config files, pre-release checks; script/hook CI-reference consistency (not internal quality — use script-reviewer for that) |
 | `script-reviewer`    | Internal quality of `scripts/` and `.githooks/` files                 |
 | `spec-reviewer`      | Spec quality gate before implementation                               |
 | `spec-checker`       | Verifies all spec business rules (R1, R2…) are implemented and tested |

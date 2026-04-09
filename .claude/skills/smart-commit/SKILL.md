@@ -1,6 +1,7 @@
 ---
 name: smart-commit
 description: Create conventional commits in production context with strict validation, tests, linters, and confirmation.
+tools: Bash, AskUserQuestion
 ---
 
 # Skill — `smart-commit`
@@ -28,7 +29,7 @@ git status --porcelain | grep -E '\.(env|key|pem|secret|password)$|credentials'
 ### 3. Run tests and linters (mandatory)
 
 ```bash
-python3 scripts/check.py
+python3 scripts/check-kit.py
 ```
 
 - If any check fails: stop, report the failure, do not proceed to commit
@@ -58,6 +59,7 @@ Use **AskUserQuestion** to get:
 
 ### 6. Validate message format
 
+- Commit type must be one of: `feat`, `fix`, `docs`, `test`, `chore`, `refactor`, `ci`
 - Title ≤72 chars, body ≤5 lines
 - If non-compliant: return to step 5 and prompt the user to correct the message
 
@@ -67,7 +69,10 @@ Stage only the relevant files identified in step 1 (never use `git add -A` — i
 
 ```bash
 git add <file1> <file2> ...
-git commit -m "<type>[(scope)]: <message>"
+# Without scope:
+git commit -m "feat: add payment gateway"
+# With scope:
+git commit -m "feat(billing): add payment gateway"
 ```
 
 Format: `type: message` (no scope) or `type(scope): message` (with optional scope).
@@ -81,7 +86,7 @@ git log -1 --oneline
 ## Critical Rules
 
 1. Never commit sensitive files
-2. All tests must pass (`python3 scripts/check.py`) before committing
+2. All tests must pass (`python3 scripts/check-kit.py`) before committing
 3. All linters must pass
 4. Commit message must be in **English** and follow conventional format: `type: message` or `type(scope): message`
 5. Never use `git add -A` — stage files explicitly by name
