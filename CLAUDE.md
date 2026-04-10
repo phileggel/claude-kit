@@ -85,17 +85,17 @@ scripts/              ← kit-only tooling (not synced)
 
 Defined in `kit/agents/*.md`, synced to `.claude/agents/` in downstream projects:
 
-| Agent                | Purpose                                                               |
-| -------------------- | --------------------------------------------------------------------- |
-| `reviewer`           | Code review: DDD, backend/frontend rules, general quality             |
-| `ux-reviewer`        | M3 design compliance, UX completeness (empty/loading/error states)    |
+| Agent                | Purpose                                                                                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `reviewer`           | Code review: DDD, backend/frontend rules, general quality                                                                                              |
+| `ux-reviewer`        | M3 design compliance, UX completeness (empty/loading/error states)                                                                                     |
 | `maintainer`         | GitHub Actions workflows, config files, pre-release checks; script/hook CI-reference consistency (not internal quality — use script-reviewer for that) |
-| `script-reviewer`    | Internal quality of `scripts/` and `.githooks/` files                 |
-| `spec-reviewer`      | Spec quality gate before implementation                               |
-| `spec-checker`       | Verifies all spec business rules (R1, R2…) are implemented and tested |
-| `feature-planner`    | Translates spec to implementation plan with exact file paths          |
-| `i18n-checker`       | Hardcoded strings, missing/unused translation keys                    |
-| `workflow-validator` | Validates all required workflow steps were done before commit         |
+| `script-reviewer`    | Internal quality of `scripts/` and `.githooks/` files                                                                                                  |
+| `spec-reviewer`      | Spec quality gate before implementation                                                                                                                |
+| `spec-checker`       | Verifies all spec business rules (R1, R2…) are implemented and tested                                                                                  |
+| `feature-planner`    | Translates spec to implementation plan with exact file paths                                                                                           |
+| `i18n-checker`       | Hardcoded strings, missing/unused translation keys                                                                                                     |
+| `workflow-validator` | Validates all required workflow steps were done before commit                                                                                          |
 
 ## Skills
 
