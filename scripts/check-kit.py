@@ -19,8 +19,11 @@ BASH_DIRS = ["kit/scripts", "kit/githooks"]
 
 
 class KitChecker:
-    def __init__(self, fast_mode: bool = False):
+    def __init__(self, fast_mode: bool = False, strict_mode: bool = False):
         self.fast_mode = fast_mode
+        self.strict_mode = (
+            strict_mode  # For releases: all checks must pass, no auto-skip
+        )
         self.results: dict[str, Optional[bool]] = {}
         self.suite_failed = False
 
@@ -60,8 +63,9 @@ class KitChecker:
             ["ruff", "check"] + PYTHON_DIRS,
         )
 
+        # Python — ruff format check
+        # In strict mode (releases): always check format. In fast mode: skip.
         if not self.fast_mode:
-            # Python — ruff format check
             self._step(
                 "Ruff format",
                 ["ruff", "format", "--check"] + PYTHON_DIRS,
@@ -81,8 +85,9 @@ class KitChecker:
         else:
             print(f"{YELLOW}ℹ shellcheck not installed, skipping.{NC}")
 
+        # Markdown — prettier check
+        # In strict mode (releases): fail if prettier not available. Otherwise: skip safely.
         if not self.fast_mode:
-            # Markdown — prettier check
             if self._tool_exists("npx"):
                 self._step(
                     "Prettier (markdown)",
@@ -95,6 +100,13 @@ class KitChecker:
                         ".gitignore",
                     ],
                 )
+            elif self.strict_mode:
+                print(
+                    f"{RED}✗ Prettier not installed — required for release checks.{NC}"
+                )
+                print("  Install with: npm install -g prettier")
+                self.results["Prettier (markdown)"] = False
+                self.suite_failed = True
             else:
                 print(f"{YELLOW}ℹ npx not installed, skipping Prettier.{NC}")
 
@@ -134,5 +146,6 @@ class KitChecker:
 
 if __name__ == "__main__":
     fast = "--fast" in sys.argv
-    if not KitChecker(fast_mode=fast).run():
+    strict = "--strict" in sys.argv
+    if not KitChecker(fast_mode=fast, strict_mode=strict).run():
         sys.exit(1)

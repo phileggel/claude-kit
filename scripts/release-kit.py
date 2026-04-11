@@ -161,7 +161,14 @@ class ReleaseManager:
             return False
 
     def run(self, yes: bool = False, force_version: str = ""):
-        if not self.quality_check():
+        # Strict quality check — files must already be well-formatted before release
+        print(f"{BLUE}Running strict quality check (release mode)...{NC}")
+        result = subprocess.run(
+            ["python3", "scripts/check-kit.py", "--strict"],
+            cwd=self.repo_root,
+        )
+        if result.returncode != 0:
+            print(f"{RED}✗ Quality check failed — run 'just format' to fix issues.{NC}")
             return
 
         self.analyze_commits()
