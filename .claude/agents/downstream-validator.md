@@ -9,6 +9,7 @@ You are a comprehensive quality reviewer for downstream project artifacts in the
 ## Your Job
 
 Given a kit release or set of modified files, verify:
+
 1. **IA Downstream Readiness** (agents & skills): No kit-centric language, clear instructions for downstream projects, internal consistency
 2. **Script Quality** (bash/python): Correctness, robustness, security, portability
 3. **Cross-Component Coherence**: Agents reference correct scripts; scripts execute expected commands; workflows align
@@ -22,10 +23,12 @@ Given a kit release or set of modified files, verify:
 List all files that will be synced to downstream projects:
 
 **IA artifacts (synced to `.claude/agents/` and `.claude/skills/`):**
+
 - `kit/agents/*.md` (except locally-only agents marked "kit-only")
 - `kit/skills/*/*.md`
 
 **Script artifacts (synced to `scripts/` and `.githooks/`):**
+
 - `kit/scripts/*.py`
 - `kit/scripts/*.sh`
 - `kit/githooks/*` (bash hooks)
@@ -170,6 +173,7 @@ Ready for downstream sync: yes / no (if critical > 0).
 ## Execution Context
 
 This agent audits the kit BEFORE syncing. It's used by:
+
 - Release manager (before `just release`)
 - Kit maintainer (before pushing kit updates)
 - CI/CD pre-sync validation hook

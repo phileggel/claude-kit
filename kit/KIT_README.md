@@ -12,39 +12,47 @@ This file documents all agents and skills available in your project.
 
 All kit agents are designed for Tauri 2 / React 19 / Rust projects using DDD architecture.
 
-| Agent | Purpose | When to Use | Input |
-|-------|---------|-------------|-------|
-| **reviewer** | Code review: DDD, backend/frontend rules, general quality | After code is written, before commit | File path or code snippet |
-| **spec-reviewer** | Spec quality gate: rule atomicity, scope coverage, DDD alignment, UX completeness | After spec-writer produces a draft | Spec path (e.g., `docs/spec/refund.md`) |
-| **spec-checker** | Verify all business rules (TRIGRAMME-NNN) are implemented & tested | After implementation, before release | Spec path |
-| **feature-planner** | Translate validated specs into detailed implementation plans | After spec-reviewer approves spec | Spec path → generates `docs/plan/{feature}-plan.md` |
-| **ux-reviewer** | M3 design compliance, UX completeness (empty/loading/error/success states) | After UI components are built | Component files or screenshots |
-| **maintainer** | GitHub Actions workflows, config files, pre-release checks | When CI/CD or config files change | Modified workflow or config file |
-| **script-reviewer** | Internal quality of scripts and hooks (robustness, security, portability) | When `.githooks/` or `scripts/` are modified | Modified script file |
-| **i18n-checker** | Hardcoded strings, missing/unused translation keys | When UI text changes | Modified component files |
-| **workflow-validator** | Validates all required workflow steps were done before commit | Pre-commit validation | None (run as final check) |
+| Agent                  | Purpose                                                                           | When to Use                                  | Input                                               |
+| ---------------------- | --------------------------------------------------------------------------------- | -------------------------------------------- | --------------------------------------------------- |
+| **reviewer**           | Code review: DDD, backend/frontend rules, general quality                         | After code is written, before commit         | File path or code snippet                           |
+| **spec-reviewer**      | Spec quality gate: rule atomicity, scope coverage, DDD alignment, UX completeness | After spec-writer produces a draft           | Spec path (e.g., `docs/spec/refund.md`)             |
+| **spec-checker**       | Verify all business rules (TRIGRAMME-NNN) are implemented & tested                | After implementation, before release         | Spec path                                           |
+| **feature-planner**    | Translate validated specs into detailed implementation plans                      | After spec-reviewer approves spec            | Spec path → generates `docs/plan/{feature}-plan.md` |
+| **ux-reviewer**        | M3 design compliance, UX completeness (empty/loading/error/success states)        | After UI components are built                | Component files or screenshots                      |
+| **maintainer**         | GitHub Actions workflows, config files, pre-release checks                        | When CI/CD or config files change            | Modified workflow or config file                    |
+| **script-reviewer**    | Internal quality of scripts and hooks (robustness, security, portability)         | When `.githooks/` or `scripts/` are modified | Modified script file                                |
+| **i18n-checker**       | Hardcoded strings, missing/unused translation keys                                | When UI text changes                         | Modified component files                            |
+| **workflow-validator** | Validates all required workflow steps were done before commit                     | Pre-commit validation                        | None (run as final check)                           |
 
 ---
 
 ## Kit Skills
 
 ### `smart-commit`
+
 Create conventional commits with strict validation, tests, linters, and confirmation.
+
 - **Validates**: Tests pass, linters pass, commit message conventions, no sensitive files
 - **Output**: Committed changes with conventional message
 
 ### `dep-audit`
+
 npm + Cargo dependency audit (outdated versions, CVEs) before releases.
+
 - **Validates**: All dependencies up-to-date, no security warnings
 - **Output**: Audit report with actionable fixes
 
 ### `adr-manager`
+
 Create/update Architecture Decision Records in `docs/adr/`.
+
 - **Creates**: ADR files with standard format (title, context, decision, consequences)
 - **Output**: `docs/adr/ADR-NNN-{title}.md`
 
 ### `spec-writer`
+
 Interactive spec creation for new features.
+
 - **Interviews**: User via 3 rounds max (feature name, trigram, business need, domain)
 - **Creates**: `docs/spec/{feature}.md` with TRIGRAMME-NNN rules
 - **Also manages**: `docs/spec-index.md` registry (created in Step 2.5)
@@ -94,14 +102,14 @@ Your project uses **TRIGRAMME-NNN** format for spec rules (example: `REF-010, PA
 
 ## Standard Project Artifacts
 
-| File | Location | Purpose |
-|------|-----------|---------|
-| `kit/agents/*.md` | `.claude/agents/` | Agent definitions |
-| `kit/skills/*/SKILL.md` | `.claude/skills/*/` | Skill definitions |
-| `kit/common.just` | `common.just` | Shared justfile recipes |
-| `kit/scripts/check.py` | `scripts/check.py` | Quality checker |
-| `kit/scripts/release.py` | `scripts/release.py` | Release manager |
-| `kit/githooks/*` | `.githooks/` | Git hooks (pre-commit, commit-msg, etc.) |
+| File                     | Location             | Purpose                                  |
+| ------------------------ | -------------------- | ---------------------------------------- |
+| `kit/agents/*.md`        | `.claude/agents/`    | Agent definitions                        |
+| `kit/skills/*/SKILL.md`  | `.claude/skills/*/`  | Skill definitions                        |
+| `kit/common.just`        | `common.just`        | Shared justfile recipes                  |
+| `kit/scripts/check.py`   | `scripts/check.py`   | Quality checker                          |
+| `kit/scripts/release.py` | `scripts/release.py` | Release manager                          |
+| `kit/githooks/*`         | `.githooks/`         | Git hooks (pre-commit, commit-msg, etc.) |
 
 ---
 
@@ -110,6 +118,7 @@ Your project uses **TRIGRAMME-NNN** format for spec rules (example: `REF-010, PA
 ### Basic Usage
 
 **In VS Code Copilot Chat**, trigger agents with:
+
 ```
 /run-agent spec-writer      # Create a new spec
 /run-agent spec-reviewer    # Review a spec before implementation
@@ -117,6 +126,7 @@ Your project uses **TRIGRAMME-NNN** format for spec rules (example: `REF-010, PA
 ```
 
 **Or invoke directly**:
+
 ```bash
 cd .claude/agents
 # Each agent's instructions are built into the `.md` file
@@ -125,11 +135,13 @@ cd .claude/agents
 ### Customizing/Extending
 
 Your project can:
+
 - ✅ Add **local agents** in `.claude/agents/{your-agent}.md` (project-specific reviewers, validators, etc.)
 - ✅ Add **local skills** in `.claude/skills/{your-skill}/SKILL.md`
 - ❌ Do NOT modify kit agents/skills (they're overwritten on next sync)
 
 If you need to extend a kit agent's behavior:
+
 1. Create a new local agent that **uses** the kit agent
 2. Add project-context or domain-specific validation
 3. Document in your project's local `.claude/` README
@@ -139,6 +151,7 @@ If you need to extend a kit agent's behavior:
 ## Before Major Project Releases
 
 Verify that all agents, skills, and scripts are working correctly with your project:
+
 - Run agents on sample specs/code to validate output
 - Execute scripts to confirm they work in your environment
 - Check that spec-index.md is up-to-date
@@ -150,15 +163,16 @@ For more information on managing these artifacts, see your project's local `.cla
 ## Troubleshooting
 
 **Agent not found?**
+
 - Check if agent file exists: `ls -la .claude/agents/`
 - Run `./scripts/sync-config.sh` to re-sync kit files
 
 **Agent gives wrong output?**
+
 - Verify your spec/code is in the right path (e.g., `docs/spec/{feature}.md` not `docs/{feature}.md`)
 - Check that required files exist (e.g., `ARCHITECTURE.md`, `docs/adr/`)
 
 **Trigram collision?**
+
 - Check `docs/spec-index.md` for registered trigrams
 - Use different 3-letter prefix for new feature specs
-
-

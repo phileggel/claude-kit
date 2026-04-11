@@ -31,6 +31,7 @@ Read the full spec. Extract:
 - Open Questions (if present)
 
 Then:
+
 - Read `docs/spec-index.md` to verify the assigned trigram is registered there
 - If `docs/spec-index.md` is missing, flag this as a **🔴 critical error** (spec-writer must create it)
 

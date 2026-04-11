@@ -131,7 +131,7 @@ and the main entities involved.}
 
 > Rules cover: creation, validation, update, deletion, state transitions,
 > inter-entity dependencies, edge cases.
-> 
+>
 > **Trigram Registry**: Trigram must be registered in `docs/spec-index.md` (see step 2.5).
 
 ---
@@ -305,9 +305,9 @@ Then ask: **"Validate, refine, write the ADR, or generate the implementation pla
 10. Stitch uses project `{STITCH_PROJECT_ID}` exclusively — never create a new project
 11. Write specs in English — all prose, section headers, and rule descriptions must be in English
 12. Use the **Write** tool (not curl) to save `.stitch` HTML files- **Create in correct folder** — specs MUST be saved to `docs/spec/` folder (created automatically if missing)13. **Minimum friction** — do not ask about what the project's existing patterns already answer (navigation, success feedback, network error handling); generate a rule aligned with those patterns directly. Questions are reserved for genuinely new business decisions.
-14. **No implicit behaviour** — every observable behaviour must be covered by an explicit `{TRIGRAM}-NNN` rule. If a behaviour is described in the workflow or UX section but has no corresponding rule, add the rule. Common implicit gaps: default values in forms, sort toggle behaviour, modal-stays-open-on-error, empty-state vs no-search-results distinction.
-15. **Rule IDs are permanent** — once a rule number is assigned it never changes for the lifetime of the project. Tests reference rules by ID (e.g., `// REF-010 — ...`). If a rule is removed, leave the number vacant. New rules in the same theme increment by 1 (REF-010, REF-011, REF-012...). Never renumber existing rules.
-16. **ADR Consistency** — If a choice is already documented in `docs/adr/` (e.g., storing amounts in i64), you MUST apply it in the TRIGRAMME-NNN rules without asking the user. You only ask if the new feature explicitly requires breaking a past ADR.
+13. **No implicit behaviour** — every observable behaviour must be covered by an explicit `{TRIGRAM}-NNN` rule. If a behaviour is described in the workflow or UX section but has no corresponding rule, add the rule. Common implicit gaps: default values in forms, sort toggle behaviour, modal-stays-open-on-error, empty-state vs no-search-results distinction.
+14. **Rule IDs are permanent** — once a rule number is assigned it never changes for the lifetime of the project. Tests reference rules by ID (e.g., `// REF-010 — ...`). If a rule is removed, leave the number vacant. New rules in the same theme increment by 1 (REF-010, REF-011, REF-012...). Never renumber existing rules.
+15. **ADR Consistency** — If a choice is already documented in `docs/adr/` (e.g., storing amounts in i64), you MUST apply it in the TRIGRAMME-NNN rules without asking the user. You only ask if the new feature explicitly requires breaking a past ADR.
 
 ---
 
@@ -330,14 +330,15 @@ Every downstream project **MUST** maintain a `docs/spec-index.md` file to track 
 ```markdown
 # Trigram Registry
 
-| Trigram | Spec Name              | Description                       | Status    |
-| ------- | ---------------------- | --------------------------------- | --------- |
-| REF     | Refund Management      | Recording overpayments/refunds    | active    |
-| PAY     | Payment Processing     | Payments and reconciliation       | active    |
-| INV     | Inventory Tracking     | Stock levels and transfers        | planning  |
+| Trigram | Spec Name          | Description                    | Status   |
+| ------- | ------------------ | ------------------------------ | -------- |
+| REF     | Refund Management  | Recording overpayments/refunds | active   |
+| PAY     | Payment Processing | Payments and reconciliation    | active   |
+| INV     | Inventory Tracking | Stock levels and transfers     | planning |
 ```
 
 This registry:
+
 - **Created and maintained locally** — Lives in `docs/spec-index.md` in your project
 - **Prevents trigram collisions** across all specs
 - **Mandatory** — spec-writer creates it automatically if missing (see step 2.5)
