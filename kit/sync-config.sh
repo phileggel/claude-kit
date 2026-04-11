@@ -24,7 +24,8 @@ TMP=$(mktemp -d)
 # $TMP is NOT cleaned here — ownership passes to sync.sh via KIT_TMP
 
 echo -e "${BLUE}⬇  Cloning tauri-claude-kit@${VERSION}...${NC}"
-git clone --depth 1 --branch "$VERSION" "$REPO" "$TMP" --quiet
+git clone --depth 1 --branch "$VERSION" "$REPO" "$TMP" --quiet \
+    -c core.autocrlf=false
 
 export KIT_TMP="$TMP"
 exec bash "$TMP/kit/scripts/sync.sh" "$VERSION"

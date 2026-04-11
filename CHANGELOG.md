@@ -10,8 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - implement TRIGRAMME-NNN spec numbering system
-  Replace sequential Rn numbering with thematic TRIGRAMME-NNN format (e.g., REF-010, PAY-020) for improved spec organization and management.
-
 - spec-writer: Add Step 2.5 to create/register mandatory docs/spec-index.md
 - spec-reviewer: Validate TRIGRAMME-NNN format and trigram registration
 - spec-checker: Extract and report TRIGRAMME-NNN rules from implementations
