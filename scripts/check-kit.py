@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Kit quality checker — validates Python, Bash, and Markdown files in this repo."""
 
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -44,15 +45,7 @@ class KitChecker:
         return ok
 
     def _tool_exists(self, tool: str) -> bool:
-        return (
-            subprocess.run(
-                ["command", "-v", tool],
-                shell=False,
-                executable="/bin/bash",
-                capture_output=True,
-            ).returncode
-            == 0
-        )
+        return shutil.which(tool) is not None
 
     def run(self) -> bool:
         self._header("Kit Quality Check")
