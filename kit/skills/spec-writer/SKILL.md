@@ -338,7 +338,7 @@ Every downstream project **MUST** maintain a `docs/spec-index.md` file to track 
 ```
 
 This registry:
-- **Is NOT synced from the kit** — created and maintained in your project's `docs/` folder
-- **Prevents trigram collisions** across all specs in your project
-- **Is mandatory** — spec-writer creates it automatically if missing (see step 2.5)
-- **Lives in your project**, not the kit — updated when you write or archive specs
+- **Created and maintained locally** — Lives in `docs/spec-index.md` in your project
+- **Prevents trigram collisions** across all specs
+- **Mandatory** — spec-writer creates it automatically if missing (see step 2.5)
+- **Project-managed** — Updated when you write or archive specs
