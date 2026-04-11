@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.2.0] - 2026-04-11
+
+### Added
+
+- add strict mode for releases, enforce format before release
+- Add --strict flag to check-kit.py for release checks
+- Strict mode: fails if prettier not installed (required for releases)
+- Strict mode: fails if any format check fails (files must be pre-formatted)
+- Update release-kit.py to call check-kit.py --strict before release
+- Enforce workflow: format check → release (not: release → auto-format)
+- Users must run 'just format' beforehand to fix formatting
+
+### Fixed
+
+- correct check-kit format issue
+- ensure proper crlf format
+- correct script name in pre-commit hook from check.py to check-kit.py
+
 ## [v2.1.0] - 2026-04-11
 
 ### Added
