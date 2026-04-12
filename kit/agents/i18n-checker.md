@@ -10,7 +10,8 @@ Translation files are expected in `src/i18n/locales/`. Discover available locale
 
 ## Your job
 
-1. Run `git diff --name-only HEAD` and `git diff --name-only --cached` to identify modified `.tsx` / `.ts` files (both unstaged and staged changes).
+1. Run `git diff --name-only HEAD` and `git diff --name-only --cached` to identify modified `.tsx` / `.ts` files. The `--cached` variant compares the index to HEAD and therefore captures staged-new files (files added with `git add` that have never been committed). Deduplicate the combined list before analysing.
+
 2. For each modified file, scan for i18n issues (see below).
 3. Also check the corresponding translation JSON files if they were modified.
 

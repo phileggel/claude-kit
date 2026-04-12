@@ -34,7 +34,7 @@ python3 scripts/check.py
 
 - If any check fails: stop, report the failure, do not proceed to commit
 
-### 4. Suggest commit type
+### 4. Suggest commit type and draft message
 
 Based on changed files, recommend:
 
@@ -46,7 +46,11 @@ Based on changed files, recommend:
 - refactor — restructuring
 - ci — CI/CD and workflow changes
 
-**Provide a short, clear rationale**, no verbose explanation.
+**Draft a suggested commit title** (imperative, English) and compute its character count. Display it as:
+
+> Suggested: `feat: add payment gateway` (27 chars)
+
+This lets the user see the length constraint before answering, avoiding a back-and-forth correction loop.
 
 ### 5. Ask user for commit details
 
@@ -54,7 +58,7 @@ Use **AskUserQuestion** to get:
 
 1. Commit type (mandatory, default to suggested)
 2. Optional scope (e.g. `domain`, `feature`, `ci`) — leave blank for no scope
-3. Commit message (imperative, **English**, ≤72 characters)
+3. Commit message (imperative, **English**, ≤72 characters) — pre-populate with the suggested title from step 4 (including its char count) so the user can accept or adjust inline without a back-and-forth correction loop
 4. Commit body (optional, **English**, max 5 lines; include context, references to tasks)
 
 ### 6. Validate message format
