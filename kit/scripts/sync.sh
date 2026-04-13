@@ -19,6 +19,10 @@ NC='\033[0m'
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 
+echo -e "${BLUE}📁 Syncing kit-tools index...${NC}"
+mkdir -p "$PROJECT_ROOT/.claude"
+cp "$TMP/kit/kit-tools.md" "$PROJECT_ROOT/.claude/"
+
 echo -e "${BLUE}📁 Syncing agents...${NC}"
 mkdir -p "$PROJECT_ROOT/.claude/agents"
 for agent in "$TMP/kit/agents/"*.md; do
