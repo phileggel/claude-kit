@@ -73,4 +73,4 @@ For every key in one locale's JSON, verify the same key exists in every other lo
 ✅ No issues found.  (if clean)
 ```
 
-Final summary: `i18n check: N critical, N warnings, N suggestions across N files.`
+Final summary: `i18n check: N critical, N warnings across N files.`

@@ -67,7 +67,16 @@ Use **AskUserQuestion** to get:
 - Title ≤72 chars, body ≤5 lines
 - If non-compliant: return to step 5 and prompt the user to correct the message
 
-### 7. Create commit
+### 7. Confirm before committing
+
+Display the full formatted commit title (and body if provided) and ask the user to confirm:
+
+> Ready to commit: `type(scope): message`
+> Proceed?
+
+Use **AskUserQuestion** with a Yes / Cancel option. If the user cancels, stop and do not commit.
+
+### 8. Create commit
 
 Stage only the relevant files identified in step 1 (never use `git add -A` — it can accidentally include sensitive or unintended files):
 
@@ -81,7 +90,7 @@ git commit -m "feat(billing): add payment gateway"
 
 Format: `type: message` (no scope) or `type(scope): message` (with optional scope).
 
-### 8. Show result
+### 9. Show result
 
 git log -1 --oneline
 

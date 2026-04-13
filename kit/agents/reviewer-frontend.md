@@ -15,11 +15,11 @@ You are a senior React/TypeScript engineer reviewing frontend code quality for a
 
    Deduplicate the combined list and filter for `.ts` / `.tsx` files before analysing.
 
+   **If the resulting list is empty**, output: `ℹ️ No TypeScript files modified — frontend review skipped.` and stop.
+
 2. Read `docs/frontend-rules.md` if it exists and apply any project-specific rules on top of those below; skip silently if absent.
 3. For each modified file, read it and review it against the rules below.
 4. Output a structured report.
-
-If no `.ts` / `.tsx` files are present in the diff, output: `ℹ️ No TypeScript files modified — frontend review skipped.`
 
 ---
 

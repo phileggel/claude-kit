@@ -10,10 +10,12 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
 2.  **Direct Plan**: Propose a concise TODO plan with exact file paths in the chat. Ask user to validate.
 3.  **Tracking**: Use internal `TaskCreate` / `TaskUpdate` tools to track workflow steps (mark `in_progress` when starting, `completed` when done) for user visibility.
 4.  **Implementation**: Execute the code changes.
-5.  **Review & Quality**: Run static checks (`python3 scripts/check-kit.py`), write tests, and run the relevant subagents (`kit-ia-reviewer`, `kit-script-reviewer`, etc.) as applicable.
+5.  **Review & Quality**: Run static checks (`python3 scripts/check-kit.py`), write tests, and run `/preflight` before any release.
 6.  **Closure**: Ask user if another task is needed before commit, otherwise use **`/smart-commit`** skill.
 
 ## Critical Patterns
+
+- **Always use `just`**: Never suggest or execute native commands if a corresponding recipe exists in `justfile`.
 
 - **Never commit without explicit user authorization.** Always use `/smart-commit` and wait for a clear "go" before any `git commit` or `git push` — including hotfixes, release commits, and one-liners. No exceptions.
 
@@ -26,6 +28,11 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
   - ✅ Correct: `tools: Read, Grep, Glob, Bash` for a review agent.
   - ❌ Wrong: `tools: Read, Grep, Glob, Bash, Edit, Write` for a review agent.
   - _Why it's critical:_ Over-privileged agents are slower and pose a security risk.
+
+- **Kit-local tooling only:** When working on this repository, only use tools from `.claude/` (skills, agents) and `scripts/` (check-kit.py, release-kit.py). Never invoke agents or skills from `kit/agents/` or `kit/skills/` directly — those are downstream artifacts, not kit tooling.
+  - ✅ Correct: `/preflight`, `/smart-commit`, `python3 scripts/check-kit.py`
+  - ❌ Wrong: running `reviewer`, `spec-checker`, or any `kit/agents/*.md` agent on kit files
+  - _Why it's critical:_ Kit agents are written for downstream project structure (`src-tauri/`, `src/features/`, etc.) which does not exist in this repository.
 
 ```bash
 # Sync latest main
@@ -74,63 +81,22 @@ kit/                  ← everything synced downstream
     sync.sh           ephemeral sync logic (runs from $TMP, never copied to downstream)
     check.py          → scripts/check.py
     release.py        → scripts/release.py
-  common.just         → common.just
-
 scripts/              ← kit-only tooling (not synced)
   check-kit.py        kit quality checker
   release-kit.py      kit release manager
 ```
 
-## Agents
+## Downstream tools (**CRITICAL** for reference only)
 
-Defined in `kit/agents/*.md`, synced to `.claude/agents/` in downstream projects:
+All agents, skills, scripts, git hooks, and justfile recipes provided to downstream projects are inventoried in [`kit/kit-tools.md`](kit/kit-tools.md). Refer to that file for the full list — do not duplicate it here.
 
-| Agent                | Purpose                                                                                                                                                |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `reviewer`           | Code review: DDD, backend/frontend rules, general quality                                                                                              |
-| `ux-reviewer`        | M3 design compliance, UX completeness (empty/loading/error states)                                                                                     |
-| `maintainer`         | GitHub Actions workflows, config files, pre-release checks; script/hook CI-reference consistency (not internal quality — use script-reviewer for that) |
-| `script-reviewer`    | Internal quality of `scripts/` and `.githooks/` files                                                                                                  |
-| `spec-reviewer`      | Spec quality gate before implementation                                                                                                                |
-| `spec-checker`       | Verifies all spec business rules (TRIGRAMME-NNN, e.g. REF-010) are implemented and tested                                                              |
-| `feature-planner`    | Translates spec to implementation plan with exact file paths                                                                                           |
-| `i18n-checker`       | Hardcoded strings, missing/unused translation keys                                                                                                     |
-| `workflow-validator` | Validates all required workflow steps were done before commit                                                                                          |
-
-## Skills
-
-Defined in `kit/skills/*/SKILL.md`, synced to `.claude/skills/` in downstream projects:
-
-| Skill          | Purpose                                                                  |
-| -------------- | ------------------------------------------------------------------------ |
-| `smart-commit` | Conventional commit with strict validation, tests, linters, confirmation |
-| `dep-audit`    | npm + Cargo dependency audit (outdated versions, CVEs) before releases   |
-| `adr-manager`  | Create/update Architecture Decision Records in `docs/adr/`               |
-| `spec-writer`  | Interactive spec creation (also available as a skill)                    |
-
-## Local agents & skills (kit development only)
+## Local tools (kit development only)
 
 These are available in `.claude/` for working on the kit itself. They are **not synced** to downstream projects.
 
-| Type  | Name                  | When to use                                                                                                           |
-| ----- | --------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| agent | `kit-ia-reviewer`     | After creating or modifying any agent, skill, or CLAUDE.md — validates correctness, clarity, and internal consistency |
-| agent | `kit-maintainer`      | Before a release or when touching `scripts/` or CI                                                                    |
-| agent | `kit-script-reviewer` | After modifying any file in `scripts/` or `kit/githooks/`                                                             |
-| skill | `smart-commit`        | To create a validated conventional commit (`/smart-commit`)                                                           |
+| Type  | Name           | When to use                                                                                           |
+| ----- | -------------- | ----------------------------------------------------------------------------------------------------- |
+| skill | `preflight`    | Before any release — validates IA readiness, script quality, cross-component coherence (`/preflight`) |
+| skill | `smart-commit` | To create a validated conventional commit (`/smart-commit`)                                           |
 
-> Keep these in sync manually when their sources in `kit/agents/` or `kit/skills/` change.
-
-## common.just
-
-`kit/common.just` contains shared justfile recipes intended to be imported into downstream project justfiles. Key recipes:
-
-- `just check` — fast quality check (lint/format only)
-- `just check-full` — full quality check including tests and build
-- `just format` — auto-fix formatting (Rust + frontend)
-- `just migrate` — run pending SQLx migrations
-- `just prepare-sqlx` — regenerate SQLx offline query cache after schema/query changes
-- `just release` — interactive release manager
-- `just sync-kit version=<tag>` — sync this kit into the project
-- `just clean-db` — **destructive**: deletes local DB and recreates schema
-- `just clean-branches` — **destructive**: removes stale remote-tracking branches
+> `smart-commit` is synced from `kit/skills/smart-commit/` — keep `.claude/skills/smart-commit/SKILL.md` in sync manually when the source changes.
