@@ -33,8 +33,11 @@ Read the plan file and extract every checkbox item from the "Workflow TaskList" 
 
 Run `git diff --name-only HEAD` and `git status --short`. Determine which conditional items in the plan are actually required:
 
+- `.rs` files modified → Backend Review (`reviewer-backend`) required
+- `.ts` / `.tsx` files modified → Frontend Review (`reviewer-frontend`) required
 - `.tsx` files modified → UX Review (`ux-reviewer`) required
-- User-visible text added/changed in `.tsx`/`.ts` feature files → i18n Review required
+- User-visible text added/changed in `.tsx`/`.ts` feature files → i18n Review (`i18n-checker`) required
+- `migrations/` file added/modified → SQL Review (`reviewer-sql`) required
 - A spec doc exists in `docs/` for this feature → `spec-checker` required
 - Any `.sh`, `.py` (in `scripts/`) or `.githooks/` file added/modified → Script Review (`script-reviewer`) required
 
