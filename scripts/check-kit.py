@@ -20,27 +20,40 @@ BASH_DIRS = ["kit/scripts", "kit/githooks"]
 
 
 class KitChecker:
-    def __init__(self, fast_mode: bool = False, strict_mode: bool = False):
+    def __init__(
+        self, fast_mode: bool = False, strict_mode: bool = False, verbose: bool = False
+    ):
         self.fast_mode = fast_mode
-        self.strict_mode = (
-            strict_mode  # For releases: all checks must pass, no auto-skip
-        )
+        self.strict_mode = strict_mode
+        self.verbose = verbose
         self.results: dict[str, Optional[bool]] = {}
         self.suite_failed = False
+        self.failures: dict[str, str] = {}
+
+    def _vprint(self, *args, **kwargs):
+        if self.verbose:
+            print(*args, **kwargs)
 
     def _header(self, title: str) -> None:
-        print(f"\n{BLUE}🚀 {title}{NC}")
-        print(f"{BLUE}{'═' * 59}{NC}")
+        self._vprint(f"\n{BLUE}🚀 {title}{NC}")
+        self._vprint(f"{BLUE}{'═' * 59}{NC}")
 
     def _step(self, name: str, cmd: list[str]) -> bool:
-        print(f"\n{BLUE}▶ {name}...{NC}")
-        result = subprocess.run(cmd, cwd=REPO_ROOT)
+        self._vprint(f"\n{BLUE}▶ {name}...{NC}")
+        if self.verbose:
+            result = subprocess.run(cmd, cwd=REPO_ROOT)
+            output = ""
+        else:
+            result = subprocess.run(cmd, cwd=REPO_ROOT, capture_output=True, text=True)
+            output = (result.stdout + result.stderr).strip()
         ok = result.returncode == 0
         if ok:
-            print(f"{GREEN}✓ {name}: Passed{NC}")
+            self._vprint(f"{GREEN}✓ {name}: Passed{NC}")
         else:
-            print(f"{RED}✗ {name}: Failed (exit {result.returncode}){NC}")
+            self._vprint(f"{RED}✗ {name}: Failed (exit {result.returncode}){NC}")
             self.suite_failed = True
+            if output:
+                self.failures[name] = output
         self.results[name] = ok
         return ok
 
@@ -50,36 +63,23 @@ class KitChecker:
     def run(self) -> bool:
         self._header("Kit Quality Check")
 
-        # Python — ruff lint
-        self._step(
-            "Ruff lint",
-            ["ruff", "check"] + PYTHON_DIRS,
-        )
+        self._step("Ruff lint", ["ruff", "check"] + PYTHON_DIRS)
 
-        # Python — ruff format check
-        # In strict mode (releases): always check format. In fast mode: skip.
         if not self.fast_mode:
-            self._step(
-                "Ruff format",
-                ["ruff", "format", "--check"] + PYTHON_DIRS,
-            )
+            self._step("Ruff format", ["ruff", "format", "--check"] + PYTHON_DIRS)
 
-        # Bash — shfmt format check
         bash_files = self._collect_bash_files()
         if bash_files:
             self._step("shfmt", ["shfmt", "-d", "-i", "4"] + bash_files)
         else:
-            print(f"{YELLOW}⚠ shfmt: no Bash files found, skipping.{NC}")
+            self._vprint(f"{YELLOW}⚠ shfmt: no Bash files found, skipping.{NC}")
 
-        # Bash — shellcheck (optional, skip if not installed)
         if self._tool_exists("shellcheck"):
             if bash_files:
                 self._step("shellcheck", ["shellcheck"] + bash_files)
         else:
-            print(f"{YELLOW}ℹ shellcheck not installed, skipping.{NC}")
+            self._vprint(f"{YELLOW}ℹ shellcheck not installed, skipping.{NC}")
 
-        # Markdown — prettier check
-        # In strict mode (releases): fail if prettier not available. Otherwise: skip safely.
         if not self.fast_mode:
             if self._tool_exists("npx"):
                 self._step(
@@ -101,7 +101,7 @@ class KitChecker:
                 self.results["Prettier (markdown)"] = False
                 self.suite_failed = True
             else:
-                print(f"{YELLOW}ℹ npx not installed, skipping Prettier.{NC}")
+                self._vprint(f"{YELLOW}ℹ npx not installed, skipping Prettier.{NC}")
 
         self._report()
         return not self.suite_failed
@@ -125,14 +125,19 @@ class KitChecker:
             return False
 
     def _report(self) -> None:
-        self._header("Final Quality Report")
+        print(f"\n{BLUE}🚀 Quality Report{NC}")
         print(f"| {'Check':<25} | {'Status':<10} |")
         print(f"|{'-' * 27}|{'-' * 12}|")
         for name, ok in self.results.items():
             status = f"{GREEN}✅ Pass{NC}" if ok else f"{RED}❌ Fail{NC}"
             print(f"| {name:<25} | {status:<20} |")
         if self.suite_failed:
-            print(f"\n{RED}❌ SUITE FAILED — check logs above{NC}\n")
+            print(f"\n{RED}❌ SUITE FAILED{NC}")
+            if self.failures:
+                print(f"\n{BLUE}— Failure details —{NC}")
+                for step, output in self.failures.items():
+                    print(f"\n{RED}▶ {step}{NC}")
+                    print(output)
         else:
             print(f"\n{GREEN}✨ ALL CHECKS PASSED{NC}\n")
 
@@ -140,5 +145,6 @@ class KitChecker:
 if __name__ == "__main__":
     fast = "--fast" in sys.argv
     strict = "--strict" in sys.argv
-    if not KitChecker(fast_mode=fast, strict_mode=strict).run():
+    verbose = "--verbose" in sys.argv
+    if not KitChecker(fast_mode=fast, strict_mode=strict, verbose=verbose).run():
         sys.exit(1)

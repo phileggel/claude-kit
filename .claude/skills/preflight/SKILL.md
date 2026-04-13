@@ -12,9 +12,15 @@ Validates that all kit artifacts are production-ready for downstream projects be
 
 ## Execution Steps
 
-### 1. Identify downstream artifacts
+### 1. Identify downstream artifacts to validate
 
-List all files that will be synced to downstream projects:
+Collect all modified downstream files by unioning these three commands:
+
+- `git diff --name-only HEAD` — unstaged changes vs HEAD
+- `git diff --cached --name-only` — staged changes vs HEAD
+- `git status --porcelain | grep "^?" | awk '{print $2}'` — untracked new files
+
+Filter the combined (deduplicated) list to keep only downstream artifacts — files that will be synced to downstream projects:
 
 **IA artifacts** (synced to `.claude/agents/` and `.claude/skills/`):
 
@@ -28,6 +34,10 @@ List all files that will be synced to downstream projects:
 - `kit/scripts/sync.sh`
 - `kit/githooks/*`
 - `kit/common.just`
+
+If no modified files match — output `ℹ️ No modified kit artifacts — nothing to validate.` and stop.
+
+Validate **only the matched files**. Skip unmodified files entirely.
 
 ---
 
@@ -87,9 +97,11 @@ For each file in `kit/scripts/` and `kit/githooks/`:
 
 ### 4. Cross-component coherence
 
+Cross-references are checked against the **full kit** (not just modified files) — a modified agent may reference an existing unmodified file, which is valid.
+
 - 🔴 Agent references a script that won't be synced downstream
 - 🔴 Agent A references agent B that isn't in `kit/agents/`
-- 🔴 Agent in `kit/agents/` missing from `kit/kit-tools.md`
+- 🔴 Agent in `kit/agents/` missing from `kit/kit-tools.md` (only check staged agents)
 - 🟡 `kit/kit-tools.md` trigger or description diverges from agent frontmatter
 
 ---
