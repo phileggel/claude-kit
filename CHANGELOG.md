@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.3.0] - 2026-04-13
+
+### Added
+
+- refactor reviewers, add preflight skill, improve downstream agents
+- add kit-tools index synced to downstream .claude/
+  Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+- add layered reviewer agents and sql reviewer
+- Split reviewer.md into DDD-only; extract Rust rules to reviewer-backend, TS rules to reviewer-frontend
+- Add reviewer-sql for SQL migration audits (atomicity, affinity, PKs, FK indexes)
+- Update workflow-validator triggers for the three new agents
+- Sync smart-commit skill char-count UX improvement to local .claude copy
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+### Fixed
+
+- correct downstream agent inconsistencies
+- i18n-checker: clarify --cached already covers staged-new files
+- workflow-validator: docs/spec/_-plan.md → docs/plan/_-plan.md
+- feature-planner: add English rule for docs/todo.md entries
+- smart-commit: pre-populate suggested title with char count in step 5
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
 ## [v2.2.1] - 2026-04-11
 
 ### Fixed
