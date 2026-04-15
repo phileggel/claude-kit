@@ -67,8 +67,7 @@ A synthetic checklist for mandatory quality and process steps:
 - [ ] 🔗 Type Synchronization (`just generate-types`)
 - [ ] 💻 Frontend Implementation (Gateway, Hook, Component, i18n)
 - [ ] 🧹 Formatting & Linting (`just format` + `python3 scripts/check.py`)
-- [ ] 🔍 Code Review (`reviewer` always + `reviewer-backend` if .rs modified + `reviewer-frontend` if .ts/.tsx modified)
-- [ ] 🎭 UX Review (`ux-reviewer` if .tsx modified)
+- [ ] 🔍 Code Review (`reviewer` always + `reviewer-backend` if .rs modified + `reviewer-frontend` if .ts/.tsx modified — includes UX/M3 review for .tsx)
 - [ ] 🌐 i18n Review (`i18n-checker` if UI text changed)
 - [ ] 🔧 Script Review (`script-reviewer` if any script or hook was added/modified)
 - [ ] 🧪 Unit & Integration Tests

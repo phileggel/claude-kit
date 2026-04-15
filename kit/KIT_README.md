@@ -12,17 +12,17 @@ This file documents all agents and skills available in your project.
 
 All kit agents are designed for Tauri 2 / React 19 / Rust projects using DDD architecture.
 
-| Agent                  | Purpose                                                                           | When to Use                                  | Input                                               |
-| ---------------------- | --------------------------------------------------------------------------------- | -------------------------------------------- | --------------------------------------------------- |
-| **reviewer**           | Code review: DDD, backend/frontend rules, general quality                         | After code is written, before commit         | File path or code snippet                           |
-| **spec-reviewer**      | Spec quality gate: rule atomicity, scope coverage, DDD alignment, UX completeness | After spec-writer produces a draft           | Spec path (e.g., `docs/spec/refund.md`)             |
-| **spec-checker**       | Verify all business rules (TRIGRAMME-NNN) are implemented & tested                | After implementation, before release         | Spec path                                           |
-| **feature-planner**    | Translate validated specs into detailed implementation plans                      | After spec-reviewer approves spec            | Spec path → generates `docs/plan/{feature}-plan.md` |
-| **ux-reviewer**        | M3 design compliance, UX completeness (empty/loading/error/success states)        | After UI components are built                | Component files or screenshots                      |
-| **maintainer**         | GitHub Actions workflows, config files, pre-release checks                        | When CI/CD or config files change            | Modified workflow or config file                    |
-| **script-reviewer**    | Internal quality of scripts and hooks (robustness, security, portability)         | When `.githooks/` or `scripts/` are modified | Modified script file                                |
-| **i18n-checker**       | Hardcoded strings, missing/unused translation keys                                | When UI text changes                         | Modified component files                            |
-| **workflow-validator** | Validates all required workflow steps were done before commit                     | Pre-commit validation                        | None (run as final check)                           |
+| Agent                  | Purpose                                                                                          | When to Use                                  | Input                                               |
+| ---------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------- | --------------------------------------------------- |
+| **reviewer**           | Code review: DDD, backend/frontend rules, general quality                                        | After code is written, before commit         | File path or code snippet                           |
+| **spec-reviewer**      | Spec quality gate: rule atomicity, scope coverage, DDD alignment, UX completeness                | After spec-writer produces a draft           | Spec path (e.g., `docs/spec/refund.md`)             |
+| **spec-checker**       | Verify all business rules (TRIGRAMME-NNN) are implemented & tested                               | After implementation, before release         | Spec path                                           |
+| **feature-planner**    | Translate validated specs into detailed implementation plans                                     | After spec-reviewer approves spec            | Spec path → generates `docs/plan/{feature}-plan.md` |
+| **reviewer-frontend**  | React/TS quality + UX/M3 design compliance, UX completeness (empty/loading/error/success states) | After UI components are built                | Modified `.ts` / `.tsx` files                       |
+| **maintainer**         | GitHub Actions workflows, config files, pre-release checks                                       | When CI/CD or config files change            | Modified workflow or config file                    |
+| **script-reviewer**    | Internal quality of scripts and hooks (robustness, security, portability)                        | When `.githooks/` or `scripts/` are modified | Modified script file                                |
+| **i18n-checker**       | Hardcoded strings, missing/unused translation keys                                               | When UI text changes                         | Modified component files                            |
+| **workflow-validator** | Validates all required workflow steps were done before commit                                    | Pre-commit validation                        | None (run as final check)                           |
 
 ---
 
