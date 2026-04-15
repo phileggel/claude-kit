@@ -2,6 +2,7 @@
 name: workflow-validator
 description: Validates that all required workflow steps were completed before a commit. Reads the feature plan produced by feature-planner (docs/plan/*-plan.md), checks git diff to infer which conditional steps were required, and produces a validation table ✅/❌ per step. Blocks commit if any required step is missing. Use when ready to commit a feature implementation.
 tools: Read, Grep, Glob, Bash
+model: claude-haiku-4-5-20251001
 ---
 
 # Workflow Validator
