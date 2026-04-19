@@ -110,7 +110,7 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
 | ------------ | ------------ | --------------------------------------------------------------------------------------------------- |
 | `pre-commit` | `git commit` | Runs `python3 scripts/check.py --fast` (lint + format); rejects commit on failure                   |
 | `commit-msg` | `git commit` | Enforces conventional format (`type: description`), valid types, ≤72-char title, no co-author lines |
-| `pre-push`   | `git push`   | Additional safety checks before pushing to remote                                                   |
+| `pre-push`   | `git push`   | Runs `python3 scripts/check.py` (full suite: tests + build + lint); blocks push on failure          |
 
 Activate with: `git config core.hooksPath .githooks`
 
