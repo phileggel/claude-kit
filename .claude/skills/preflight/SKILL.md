@@ -67,7 +67,7 @@ For each agent/skill file, check:
 #### D — Internal Consistency
 
 - 🟡 **Path inconsistency** — different steps use different paths for the same resource
-- 🟡 **Terminology drift** — inconsistent use of terms (e.g., "TRIGRAMME-NNN" vs "rule identifier")
+- 🟡 **Terminology drift** — inconsistent use of terms (e.g., "TRIGRAM-NNN" vs "rule identifier")
 - 🟡 **Severity label missing** — a rule in an agent has no 🔴/🟡/🔵 label
 
 ---

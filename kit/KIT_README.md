@@ -16,7 +16,7 @@ All kit agents are designed for Tauri 2 / React 19 / Rust projects using DDD arc
 | ---------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------- | --------------------------------------------------- |
 | **reviewer**           | Code review: DDD, backend/frontend rules, general quality                                        | After code is written, before commit         | File path or code snippet                           |
 | **spec-reviewer**      | Spec quality gate: rule atomicity, scope coverage, DDD alignment, UX completeness                | After spec-writer produces a draft           | Spec path (e.g., `docs/spec/refund.md`)             |
-| **spec-checker**       | Verify all business rules (TRIGRAMME-NNN) are implemented & tested                               | After implementation, before release         | Spec path                                           |
+| **spec-checker**       | Verify all business rules (TRIGRAM-NNN) are implemented & tested                                 | After implementation, before release         | Spec path                                           |
 | **feature-planner**    | Translate validated specs into detailed implementation plans                                     | After spec-reviewer approves spec            | Spec path → generates `docs/plan/{feature}-plan.md` |
 | **reviewer-frontend**  | React/TS quality + UX/M3 design compliance, UX completeness (empty/loading/error/success states) | After UI components are built                | Modified `.ts` / `.tsx` files                       |
 | **maintainer**         | GitHub Actions workflows, config files, pre-release checks                                       | When CI/CD or config files change            | Modified workflow or config file                    |
@@ -54,7 +54,7 @@ Create/update Architecture Decision Records in `docs/adr/`.
 Interactive spec creation for new features.
 
 - **Interviews**: User via 3 rounds max (feature name, trigram, business need, domain)
-- **Creates**: `docs/spec/{feature}.md` with TRIGRAMME-NNN rules
+- **Creates**: `docs/spec/{feature}.md` with TRIGRAM-NNN rules
 - **Also manages**: `docs/spec-index.md` registry (created in Step 2.5)
 - **Output**: Feature spec + updated trigram registry
 
@@ -84,9 +84,9 @@ Interactive spec creation for new features.
 
 ## Spec Rule Numbering System (Project Standard)
 
-Your project uses **TRIGRAMME-NNN** format for spec rules (example: `REF-010, PAY-020, INV-030`):
+Your project uses **TRIGRAM-NNN** format for spec rules (example: `REF-010, PAY-020, INV-030`):
 
-- **TRIGRAMME** = 3-letter identifier unique per project (e.g., REF for Refund, PAY for Payment)
+- **TRIGRAM** = 3-letter identifier unique per project (e.g., REF for Refund, PAY for Payment)
 - **NNN** = 3-digit number, organized by topic:
   - 010–019: Eligibility & initiation
   - 020–029: Creation
