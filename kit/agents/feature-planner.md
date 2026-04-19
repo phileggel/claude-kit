@@ -52,6 +52,7 @@ For each TRIGRAM-NNN rule, identify concrete tasks:
 - **ADR Application**: Explicitly mention ADR constraints in the tasks (e.g., "Implement amount using i64 as per ADR-001").
 - Define dependencies (e.g., Backend logic -> `just generate-types` -> Frontend gateway).
 - **Commit phases**: identify thematic boundaries where a `/smart-commit` is appropriate. Suggest a conventional commit title for each (e.g., `feat(asset): implement pricing backend`).
+- **Schema changes**: identify rules that imply a database schema change (new entity, new field, new status column, new FK). For each, note the expected migration filename (`{timestamp}_create_{table}.sql` or `{timestamp}_add_{column}_to_{table}.sql`) and infer the columns from the domain rules. Flag that `just prepare-sqlx` must be run after migrating.
 
 ---
 
@@ -64,6 +65,7 @@ You MUST generate and **WRITE** a file with the following sections:
 A synthetic checklist for mandatory quality and process steps:
 
 - [ ] 📖 Review Architecture & Rules (`ARCHITECTURE.md`, `backend-rules.md`, `frontend-rules.md`)
+- [ ] 🗄️ Database Migration (`just migrate` + `just prepare-sqlx`) — if schema changes required
 - [ ] 🏗️ Backend Implementation (Domain, Repository, Service, API)
 - [ ] 🔗 Type Synchronization (`just generate-types`)
 - [ ] 💾 Commit: backend layer (suggested title from plan)
@@ -82,6 +84,7 @@ A synthetic checklist for mandatory quality and process steps:
 
 A granular breakdown by architectural layer:
 
+- **Migrations** (if any): List each migration file with its suggested filename, inferred columns, and a reminder to run `just migrate` then `just prepare-sqlx` before writing backend code. Omit this section if no schema changes are required.
 - **Backend**: Exact file paths, struct names, factory methods (follow project conventions from `docs/backend-rules.md`), service methods, and Tauri handlers.
 - **Frontend**: Exact file paths, gateway methods, custom hooks, and React components.
 - **Rules Coverage**: A table mapping every TRIGRAM-NNN rule to its corresponding implementation task.
