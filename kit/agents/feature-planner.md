@@ -51,6 +51,7 @@ For each TRIGRAMME-NNN rule, identify concrete tasks:
 - Map which layer(s) are affected.
 - **ADR Application**: Explicitly mention ADR constraints in the tasks (e.g., "Implement amount using i64 as per ADR-001").
 - Define dependencies (e.g., Backend logic -> `just generate-types` -> Frontend gateway).
+- **Commit phases**: identify thematic boundaries where a `/smart-commit` is appropriate. Suggest a conventional commit title for each (e.g., `feat(asset): implement pricing backend`).
 
 ---
 
@@ -65,14 +66,17 @@ A synthetic checklist for mandatory quality and process steps:
 - [ ] 📖 Review Architecture & Rules (`ARCHITECTURE.md`, `backend-rules.md`, `frontend-rules.md`)
 - [ ] 🏗️ Backend Implementation (Domain, Repository, Service, API)
 - [ ] 🔗 Type Synchronization (`just generate-types`)
+- [ ] 💾 Commit: backend layer (suggested title from plan)
 - [ ] 💻 Frontend Implementation (Gateway, Hook, Component, i18n)
 - [ ] 🧹 Formatting & Linting (`just format` + `python3 scripts/check.py`)
 - [ ] 🔍 Code Review (`reviewer` always + `reviewer-backend` if .rs modified + `reviewer-frontend` if .ts/.tsx modified — includes UX/M3 review for .tsx)
+- [ ] 💾 Commit: frontend layer (suggested title from plan)
 - [ ] 🌐 i18n Review (`i18n-checker` if UI text changed)
 - [ ] 🔧 Script Review (`script-reviewer` if any script or hook was added/modified)
 - [ ] 🧪 Unit & Integration Tests
 - [ ] 📚 Documentation Update (`ARCHITECTURE.md` + `docs/todo.md` — entries in English)
 - [ ] ✅ Final Validation (`spec-checker` + `workflow-validator`)
+- [ ] 💾 Commit: tests & docs (suggested title from plan)
 
 ### 2. Detailed Implementation Plan
 
@@ -94,3 +98,4 @@ A granular breakdown by architectural layer:
 6. **No Code Implementation**: Your output is a plan describing _what_ to do and _where_, not the actual code.
 7. **Task Tracking**: Ensure the main agent can progressively update the checkboxes in this file during the implementation phase.
 8. **Cross-Context**: If a use case spans multiple bounded contexts, use `src-tauri/src/use_cases/`—never cross-import between `context/` modules directly.
+9. **Commit Checkpoints**: Every plan must include at least one commit checkpoint per thematic phase (backend, frontend, tests & docs). Each checkpoint provides only a suggested conventional commit title — the `/smart-commit` skill handles the rest.
