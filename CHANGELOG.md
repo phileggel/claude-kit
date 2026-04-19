@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.5.0] - 2026-04-19
+
+### Added
+
+- add retro-spec, fix TSC detection, resolve validator circular dep
+- add kit-advisor kit-local agent
+- add thematic commit checkpoints
+
+### Fixed
+
+- address preflight warnings before release
+- strip commit body from changelog entries
+- print step name before each check runs
+
 ## [v2.4.0] - 2026-04-15
 
 ### Added
