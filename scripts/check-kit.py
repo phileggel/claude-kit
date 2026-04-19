@@ -39,6 +39,7 @@ class KitChecker:
         self._vprint(f"{BLUE}{'═' * 59}{NC}")
 
     def _step(self, name: str, cmd: list[str]) -> bool:
+        print(f"  {name}...", flush=True)
         self._vprint(f"\n{BLUE}▶ {name}...{NC}")
         if self.verbose:
             result = subprocess.run(cmd, cwd=REPO_ROOT)

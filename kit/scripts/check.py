@@ -52,6 +52,7 @@ class QualityChecker:
         cwd: Optional[Path] = None,
         env_update: Optional[dict] = None,
     ) -> bool:
+        print(f"  {name}...", flush=True)
         self._vprint(f"\n{BLUE}▶ Running {name}...{NC}")
 
         current_env = os.environ.copy()
@@ -168,6 +169,7 @@ class QualityChecker:
         ):
             self.metrics["rust_fmt"] = "Pass"
 
+        print("  TSC...", flush=True)
         self._vprint(f"\n{BLUE}▶ Running TypeScript Check (TSC)...{NC}")
         tsc_res = subprocess.run(
             ["npx", "tsc", "--noEmit"],
