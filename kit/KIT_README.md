@@ -148,6 +148,18 @@ If you need to extend a kit agent's behavior:
 
 ---
 
+## Handling `[DECISION]` Criticals
+
+Some reviewer Criticals are tagged `[DECISION]`. These indicate that the correct fix requires an architectural choice — not a mechanical code change — and cannot be resolved without domain or team input.
+
+**Recommended rule for your project's `CLAUDE.md`:**
+
+> **Reviewer `[DECISION]` criticals must not be fixed unilaterally.** When a reviewer flags a Critical with `[DECISION]`, stop and present the finding to the user before writing any code. The reviewer's guidance describes the direction, not the final answer — the architectural boundary must be agreed upon first.
+
+**Why this matters:** a cross-boundary import can be "fixed" in several structurally valid ways (new use-case, shared port, merged context). Choosing the wrong one silently encodes an architectural assumption that is hard to undo. The `[DECISION]` tag is the reviewer's signal that human judgment is required.
+
+---
+
 ## Before Major Project Releases
 
 Verify that all agents, skills, and scripts are working correctly with your project:
