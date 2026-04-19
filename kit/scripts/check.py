@@ -97,11 +97,13 @@ class QualityChecker:
             self.metrics["sqlx"] = "N/A"
             return True
 
-        status = subprocess.run(
+        result = subprocess.run(
             ["git", "diff", "--name-only", str(sqlx_dir)],
             capture_output=True,
             text=True,
-        ).stdout
+            check=True,
+        )
+        status = result.stdout
         if status.strip():
             self._vprint(
                 f"{RED}✗ SQLx: Unstaged changes in .sqlx/. Run 'just prepare-sqlx' and stage the result.{NC}"

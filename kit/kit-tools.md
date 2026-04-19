@@ -74,7 +74,6 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
 
 | Agent             | Trigger                                   | Description                                                                                                          |
 | ----------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `spec-writer`     | Starting a new feature                    | Interactive interview → `docs/spec/{feature}.md` with TRIGRAMME-NNN business rules and optional UX draft             |
 | `spec-reviewer`   | After spec-writer, before feature-planner | Quality gate on a spec doc: rule atomicity, scope, DDD alignment, UX completeness, conflicts                         |
 | `feature-planner` | After spec-reviewer approves              | Translates spec into `docs/plan/{feature}-plan.md` with DDD layer breakdown, rule-to-task mapping, Workflow TaskList |
 | `spec-checker`    | After implementation, before commit       | Verifies every TRIGRAMME-NNN rule from the spec is implemented in code and covered by tests                          |
