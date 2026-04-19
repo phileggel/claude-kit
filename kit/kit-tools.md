@@ -40,9 +40,9 @@ _Use for: New features, new business logic, significant UI changes, or complex r
 
 **Phase 4: Validation & Closure**
 
-1. Run **`spec-checker`** agent to confirm all spec rules are covered in code and tests.
-2. Run **`workflow-validator`** agent to verify all plan checkboxes are ticked.
-3. Ask the user if a commit is needed. If yes, use **`/smart-commit`** skill.
+1. Run **`spec-checker`** agent to confirm all spec rules are covered — tick its checkbox in the plan.
+2. Use **`/smart-commit`** skill to commit.
+3. Run **`workflow-validator`** agent as the final gate — verifies all plan checkboxes are ticked. Its successful completion is the sign-off; no checkbox needed.
 
 ---
 
@@ -72,11 +72,12 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
 
 ## Spec & Planning Agents
 
-| Agent             | Trigger                                   | Description                                                                                                          |
-| ----------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `spec-reviewer`   | After spec-writer, before feature-planner | Quality gate on a spec doc: rule atomicity, scope, DDD alignment, UX completeness, conflicts                         |
-| `feature-planner` | After spec-reviewer approves              | Translates spec into `docs/plan/{feature}-plan.md` with DDD layer breakdown, rule-to-task mapping, Workflow TaskList |
-| `spec-checker`    | After implementation, before commit       | Verifies every TRIGRAMME-NNN rule from the spec is implemented in code and covered by tests                          |
+| Agent             | Trigger                                   | Description                                                                                                                                    |
+| ----------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `spec-reviewer`   | After spec-writer, before feature-planner | Quality gate on a spec doc: rule atomicity, scope, DDD alignment, UX completeness, conflicts                                                   |
+| `retro-spec`      | Onboarding an existing feature to the kit | Infers TRIGRAM-NNN rules from existing code and writes a first-pass `docs/spec/{domain}.md` with `retro-inferred` annotations for human review |
+| `feature-planner` | After spec-reviewer approves              | Translates spec into `docs/plan/{feature}-plan.md` with DDD layer breakdown, rule-to-task mapping, Workflow TaskList                           |
+| `spec-checker`    | After implementation, before commit       | Verifies every TRIGRAM-NNN rule from the spec is implemented in code and covered by tests                                                      |
 
 ---
 

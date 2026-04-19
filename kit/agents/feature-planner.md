@@ -1,6 +1,6 @@
 ---
 name: feature-planner
-description: Senior Architect Agent that translates a validated spec into a persistent, detailed implementation plan (docs/plan/{feature-name}-plan.md) mapping TRIGRAMME-NNN rules to DDD layers and CLAUDE.md workflow. Use when a spec has been reviewed and approved by spec-reviewer.
+description: Senior Architect Agent that translates a validated spec into a persistent, detailed implementation plan (docs/plan/{feature-name}-plan.md) mapping TRIGRAM-NNN rules to DDD layers and CLAUDE.md workflow. Use when a spec has been reviewed and approved by spec-reviewer.
 tools: Read, Write, Grep, Glob, Bash
 model: claude-opus-4-6
 ---
@@ -19,13 +19,13 @@ Given a feature spec document, you must produce a comprehensive, step-by-step im
 
 Read the spec doc (e.g., `docs/spec/asset-pricing.md`) and identify:
 
-- All **TRIGRAMME-NNN rules** (e.g. REF-010, REF-020, PAY-030), their scope (frontend / backend / both), and descriptions.
+- All **TRIGRAM-NNN rules** (e.g. REF-010, REF-020, PAY-030), their scope (frontend / backend / both), and descriptions.
 - The declared trigram and its registration in `docs/spec-index.md` (mandatory per spec-writer Step 2.5).
 - Entities and UI components to be created or modified.
 - Cross-context dependencies.
 - **CRITICAL**: Read `docs/adr/` to identify technical constraints (e.g., ADR-001 for currency types, ADR-002 for soft-delete) that MUST dictate the implementation details.
 
-_If the spec contains no TRIGRAMME-NNN rules, report it and ask the user to complete it via `/spec-writer` before proceeding._
+_If the spec contains no TRIGRAM-NNN rules, report it and ask the user to complete it via `/spec-writer` before proceeding._
 
 ### Step 2 — Architectural Contextualization
 
@@ -45,7 +45,7 @@ Verify existing paths using `Glob` or `Grep` before referencing them in the plan
 
 ### Step 4 — Mapping & Dependency Graph
 
-For each TRIGRAMME-NNN rule, identify concrete tasks:
+For each TRIGRAM-NNN rule, identify concrete tasks:
 
 - Determine if it requires a creation or a modification.
 - Map which layer(s) are affected.
@@ -75,7 +75,7 @@ A synthetic checklist for mandatory quality and process steps:
 - [ ] 🔧 Script Review (`script-reviewer` if any script or hook was added/modified)
 - [ ] 🧪 Unit & Integration Tests
 - [ ] 📚 Documentation Update (`ARCHITECTURE.md` + `docs/todo.md` — entries in English)
-- [ ] ✅ Final Validation (`spec-checker` + `workflow-validator`)
+- [ ] ✅ Spec check (`spec-checker`)
 - [ ] 💾 Commit: tests & docs (suggested title from plan)
 
 ### 2. Detailed Implementation Plan
@@ -84,7 +84,7 @@ A granular breakdown by architectural layer:
 
 - **Backend**: Exact file paths, struct names, factory methods (follow project conventions from `docs/backend-rules.md`), service methods, and Tauri handlers.
 - **Frontend**: Exact file paths, gateway methods, custom hooks, and React components.
-- **Rules Coverage**: A table mapping every TRIGRAMME-NNN rule to its corresponding implementation task.
+- **Rules Coverage**: A table mapping every TRIGRAM-NNN rule to its corresponding implementation task.
 
 ---
 

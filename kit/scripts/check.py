@@ -186,6 +186,7 @@ class QualityChecker:
             err_count = len(re.findall(r"error TS", tsc_res.stdout))
             self._vprint(f"{ORANGE}⚠️  TSC: {err_count} errors found{NC}")
             self.metrics["tsc"] = f"{err_count} errors"
+            self.suite_failed = True
             if not self.verbose and tsc_res.stdout.strip():
                 self.failures["TSC"] = tsc_res.stdout.strip()
 
