@@ -42,7 +42,6 @@ class ReleaseManager:
         match = re.match(
             r"^(feat|fix|docs|chore|refactor|test|ci)(\(.+\))?(!)?: (.+)$",
             message,
-            re.DOTALL,
         )
         if not match:
             return {
@@ -61,7 +60,7 @@ class ReleaseManager:
     def analyze_commits(self):
         tag_range = f"{self.current_version}..HEAD"
         log = subprocess.check_output(
-            ["git", "log", tag_range, "--pretty=format:%s%n%b%x00"],
+            ["git", "log", tag_range, "--pretty=format:%s%x00"],
             cwd=self.repo_root,
             text=True,
         )
