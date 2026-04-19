@@ -36,6 +36,7 @@ _Use for: New features, new business logic, significant UI changes, or complex r
    - If `.ts` / `.tsx` modified: **`reviewer-frontend`** agent → fix issues.
    - If `migrations/` modified: **`reviewer-sql`** agent → fix issues.
    - If `.sh`, `.py`, or `.githooks` modified: **`script-reviewer`** agent.
+   - If `capabilities/*.json` or `tauri.conf.json` modified: **`maintainer`** agent.
    - If UI text changed: **`i18n-checker`** agent.
 
 **Phase 4: Validation & Closure**
@@ -83,12 +84,12 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
 
 ## Quality & Process Agents
 
-| Agent                | Trigger                                                               | Description                                                                                                      |
-| -------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `i18n-checker`       | Any `.ts` / `.tsx` or translation JSON modified                       | Hardcoded strings, missing/unused translation keys, cross-locale mismatches                                      |
-| `workflow-validator` | Before committing a feature implementation                            | Reads `docs/plan/*-plan.md` Workflow TaskList; produces ✅/❌ table; blocks commit if required steps are missing |
-| `script-reviewer`    | Any `.sh`, `.py` (in `scripts/`) or `.githooks/` file modified        | Script quality: `set -euo pipefail`, shebang, quoting, portability, security                                     |
-| `maintainer`         | Any GitHub Actions workflow or config file modified; before a release | CI/config correctness, security, consistency; delegates dependency audit to `/dep-audit`                         |
+| Agent                | Trigger                                                                   | Description                                                                                                      |
+| -------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `i18n-checker`       | Any `.ts` / `.tsx` or translation JSON modified                           | Hardcoded strings, missing/unused translation keys, cross-locale mismatches                                      |
+| `workflow-validator` | Before committing a feature implementation                                | Reads `docs/plan/*-plan.md` Workflow TaskList; produces ✅/❌ table; blocks commit if required steps are missing |
+| `script-reviewer`    | Any `.sh`, `.py` (in `scripts/`) or `.githooks/` file modified            | Script quality: `set -euo pipefail`, shebang, quoting, portability, security                                     |
+| `maintainer`         | Any workflow, config, or `capabilities/*.json` modified; before a release | CI/config/capability correctness, security, consistency; delegates dependency audit to `/dep-audit`              |
 
 ---
 

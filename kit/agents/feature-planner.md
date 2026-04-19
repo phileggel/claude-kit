@@ -69,7 +69,7 @@ A synthetic checklist for mandatory quality and process steps:
 - [ ] 💾 Commit: backend layer (suggested title from plan)
 - [ ] 💻 Frontend Implementation (Gateway, Hook, Component, i18n)
 - [ ] 🧹 Formatting & Linting (`just format` + `python3 scripts/check.py`)
-- [ ] 🔍 Code Review (`reviewer` always + `reviewer-backend` if .rs modified + `reviewer-frontend` if .ts/.tsx modified — includes UX/M3 review for .tsx)
+- [ ] 🔍 Code Review (`reviewer` always + `reviewer-backend` if .rs modified + `reviewer-frontend` if .ts/.tsx modified — includes UX/M3 review for .tsx + `maintainer` if capabilities/\*.json or tauri.conf.json modified)
 - [ ] 💾 Commit: frontend layer (suggested title from plan)
 - [ ] 🌐 i18n Review (`i18n-checker` if UI text changed)
 - [ ] 🔧 Script Review (`script-reviewer` if any script or hook was added/modified)
