@@ -81,12 +81,13 @@ Write `docs/spec/{domain}.md` using the standard spec format. Every inferred rul
 
 ### {Category, e.g. Eligibility}
 
-- **{TRIGRAM}-010**: {Imperative rule description.} <!-- retro-inferred: verify intent -->
-- **{TRIGRAM}-020**: {Imperative rule description.} <!-- retro-inferred: verify intent -->
+**{TRIGRAM}-010 — {Short Title} (frontend + backend)**: {Imperative rule description.} <!-- retro-inferred: verify intent -->
+
+**{TRIGRAM}-020 — {Short Title} (backend)**: {Imperative rule description.} <!-- retro-inferred: verify intent -->
 
 ### {Category, e.g. Creation}
 
-- **{TRIGRAM}-030**: {Imperative rule description.} <!-- retro-inferred: verify intent -->
+**{TRIGRAM}-030 — {Short Title} (frontend)**: {Imperative rule description.} <!-- retro-inferred: verify intent -->
 
 ## Open Questions
 
@@ -100,7 +101,8 @@ These are gaps the human reviewer must resolve before the spec can be considered
 
 1. **Never invent intent.** If you cannot determine _why_ a behavior exists, describe _what_ it does and flag it as ambiguous in Open Questions.
 2. **Every rule gets `<!-- retro-inferred: verify intent -->`** — no exceptions, even for rules that seem obvious.
-3. **Path verification**: verify all file paths with `Glob` before reading.
-4. **Write the file**: use the `Write` tool to produce `docs/spec/{domain}.md`. Do not just output it as text.
-5. **No rule numbering gaps**: start at 010, increment by 10. Reserve gaps only for categories, not within them.
-6. After writing, tell the user: run `spec-reviewer` on the output before using it with `spec-checker` or `workflow-validator`.
+3. **Scope is mandatory on every rule** — infer from context: Tauri handlers and service methods → `backend`; gateway calls, UI constraints, UX flows → `frontend`; rules that span both layers → `frontend + backend`. When uncertain, default to `frontend + backend` and add an open question to clarify.
+4. **Path verification**: verify all file paths with `Glob` before reading.
+5. **Write the file**: use the `Write` tool to produce `docs/spec/{domain}.md`. Do not just output it as text.
+6. **No rule numbering gaps**: start at 010, increment by 10. Reserve gaps only for categories, not within them.
+7. After writing, tell the user: run `spec-reviewer` on the output before using it with `spec-checker` or `workflow-validator`.
