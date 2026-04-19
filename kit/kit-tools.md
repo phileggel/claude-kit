@@ -8,6 +8,57 @@ Each item lists its **trigger** (when to invoke it) and a one-line description.
 
 ---
 
+## Workflows
+
+### Option A — Full Feature Workflow
+
+_Use for: New features, new business logic, significant UI changes, or complex refactoring._
+
+**Phase 1: Pre-implementation (Spec & Plan)**
+
+1. Run **`/spec-writer`** skill → produces `docs/spec/{feature}.md`.
+2. _(Optional)_ Run **`/adr-manager`** skill → produces `docs/adr/{ref}.md` if an architectural decision is needed.
+3. Run **`spec-reviewer`** agent to validate spec quality (DDD alignment, rule atomicity, UX completeness).
+4. Run **`feature-planner`** agent → produces `docs/plan/{feature}-plan.md` with a task checklist.
+
+**Phase 2: Execution**
+
+1. Read `docs/plan/{feature}-plan.md` — this is your Primary TaskList. Do not deviate from it.
+2. Implement the feature layer by layer, updating checkboxes (`[ ]` → `[x]`) in the plan file after each completed task.
+
+**Phase 3: Review & Quality**
+
+1. Run `python3 scripts/check.py` (or `just check-full`) and fix all issues.
+2. Write missing tests.
+3. Run the reviewer gauntlet:
+   - **`reviewer`** agent → fix issues.
+   - If `.rs` modified: **`reviewer-backend`** agent → fix issues.
+   - If `.ts` / `.tsx` modified: **`reviewer-frontend`** agent → fix issues.
+   - If `migrations/` modified: **`reviewer-sql`** agent → fix issues.
+   - If `.sh`, `.py`, or `.githooks` modified: **`script-reviewer`** agent.
+   - If UI text changed: **`i18n-checker`** agent.
+
+**Phase 4: Validation & Closure**
+
+1. Run **`spec-checker`** agent to confirm all spec rules are covered in code and tests.
+2. Run **`workflow-validator`** agent to verify all plan checkboxes are ticked.
+3. Ask the user if a commit is needed. If yes, use **`/smart-commit`** skill.
+
+---
+
+### Option B — Simple Technical Workflow
+
+_Use for: Bug fixes, dependency updates, minor maintenance (no new business rules or features)._
+
+1. **Analysis**: Read relevant documentation and analyze the codebase.
+2. **Direct Plan**: Propose a concise TODO plan with exact file paths in the chat. Ask user to validate.
+3. **Tracking**: Use `TaskCreate` / `TaskUpdate` tools to track workflow steps (`in_progress` when starting, `completed` when done).
+4. **Implementation**: Execute the code changes.
+5. **Review & Quality**: Run `python3 scripts/check.py` (or `just check-full`), write missing tests, and run relevant subagents (`reviewer`, `script-reviewer`, etc.) as in Phase 3 above.
+6. **Closure**: Ask user if another task is needed before commit, otherwise use **`/smart-commit`** skill.
+
+---
+
 ## Code Review Agents
 
 | Agent               | Trigger                                  | Description                                                                                                                                                                                           |
