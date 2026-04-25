@@ -10,11 +10,7 @@ A skill that diffs two versions of a spec file (via `git diff`), identifies adde
 
 ---
 
-Improvement 1 — commit-msg hook vs BREAKING CHANGE:
-The 5-line body limit rejects valid feat!: commits with a BREAKING CHANGE: footer. Either exempt BREAKING CHANGE:
-lines from the count, or raise the limit to 8–10. smart-commit hardcodes the same 5-line rule — both need updating
-together.
-
-Improvement 2 — duplicated git file-discovery preamble across all review agents:
+Improvement 1 — duplicated git file-discovery preamble across all review agents:
 The same 3-command union (git diff HEAD, --cached, porcelain) is copy-pasted in 5+ agents. Extract to
 scripts/changed-files.sh so a fix propagates everywhere.
+⚠️ Do opportunistically during Phase A (v3.0.0) when all agents are already being edited.
