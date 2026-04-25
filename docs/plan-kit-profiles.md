@@ -85,6 +85,7 @@ Stack-specific recipes move to `kit/justfile/{profile}.just`, appended to the do
 `clean-db`. Web recipes: `migrate`, `db-reset`, `prepare-sqlx`.
 
 `just check` and `just release` in `common.just` gain existence guards:
+
 ```bash
 if [ ! -f scripts/check.py ]; then
     echo "❌ scripts/check.py not found — profile not synced or not yet implemented."
@@ -184,28 +185,28 @@ All steps use `cp` — never delete, never overwrite files that were not put the
 
 ### What moves / what changes
 
-| File | Action | Content change |
-|---|---|---|
-| `kit/agents/reviewer*.md` (7 files) | Move → `kit/agents/tauri/` | None |
-| `kit/scripts/check.py` | Move → `kit/scripts/tauri/check.py` | None |
-| `kit/scripts/release.py` | Move → `kit/scripts/tauri/release.py` | None |
-| `kit/common.just` (Tauri recipes) | Extract → `kit/justfile/tauri.just` | Split |
-| `kit/common.just` (generic + guards) | Update in place | Add guards |
-| `kit/agents/feature-planner.md` | Update in place | Remove hardcoded paths |
-| `kit/agents/retro-spec.md` | Update in place | Remove hardcoded paths |
-| `kit/agents/spec-checker.md` | Update in place | Remove hardcoded paths |
-| `kit/agents/spec-reviewer.md` | Update in place | "IPC" language |
-| `kit/agents/contract-reviewer.md` | Update in place | "Tauri 2" language |
-| `kit/agents/script-reviewer.md` | Update in place | Remove Tauri version rule |
-| `kit/skills/contract/SKILL.md` | Update in place | "IPC" → "domain" throughout |
-| `kit/skills/spec-writer/SKILL.md` | Update in place | Retro mode paths |
-| `kit/skills/dep-audit/SKILL.md` | Update in place | Cargo.toml discovery |
-| `kit/sync-config.sh` | Update in place | Profile detection + --profile flag |
-| `kit/scripts/sync.sh` | Rewrite | Profile-aware, additive-only |
-| `scripts/check-kit.py` | Update in place | New structure + 🚧 handling |
-| `kit/kit-tools.md` | Update in place | Profile tables + Status column |
-| `kit/kit-readme.md` | Update in place | Profiles section |
-| `CLAUDE.md` | Update in place | Sync examples + kit-profile note |
+| File                                 | Action                                | Content change                     |
+| ------------------------------------ | ------------------------------------- | ---------------------------------- |
+| `kit/agents/reviewer*.md` (7 files)  | Move → `kit/agents/tauri/`            | None                               |
+| `kit/scripts/check.py`               | Move → `kit/scripts/tauri/check.py`   | None                               |
+| `kit/scripts/release.py`             | Move → `kit/scripts/tauri/release.py` | None                               |
+| `kit/common.just` (Tauri recipes)    | Extract → `kit/justfile/tauri.just`   | Split                              |
+| `kit/common.just` (generic + guards) | Update in place                       | Add guards                         |
+| `kit/agents/feature-planner.md`      | Update in place                       | Remove hardcoded paths             |
+| `kit/agents/retro-spec.md`           | Update in place                       | Remove hardcoded paths             |
+| `kit/agents/spec-checker.md`         | Update in place                       | Remove hardcoded paths             |
+| `kit/agents/spec-reviewer.md`        | Update in place                       | "IPC" language                     |
+| `kit/agents/contract-reviewer.md`    | Update in place                       | "Tauri 2" language                 |
+| `kit/agents/script-reviewer.md`      | Update in place                       | Remove Tauri version rule          |
+| `kit/skills/contract/SKILL.md`       | Update in place                       | "IPC" → "domain" throughout        |
+| `kit/skills/spec-writer/SKILL.md`    | Update in place                       | Retro mode paths                   |
+| `kit/skills/dep-audit/SKILL.md`      | Update in place                       | Cargo.toml discovery               |
+| `kit/sync-config.sh`                 | Update in place                       | Profile detection + --profile flag |
+| `kit/scripts/sync.sh`                | Rewrite                               | Profile-aware, additive-only       |
+| `scripts/check-kit.py`               | Update in place                       | New structure + 🚧 handling        |
+| `kit/kit-tools.md`                   | Update in place                       | Profile tables + Status column     |
+| `kit/kit-readme.md`                  | Update in place                       | Profiles section                   |
+| `CLAUDE.md`                          | Update in place                       | Sync examples + kit-profile note   |
 
 ---
 
@@ -216,6 +217,7 @@ All steps use `cp` — never delete, never overwrite files that were not put the
 Edit existing files to remove hardcoded Tauri paths and stack language. No new files.
 
 **1. `kit/agents/feature-planner.md`**
+
 - Step 3 (Codebase Verification): replace `src-tauri/src/context/{domain}/`,
   `src/features/`, `specta_builder.rs` with: "Read `ARCHITECTURE.md` to discover the
   backend and frontend module layout; verify paths with Glob before referencing them."
@@ -226,42 +228,50 @@ Edit existing files to remove hardcoded Tauri paths and stack language. No new f
 - Critical Rule 8: same — replace hardcoded path with ARCHITECTURE.md reference
 
 **2. `kit/agents/retro-spec.md`**
+
 - Replace all `src-tauri/src/context/{domain}/` and `src/features/{domain}/` references
   with ARCHITECTURE.md-derived paths
 - Update description to remove "src-tauri" mention
 
 **3. `kit/agents/spec-checker.md`**
+
 - Step 3 (backend check): replace `src-tauri/src/` with ARCHITECTURE.md-derived backend path
 - Step 4 (frontend check): replace `src/features/` with ARCHITECTURE.md-derived frontend path
 - Step 5 (contract): replace `src-tauri/` and `src/features/{domain}/gateway.ts` with
   ARCHITECTURE.md-derived paths
 
 **4. `kit/agents/spec-reviewer.md`**
+
 - Section G, closing line: "IPC contract" → "domain contract"
 - Final summary: "Ready for /contract: yes — 0 critical findings (incl. contractability)."
   Remove "IPC" from any descriptive text
 
 **5. `kit/agents/contract-reviewer.md`**
+
 - System prompt first line: "IPC contract for a Tauri 2 / React 19 / Rust project" →
   "domain contract for a Rust / React project"
 
 **6. `kit/agents/script-reviewer.md`**
+
 - Find and remove the rule about version bumps requiring sync of `package.json`,
   `src-tauri/Cargo.toml`, and `src-tauri/tauri.conf.json` — that belongs in
   the Tauri `maintainer.md`, not a generic script reviewer
 
 **7. `kit/skills/contract/SKILL.md`**
+
 - Replace every occurrence of "IPC contract" with "domain contract"
 - Update title/description to remove Tauri-specific framing
 - Contract file format and Commands table are already generic — no change needed there
 
 **8. `kit/skills/spec-writer/SKILL.md`**
+
 - Step 3 (retro mode): replace `src-tauri/src/context/`, `src/features/`,
   `specta_builder.rs` with: "Read `ARCHITECTURE.md` to discover backend and frontend
   module layout, then Grep for related entities in the backend module"
 - Step 7 next steps: "IPC contract" → "domain contract"
 
 **9. `kit/skills/dep-audit/SKILL.md`**
+
 - Step 2 (Cargo audit): replace `src-tauri/Cargo.toml` hardcode with: "Locate `Cargo.toml`
   by reading `ARCHITECTURE.md` or by searching for `Cargo.toml` in the project root and
   one level of subdirectories; skip Cargo checks if not found"
@@ -271,6 +281,7 @@ Edit existing files to remove hardcoded Tauri paths and stack language. No new f
 Move files and create new directory structure. No content changes in moved files.
 
 1. Create directories:
+
    ```bash
    mkdir -p kit/agents/tauri kit/agents/web
    mkdir -p kit/scripts/tauri kit/scripts/web
@@ -278,6 +289,7 @@ Move files and create new directory structure. No content changes in moved files
    ```
 
 2. Move Tauri quality agents (git mv to preserve history):
+
    ```bash
    git mv kit/agents/reviewer.md          kit/agents/tauri/
    git mv kit/agents/reviewer-backend.md  kit/agents/tauri/
@@ -289,6 +301,7 @@ Move files and create new directory structure. No content changes in moved files
    ```
 
 3. Move scripts (git mv):
+
    ```bash
    git mv kit/scripts/check.py   kit/scripts/tauri/check.py
    git mv kit/scripts/release.py kit/scripts/tauri/release.py
@@ -303,6 +316,7 @@ Move files and create new directory structure. No content changes in moved files
      Decision §6 for the bash guard pattern)
 
 5. Add placeholders for planned web profile:
+
    ```bash
    touch kit/agents/web/.gitkeep
    touch kit/scripts/web/.gitkeep
@@ -323,6 +337,7 @@ The script runs inside a temp dir cloned from the kit tag (called by `sync-confi
 Receives `PROFILE` env var (empty string if no profile).
 
 Sync sequence — identical pattern for each resource type:
+
 ```bash
 # 1. Generic agents (always)
 cp kit/agents/*.md "$TARGET/.claude/agents/"
@@ -355,12 +370,14 @@ fi
 ```
 
 Log at end:
+
 - With profile: `✅ Synced generic agents + profile: $PROFILE`
 - Without profile: `ℹ️  Synced generic agents only (no .claude/kit-profile found)`
 
 **2. `kit/sync-config.sh`** — add profile detection
 
 Before invoking `sync.sh`, detect profile:
+
 ```bash
 PROFILE=""
 # --profile flag overrides file
@@ -430,6 +447,7 @@ After Phase D: run preflight, `/smart-commit`, release v3.1.0 (minor).
 ### Phase E — Update kit documentation (~2h)
 
 **1. `kit/kit-tools.md`**
+
 - Add preamble: "Profiles — declare your stack in `.claude/kit-profile`. Absent = generic only."
 - All tables: add `Status` column (`✅` / `🚧 planned`)
 - Code Review Agents table: show generic agents separately from profile agents
@@ -437,20 +455,23 @@ After Phase D: run preflight, `/smart-commit`, release v3.1.0 (minor).
   | Profile | Agents | Scripts | Justfile | Status |
   |---------|--------|---------|----------|--------|
   | `tauri` | 7 | check.py, release.py | tauri.just | ✅ complete |
-  | `web`   | 7 | check.py, release.py | web.just   | 🚧 planned |
-  | (none)  | 0 | — | — | ✅ first-class |
+  | `web` | 7 | check.py, release.py | web.just | 🚧 planned |
+  | (none) | 0 | — | — | ✅ first-class |
 
 **2. `kit/kit-readme.md`**
+
 - Add `## Profiles` section explaining the two-tier architecture, how to declare a profile,
   what "no profile" means, how to add a custom profile
 
 **3. `CLAUDE.md`**
+
 - Update sync command example: `./scripts/sync-config.sh --profile tauri`
 - Add: "Declare profile: `echo 'tauri' > .claude/kit-profile`"
 - Update repository layout comment to reflect new `kit/agents/tauri/`, `kit/scripts/tauri/`,
   `kit/justfile/` structure
 
 **4. `scripts/check-kit.py`**
+
 - Update paths: `kit/agents/*.md` now includes `kit/agents/tauri/*.md` and `kit/agents/web/`
 - `kit/agents/web/.gitkeep` and `kit/scripts/web/.gitkeep` → treat as `🚧 planned`, not error
 - Cross-reference check: agents in `kit/agents/tauri/` must appear in `kit-tools.md` with
@@ -483,14 +504,14 @@ No behavior change after migration — same agents, same scripts, same justfile 
 
 ## Effort Summary
 
-| Phase | What | Effort | When |
-|---|---|---|---|
-| A | Genericize 9 agents/skills (path abstraction, remove "IPC"/"Tauri" language) | ~2h | v3.0.0 |
-| B | Restructure repo (move 9 files, split common.just, create dirs) | ~1.5h | v3.0.0 |
-| C | Sync script rewrite (profile-aware, additive-only) + sync-config.sh | ~1.5h | v3.0.0 |
-| E | Docs + check-kit.py (kit-tools, kit-readme, CLAUDE.md, check-kit.py) | ~2h | v3.0.0 |
-| F | Preflight + v3.0.0 release | ~1h | v3.0.0 |
-| D | Web profile content (7 agents + 2 scripts + justfile) | ~5–6h | v3.1.0, post-Muvimu2 POC |
+| Phase | What                                                                         | Effort | When                     |
+| ----- | ---------------------------------------------------------------------------- | ------ | ------------------------ |
+| A     | Genericize 9 agents/skills (path abstraction, remove "IPC"/"Tauri" language) | ~2h    | v3.0.0                   |
+| B     | Restructure repo (move 9 files, split common.just, create dirs)              | ~1.5h  | v3.0.0                   |
+| C     | Sync script rewrite (profile-aware, additive-only) + sync-config.sh          | ~1.5h  | v3.0.0                   |
+| E     | Docs + check-kit.py (kit-tools, kit-readme, CLAUDE.md, check-kit.py)         | ~2h    | v3.0.0                   |
+| F     | Preflight + v3.0.0 release                                                   | ~1h    | v3.0.0                   |
+| D     | Web profile content (7 agents + 2 scripts + justfile)                        | ~5–6h  | v3.1.0, post-Muvimu2 POC |
 
 **Total to ship v3.0.0: ~8h across 2 sessions.**
 
@@ -502,9 +523,9 @@ Session 2 suggestion: Phases C + E + F
 ## Open Questions (non-blocking)
 
 - [ ] **Repo rename**: `tauri-claude-kit` → `claude-kit` — correct long-term name but breaks
-  all downstream sync URLs. Decide separately, don't block v3.0.0.
+      all downstream sync URLs. Decide separately, don't block v3.0.0.
 - [ ] **`workflow-validator.md`**: references `tauri.conf.json` as a `maintainer` trigger —
-  small Tauri-specific leak in a generic agent. Fix in Phase A or leave for v3.1.0.
+      small Tauri-specific leak in a generic agent. Fix in Phase A or leave for v3.1.0.
 - [ ] **web.just path convention**: `server/` is Muvimu2's convention, not universal for web
-  projects. Phase D agents should read from `ARCHITECTURE.md`, not hardcode `server/`.
-  Note this when writing Phase D.
+      projects. Phase D agents should read from `ARCHITECTURE.md`, not hardcode `server/`.
+      Note this when writing Phase D.
