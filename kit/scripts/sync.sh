@@ -23,6 +23,11 @@ NC='\033[0m'
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 
+# Auto-detect profile from project if not passed by an old bootstrap script
+if [[ -z "${PROFILE:-}" ]] && [[ -f "$PROJECT_ROOT/.claude/kit-profile" ]]; then
+    PROFILE=$(tr -d '[:space:]' <"$PROJECT_ROOT/.claude/kit-profile")
+fi
+
 # ── Kit index & readme ────────────────────────────────────────────────────────
 echo -e "${BLUE}📁 Syncing kit index and readme...${NC}"
 mkdir -p "$PROJECT_ROOT/.claude"
