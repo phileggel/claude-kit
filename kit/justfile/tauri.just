@@ -14,6 +14,13 @@ generate-types:
 prepare-sqlx:
     cd src-tauri && DATABASE_URL="sqlite:.local/dev_check.sqlite" cargo sqlx prepare -- --tests
 
+# Auto-fix formatting and linting
+format:
+    @cd src-tauri && cargo fmt
+    @cd src-tauri && cargo clippy --fix --allow-dirty --quiet
+    @npm run format:fix
+    @npm run format:docs
+
 # ⚠️  Destructive: deletes local database and recreates schema
 clean-db:
     #!/usr/bin/env bash

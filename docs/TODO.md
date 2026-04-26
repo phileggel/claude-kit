@@ -4,33 +4,9 @@
 
 A skill that diffs two versions of a spec file (via `git diff`), identifies added/modified/removed TRIGRAM-NNN rules, and outputs a delta report so the developer knows which plan tasks and tests are now stale.
 
-## common.just: format recipe is Tauri-specific in a generic file
-
-The `format` recipe in `kit/common.just` hardcodes `cargo fmt`, `cargo clippy`, and `npm run` —
-Tauri-specific commands in a recipe that ships to all profiles. Fix: move `format` to
-`kit/justfile/tauri.just` and replace with a no-op stub (or remove) from `common.just`.
-Do alongside Phase D (v3.1.0) when tauri.just is already being touched.
-
 ## rename repo to claude-kit (post-web-profile)
 
 Once the web profile ships and the kit is genuinely multi-stack, rename the GitHub repo and project from `tauri-claude-kit` to `claude-kit`. GitHub will redirect old clone URLs. Update `CLAUDE.md`, `kit-readme.md`, and any internal references at that time.
-
-## check-kit.py: tool-minimality lint for review agents
-
-Add a check that reads each agent's frontmatter `tools:` field and enforces:
-
-- Review/checker/validator agents must not have `Edit` (unconditional)
-- `Write` is allowed only if the agent has a `## Save report` section (saves to `tmp/` only)
-- `test-writer-*` agents must have `Edit` and `Write`
-
-Agents can't invoke skills mid-run, so `Write` must stay in review agents for save-report.
-The lint makes the constraint explicit and catches future tool-list mistakes at release time.
-
-## smart-commit: use `just check` instead of hardcoded `scripts/check.py`
-
-The `/smart-commit` skill hardcodes `python3 scripts/check.py` as its quality gate. For generic-only
-projects (no profile), `scripts/check.py` doesn't exist. Fix: use `just check` instead — the recipe
-already guards on file existence and shows a clear error message if check.py is absent.
 
 ## web profile: resolve "planned" state
 

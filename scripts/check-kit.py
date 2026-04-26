@@ -111,6 +111,7 @@ class KitChecker:
                 self._vprint(f"{YELLOW}ℹ npx not installed, skipping Prettier.{NC}")
 
         self._check_agent_inventory()
+        self._check_tool_minimality()
 
         self._report()
         return not self.suite_failed
@@ -138,6 +139,61 @@ class KitChecker:
             return False
 
         self.results["Agent inventory"] = True
+        return True
+
+    def _check_tool_minimality(self) -> bool:
+        """Enforce tool-minimality rules for review and test-writer agents."""
+        REVIEW_PATTERNS = ["reviewer", "checker", "validator"]
+        TEST_WRITER_PATTERN = "test-writer"
+
+        failures: list[str] = []
+
+        for pattern in ["kit/agents/*.md", "kit/agents/tauri/*.md"]:
+            for agent_path in sorted((REPO_ROOT).glob(pattern)):
+                stem = agent_path.stem.lower()
+                content = agent_path.read_text(encoding="utf-8")
+
+                tools: list[str] = []
+                for line in content.splitlines():
+                    if line.startswith("tools:"):
+                        tools = [
+                            t.strip() for t in line.replace("tools:", "").split(",")
+                        ]
+                        break
+
+                rel = str(agent_path.relative_to(REPO_ROOT))
+                is_review = any(pat in stem for pat in REVIEW_PATTERNS)
+                is_test_writer = TEST_WRITER_PATTERN in stem
+
+                if is_review:
+                    if "Edit" in tools:
+                        failures.append(
+                            f"{rel}: review agent must not have Edit in tools"
+                        )
+                    if "Write" in tools and "## Save report" not in content:
+                        failures.append(
+                            f"{rel}: review agent has Write but no '## Save report' section"
+                        )
+
+                if is_test_writer:
+                    if "Edit" not in tools:
+                        failures.append(
+                            f"{rel}: test-writer agent must have Edit in tools"
+                        )
+                    if "Write" not in tools:
+                        failures.append(
+                            f"{rel}: test-writer agent must have Write in tools"
+                        )
+
+        if failures:
+            print("  Tool minimality...")
+            for f in failures:
+                print(f"    ✗ {f}")
+            self.suite_failed = True
+            self.results["Tool minimality"] = False
+            return False
+
+        self.results["Tool minimality"] = True
         return True
 
     def _collect_bash_files(self) -> list[str]:
