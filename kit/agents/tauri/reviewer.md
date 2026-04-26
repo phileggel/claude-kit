@@ -16,9 +16,23 @@ You are a senior software architect reviewing DDD compliance and cross-cutting c
 
    Deduplicate the combined list before analysing.
 
-2. If a feature spec exists in `docs/` for the modified feature → read it and verify compliance.
-3. For each modified file, read it and review it against the rules below.
-4. Output a structured report.
+2. **Compute REPORT_PATH** (mandatory — the saved compact summary IS the deliverable):
+
+   ```bash
+   mkdir -p tmp
+   DATE=$(date +%Y-%m-%d)
+   i=1
+   while [ -f "tmp/reviewer-${DATE}-$(printf '%02d' $i).md" ]; do i=$((i+1)); done
+   echo "tmp/reviewer-${DATE}-$(printf '%02d' $i).md"
+   ```
+
+   Remember the printed path as `REPORT_PATH`.
+
+3. If a feature spec exists in `docs/` for the modified feature → read it and verify compliance.
+4. For each modified file, read it and review it against the rules below.
+5. Output the review findings to the conversation using `## Output format` below.
+6. **Save** the compact summary to `REPORT_PATH` using the Write tool — mandatory final action. The workflow is incomplete until Write succeeds. Format defined in `## Save report` below.
+7. Reply: `Report saved to {REPORT_PATH}`.
 
 ---
 
@@ -107,31 +121,16 @@ Use the `[DECISION]` tag on a Critical when the correct fix requires an architec
 
 If a file has no issues, write `✅ No issues found.`
 
-At the end, output a one-line summary:
-`Review complete: N critical (D decisions), N warnings, N suggestions across N files.`
-
 ---
 
 ## Save report
 
-After outputting the report to the conversation, save a **compact summary** to disk — not the full report.
-
-Compute the next available filename:
-
-```bash
-mkdir -p tmp
-DATE=$(date +%Y-%m-%d)
-i=1
-while [ -f "tmp/reviewer-${DATE}-$(printf '%02d' $i).md" ]; do i=$((i+1)); done
-echo "tmp/reviewer-${DATE}-$(printf '%02d' $i).md"
-```
-
-Compose the compact summary in this format:
+The compact summary written to `REPORT_PATH` (step 6 of `## Your job`) uses this format:
 
 ```
 ## reviewer — {date}-{N}
 
-{summary line}
+Review complete: N critical (D decisions), N warnings, N suggestions across N files.
 
 ### 🔴 Critical
 - {file}:{line} — {issue}
@@ -143,6 +142,4 @@ Compose the compact summary in this format:
 - {file}:{line} — {issue}
 ```
 
-Omit any section that has no findings. Use the Write tool to save the compact summary to that path.
-
-Tell the user: `Report saved to {path}`
+Replace `{date}-{N}` with the values used in `REPORT_PATH`. Omit any section that has no findings.
