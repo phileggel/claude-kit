@@ -1,8 +1,23 @@
 # List of TODOs
 
+## kit discovery & version awareness for downstream projects
+
+Make the kit fluid for downstream agents: a sync-managed `.claude/kit-version.md` with version and
+delta since last sync, a synced `.claude/kit-tools.md` inventory, and conditionally a `/kit-discover`
+skill for `CLAUDE.md` reconciliation. **See `docs/plan-kit-discovery.md` for the full plan** —
+phased, scoped, with acceptance criteria.
+
 ## add a spec-diff skill to detect when a spec change breaks existing TRIGRAM coverage
 
 A skill that diffs two versions of a spec file (via `git diff`), identifies added/modified/removed TRIGRAM-NNN rules, and outputs a delta report so the developer knows which plan tasks and tests are now stale.
+
+## check-kit.py: lint for end-marker drift in reviewer agents
+
+Add a lint that fails if any review agent's `## Output format` section ends with a natural-conclusion
+line outside a code block (e.g. `Review complete: …`, `i18n check: …`, `Result: …`). These end-markers
+caused the save-drift bug fixed in commit 909f19b — the model treated the summary line as task
+completion and skipped the `## Save report` tool calls. Summary lines now live only inside the saved
+compact summary; the lint prevents regression if someone re-introduces the old pattern.
 
 ## rename repo to claude-kit (post-web-profile)
 
