@@ -47,14 +47,14 @@ class ReleaseManager:
             return {
                 "type": "other",
                 "description": message,
-                "breaking": "BREAKING CHANGE" in message,
+                "breaking": False,
             }
 
         commit_type, _, bang, description = match.groups()
         return {
             "type": commit_type,
             "description": description,
-            "breaking": bang == "!" or "BREAKING CHANGE" in message,
+            "breaking": bang == "!",
         }
 
     def analyze_commits(self):
