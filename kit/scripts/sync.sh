@@ -91,11 +91,100 @@ if [ -n "${PROFILE:-}" ] && [ -d "$TMP/kit/scripts/$PROFILE" ]; then
     fi
 fi
 
-# ── Profile justfile recipes (append) ─────────────────────────────────────────
+# ── Profile justfile recipes (append with collision detection) ────────────────
 if [ -n "${PROFILE:-}" ] && [ -f "$TMP/kit/justfile/$PROFILE.just" ]; then
     echo -e "${BLUE}📁 Appending ${PROFILE} justfile recipes...${NC}"
-    printf '\n' >>"$PROJECT_ROOT/common.just"
-    cat "$TMP/kit/justfile/$PROFILE.just" >>"$PROJECT_ROOT/common.just"
+
+    _PROFILE_JUST="$TMP/kit/justfile/$PROFILE.just"
+
+    # Collect local justfiles to scan for recipe name collisions.
+    # Includes common.just (already synced) to catch kit-level conflicts too.
+    _local_just_files=()
+    for _jf in "$PROJECT_ROOT/justfile" "$PROJECT_ROOT"/*.just; do
+        [ -f "$_jf" ] || continue
+        [[ "$(basename "$_jf")" == "common.just" ]] && continue
+        _local_just_files+=("$_jf")
+    done
+    [ -f "$PROJECT_ROOT/common.just" ] && _local_just_files+=("$PROJECT_ROOT/common.just")
+
+    # Extract recipe names from justfiles (Python handles edge cases cleanly)
+    _PY_EXTRACT='
+import sys, re
+pat = re.compile(r"^([a-zA-Z_][a-zA-Z0-9_-]*)(?:[ \t]+[^:\n]*)?:(?!=)", re.MULTILINE)
+for path in sys.argv[1:]:
+    try:
+        for m in pat.finditer(open(path).read()):
+            print(m.group(1))
+    except (FileNotFoundError, IsADirectoryError):
+        pass
+'
+    _local_recipes=""
+    if [ ${#_local_just_files[@]} -gt 0 ]; then
+        _local_recipes=$(python3 -c "$_PY_EXTRACT" "${_local_just_files[@]}")
+    fi
+    _profile_recipes=$(python3 -c "$_PY_EXTRACT" "$_PROFILE_JUST")
+
+    # Find recipe names defined in the profile that already exist locally
+    _collision_list=""
+    for _r in $_profile_recipes; do
+        if echo "$_local_recipes" | grep -qxF "$_r"; then
+            _collision_list="$_collision_list $_r"
+        fi
+    done
+    _collision_list="${_collision_list# }"
+
+    if [ -z "$_collision_list" ]; then
+        # No collisions — append the profile recipes as-is
+        printf '\n' >>"$PROJECT_ROOT/common.just"
+        cat "$_PROFILE_JUST" >>"$PROJECT_ROOT/common.just"
+    else
+        # Warn about each collision, then filter them out before appending
+        for _r in $_collision_list; do
+            echo -e "${YELLOW}⚠  $_r already defined locally — skipping profile default. Review ${PROFILE}.just if you want the new version.${NC}"
+        done
+
+        _filtered=$(mktemp)
+        python3 - "$_PROFILE_JUST" $_collision_list >"$_filtered" <<'_PY_FILTER_EOF'
+import sys, re
+
+src_file, skip_names = sys.argv[1], set(sys.argv[2:])
+with open(src_file) as f:
+    lines = f.readlines()
+
+RECIPE_RE = re.compile(r'^([a-zA-Z_][a-zA-Z0-9_-]*)(?:[ \t]+[^:\n]*)?:(?!=)')
+output, pending, skipping = [], [], False
+
+for line in lines:
+    stripped = line.rstrip('\n')
+    m = RECIPE_RE.match(stripped)
+    if m:
+        if m.group(1) in skip_names:
+            skipping, pending = True, []
+        else:
+            skipping = False
+            output.extend(pending)
+            pending = []
+            output.append(line)
+    elif stripped and stripped[0] in (' ', '\t'):
+        if not skipping:
+            output.append(line)
+    else:
+        if not skipping:
+            pending.append(line)
+        elif not stripped or stripped.startswith('#'):
+            skipping = False
+            pending.append(line)
+
+output.extend(pending)
+sys.stdout.write(''.join(output))
+_PY_FILTER_EOF
+
+        if [ -s "$_filtered" ]; then
+            printf '\n' >>"$PROJECT_ROOT/common.just"
+            cat "$_filtered" >>"$PROJECT_ROOT/common.just"
+        fi
+        rm -f "$_filtered"
+    fi
 fi
 
 # ── Version stamp & summary ───────────────────────────────────────────────────
