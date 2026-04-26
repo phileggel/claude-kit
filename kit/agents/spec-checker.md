@@ -115,7 +115,7 @@ Action required: list rules and commands needing attention.
 
 ## Save report
 
-After outputting the report to the conversation, save it to disk.
+After outputting the report to the conversation, save a **compact summary** to disk — not the full report.
 
 Compute the next available filename:
 
@@ -127,7 +127,20 @@ while [ -f "tmp/spec-checker-${DATE}-$(printf '%02d' $i).md" ]; do i=$((i+1)); d
 echo "tmp/spec-checker-${DATE}-$(printf '%02d' $i).md"
 ```
 
-Use the Write tool to save the full report (same content as the conversation output) to that path.
+Compose the compact summary in this format:
+
+```
+## spec-checker — {date}-{N}
+
+{Spec coverage line}
+{Contract coverage line — omit if no contract file}
+Action required: {list}
+
+### Rules needing attention
+- {rule} — {status}
+```
+
+Include only rules with status `⚠️ partial`, `❌ not found`, or `✅ implemented, ⚠️ no test`. Omit the "Rules needing attention" section if all rules pass. Use the Write tool to save the compact summary to that path.
 
 Tell the user: `Report saved to {path}`
 

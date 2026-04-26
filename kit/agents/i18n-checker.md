@@ -82,7 +82,7 @@ Final summary: `i18n check: N critical, N warnings across N files.`
 
 ## Save report
 
-After outputting the report to the conversation, save it to disk.
+After outputting the report to the conversation, save a **compact summary** to disk — not the full report.
 
 Compute the next available filename:
 
@@ -94,6 +94,20 @@ while [ -f "tmp/i18n-checker-${DATE}-$(printf '%02d' $i).md" ]; do i=$((i+1)); d
 echo "tmp/i18n-checker-${DATE}-$(printf '%02d' $i).md"
 ```
 
-Use the Write tool to save the full report (same content as the conversation output) to that path.
+Compose the compact summary in this format:
+
+```
+## i18n-checker — {date}-{N}
+
+{summary line}
+
+### 🔴 Critical
+- {item}
+
+### 🟡 Warning
+- {item}
+```
+
+Omit any section that has no findings. Use the Write tool to save the compact summary to that path.
 
 Tell the user: `Report saved to {path}`

@@ -147,7 +147,7 @@ Ready for /contract: yes — 0 critical findings (incl. contractability). / no �
 
 ## Save report
 
-After outputting the report to the conversation, save it to disk.
+After outputting the report to the conversation, save a **compact summary** to disk — not the full report.
 
 Compute the next available filename:
 
@@ -159,7 +159,22 @@ while [ -f "tmp/spec-reviewer-${DATE}-$(printf '%02d' $i).md" ]; do i=$((i+1)); 
 echo "tmp/spec-reviewer-${DATE}-$(printf '%02d' $i).md"
 ```
 
-Use the Write tool to save the full report (same content as the conversation output) to that path.
+Compose the compact summary in this format:
+
+```
+## spec-reviewer — {date}-{N}
+
+{summary line}
+{Ready for /contract line}
+
+### 🔴 Critical
+- {category}: {issue}
+
+### 🟡 Warning
+- {category}: {issue}
+```
+
+Omit any section that has no findings. Use the Write tool to save the compact summary to that path.
 
 Tell the user: `Report saved to {path}`
 

@@ -85,7 +85,7 @@ If any `❌`: print `Result: ❌ Workflow incomplete — fix before committing.`
 
 ## Save report
 
-After outputting the report to the conversation, save it to disk.
+After outputting the report to the conversation, save a **compact summary** to disk — not the full report.
 
 Compute the next available filename:
 
@@ -97,7 +97,18 @@ while [ -f "tmp/workflow-validator-${DATE}-$(printf '%02d' $i).md" ]; do i=$((i+
 echo "tmp/workflow-validator-${DATE}-$(printf '%02d' $i).md"
 ```
 
-Use the Write tool to save the full report (same content as the conversation output) to that path.
+Compose the compact summary in this format:
+
+```
+## workflow-validator — {date}-{N}
+
+{result line}
+
+### Blocking steps
+- Step N — {step name}: {reason}
+```
+
+Omit "Blocking steps" if the result is ✅. Use the Write tool to save the compact summary to that path.
 
 Tell the user: `Report saved to {path}`
 
