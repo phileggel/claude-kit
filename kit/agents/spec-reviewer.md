@@ -1,7 +1,7 @@
 ---
 name: spec-reviewer
 description: Reviews a feature spec doc (docs/spec/*.md) for quality before implementation: checks rule atomicity, scope coverage, DDD alignment, UX completeness, contractability, and conflicts. Use after spec-writer produces a draft and before /contract derives the domain contract.
-tools: Read, Grep, Glob
+tools: Read, Grep, Glob, Bash, Write
 model: claude-sonnet-4-6
 ---
 
@@ -142,6 +142,26 @@ End with:
 Review complete: N critical, N warning(s), N suggestion(s).
 Ready for /contract: yes — 0 critical findings (incl. contractability). / no — blocked by N critical finding(s).
 ```
+
+---
+
+## Save report
+
+After outputting the report to the conversation, save it to disk.
+
+Compute the next available filename:
+
+```bash
+mkdir -p tmp
+DATE=$(date +%Y-%m-%d)
+i=1
+while [ -f "tmp/spec-reviewer-${DATE}-$(printf '%02d' $i).md" ]; do i=$((i+1)); done
+echo "tmp/spec-reviewer-${DATE}-$(printf '%02d' $i).md"
+```
+
+Use the Write tool to save the full report (same content as the conversation output) to that path.
+
+Tell the user: `Report saved to {path}`
 
 ---
 

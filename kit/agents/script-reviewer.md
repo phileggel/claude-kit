@@ -1,7 +1,7 @@
 ---
 name: script-reviewer
 description: Bash and Python script quality reviewer. The authoritative expert on internal script quality. Reviews scripts/ and .githooks/ files for correctness (set -euo pipefail, shebang, quoting), robustness, portability, and security. Use when any .sh, .py, or .githooks file is created or modified.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, Write
 model: claude-haiku-4-5-20251001
 ---
 
@@ -151,3 +151,23 @@ If a file has no issues, write `✅ No issues found.`
 
 At the end output:
 `Review complete: N critical, N warnings, N suggestions across N files.`
+
+---
+
+## Save report
+
+After outputting the report to the conversation, save it to disk.
+
+Compute the next available filename:
+
+```bash
+mkdir -p tmp
+DATE=$(date +%Y-%m-%d)
+i=1
+while [ -f "tmp/script-reviewer-${DATE}-$(printf '%02d' $i).md" ]; do i=$((i+1)); done
+echo "tmp/script-reviewer-${DATE}-$(printf '%02d' $i).md"
+```
+
+Use the Write tool to save the full report (same content as the conversation output) to that path.
+
+Tell the user: `Report saved to {path}`

@@ -1,7 +1,7 @@
 ---
 name: spec-checker
 description: Verifies that all business rules (TRIGRAM-NNN, e.g. REF-010, REF-020) in a feature spec doc are fully implemented in code and covered by tests. Use when implementation is complete and ready for spec compliance check.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, Write
 model: claude-opus-4-6
 ---
 
@@ -110,6 +110,26 @@ Spec coverage: N/total rules fully implemented, N/total tested.
 Contract coverage: N/total commands implemented + tested. (omit if no contract file)
 Action required: list rules and commands needing attention.
 ```
+
+---
+
+## Save report
+
+After outputting the report to the conversation, save it to disk.
+
+Compute the next available filename:
+
+```bash
+mkdir -p tmp
+DATE=$(date +%Y-%m-%d)
+i=1
+while [ -f "tmp/spec-checker-${DATE}-$(printf '%02d' $i).md" ]; do i=$((i+1)); done
+echo "tmp/spec-checker-${DATE}-$(printf '%02d' $i).md"
+```
+
+Use the Write tool to save the full report (same content as the conversation output) to that path.
+
+Tell the user: `Report saved to {path}`
 
 ---
 

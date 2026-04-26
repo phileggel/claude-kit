@@ -4,7 +4,7 @@ description:
   Reviews a domain contract (docs/contracts/{domain}-contract.md) against its source spec for
   coverage, traceability, error exhaustiveness, and type correctness. Blocks progression to
   feature-planner on critical findings. Run after /contract produces or updates the contract.
-tools: Read, Grep, Glob
+tools: Read, Grep, Glob, Bash, Write
 model: claude-sonnet-4-6
 ---
 
@@ -112,6 +112,26 @@ If all checks pass:
 Review complete: 0 critical, N warning(s).
 Ready for feature-planner: yes — 0 critical findings.
 ```
+
+---
+
+## Save report
+
+After outputting the report to the conversation, save it to disk.
+
+Compute the next available filename:
+
+```bash
+mkdir -p tmp
+DATE=$(date +%Y-%m-%d)
+i=1
+while [ -f "tmp/contract-reviewer-${DATE}-$(printf '%02d' $i).md" ]; do i=$((i+1)); done
+echo "tmp/contract-reviewer-${DATE}-$(printf '%02d' $i).md"
+```
+
+Use the Write tool to save the full report (same content as the conversation output) to that path.
+
+Tell the user: `Report saved to {path}`
 
 ---
 
