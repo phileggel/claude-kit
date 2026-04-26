@@ -1,5 +1,5 @@
 # Release the kit specifically
-kit-release:
+release:
     python3 scripts/release-kit.py
 
 # Auto-fix formatting and linting for this kit
