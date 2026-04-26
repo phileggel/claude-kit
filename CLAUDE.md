@@ -20,7 +20,7 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
 - **Never commit without explicit user authorization.** Always use `/smart-commit` and wait for a clear "go" before any `git commit` or `git push` — including hotfixes, release commits, and one-liners. No exceptions.
 
 - **Project Name Neutrality:** Agent files MUST NOT reference a specific project name (e.g., "PortfolioManager").
-  - ✅ Correct: "You are a senior code reviewer for a Tauri 2 / React 19 / Rust project."
+  - ✅ Correct: "You are a senior code reviewer for a full-stack project."
   - ❌ Wrong: "You are a senior code reviewer for PortfolioManager."
   - _Why it's critical:_ Agents are reusable; embedding project names creates stale references when copied or renamed.
 
@@ -29,17 +29,23 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
   - ❌ Wrong: `tools: Read, Grep, Glob, Bash, Edit, Write` for a review agent.
   - _Why it's critical:_ Over-privileged agents are slower and pose a security risk.
 
-- **Kit-local tooling only:** When working on this repository, only use tools from `.claude/` (skills, agents) and `scripts/` (check-kit.py, release-kit.py). Never invoke agents or skills from `kit/agents/` or `kit/skills/` directly — those are downstream artifacts, not kit tooling.
+- **Kit-local tooling only:** When working on this repository, only use tools from `.claude/` (skills, agents) and `scripts/` (check-kit.py, release-kit.py). Never invoke agents or skills from `kit/agents/` or `kit/agents/tauri/` directly — those are downstream artifacts, not kit tooling.
   - ✅ Correct: `/preflight`, `/smart-commit`, `python3 scripts/check-kit.py`
-  - ❌ Wrong: running `reviewer`, `spec-checker`, or any `kit/agents/*.md` agent on kit files
-  - _Why it's critical:_ Kit agents are written for downstream project structure (`src-tauri/`, `src/features/`, etc.) which does not exist in this repository.
+  - ❌ Wrong: running `reviewer`, `spec-checker`, or any `kit/agents/**/*.md` agent on kit files
+  - _Why it's critical:_ Kit agents are written for downstream project structure which does not exist in this repository.
 
 ```bash
-# Sync latest main
+# Declare your profile (once, checked into the project)
+echo "tauri" > .claude/kit-profile
+
+# Sync latest tag (auto-detects .claude/kit-profile)
 ./scripts/sync-config.sh
 
 # Sync a specific tag
-./scripts/sync-config.sh v1.2.0
+./scripts/sync-config.sh v2.0.0
+
+# Override profile for one-off sync
+./scripts/sync-config.sh --profile tauri
 ```
 
 The script self-updates before syncing: if `sync-config.sh` itself changed in the kit, it re-executes the new version automatically. After syncing, review `git diff` before committing.
@@ -72,18 +78,25 @@ Valid commit types: `feat`, `fix`, `docs`, `test`, `chore`, `refactor`, `ci`
 ## Repository layout
 
 ```
-kit/                  ← everything synced downstream
-  sync-config.sh      → scripts/sync-config.sh (bootstrap, copied once — never overwritten by sync)
-  agents/             → .claude/agents/
-  skills/             → .claude/skills/
-  githooks/           → .githooks/
+kit/                        ← everything synced downstream
+  sync-config.sh            → scripts/sync-config.sh (bootstrap, copied once)
+  agents/                   → .claude/agents/ (generic, always synced)
+  agents/tauri/             → .claude/agents/ (tauri profile overlay)
+  agents/web/               → .claude/agents/ (web profile — 🚧 planned)
+  skills/                   → .claude/skills/ (always synced)
+  githooks/                 → .githooks/ (always synced)
+  justfile/
+    tauri.just              → appended to common.just (tauri profile)
   scripts/
-    sync.sh           ephemeral sync logic (runs from $TMP, never copied to downstream)
-    check.py          → scripts/check.py
-    release.py        → scripts/release.py
-scripts/              ← kit-only tooling (not synced)
-  check-kit.py        kit quality checker
-  release-kit.py      kit release manager
+    sync.sh                 ephemeral sync logic (runs from $TMP, never copied)
+    tauri/
+      check.py              → scripts/check.py (tauri profile)
+      release.py            → scripts/release.py (tauri profile)
+    web/                    (web profile — 🚧 planned)
+  common.just               → common.just (generic recipes + guards)
+scripts/                    ← kit-only tooling (not synced)
+  check-kit.py              kit quality checker
+  release-kit.py            kit release manager
 ```
 
 ## Downstream tools (**CRITICAL** for reference only)

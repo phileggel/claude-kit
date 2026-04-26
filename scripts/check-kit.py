@@ -18,6 +18,12 @@ REPO_ROOT = Path(__file__).parent.parent
 PYTHON_DIRS = ["scripts", "kit/scripts"]
 BASH_DIRS = ["kit/scripts", "kit/githooks"]
 
+# Profile subdirs treated as known gaps — not errors when empty or .gitkeep only
+PLANNED_PROFILE_DIRS = [
+    "kit/agents/web",
+    "kit/scripts/web",
+]
+
 
 class KitChecker:
     def __init__(
@@ -104,8 +110,35 @@ class KitChecker:
             else:
                 self._vprint(f"{YELLOW}ℹ npx not installed, skipping Prettier.{NC}")
 
+        self._check_agent_inventory()
+
         self._report()
         return not self.suite_failed
+
+    def _check_agent_inventory(self) -> bool:
+        """Verify every agent in kit/agents/ and kit/agents/tauri/ is listed in kit-tools.md."""
+        tools_path = REPO_ROOT / "kit" / "kit-tools.md"
+        if not tools_path.exists():
+            return True
+        tools_content = tools_path.read_text(encoding="utf-8")
+
+        missing: list[str] = []
+        for pattern in ["kit/agents/*.md", "kit/agents/tauri/*.md"]:
+            for agent_path in sorted((REPO_ROOT).glob(pattern)):
+                agent_name = agent_path.stem
+                if f"`{agent_name}`" not in tools_content:
+                    missing.append(f"{agent_path.relative_to(REPO_ROOT)}")
+
+        if missing:
+            print("  Agent inventory...")
+            for m in missing:
+                print(f"    ✗ {m} not listed in kit/kit-tools.md")
+            self.suite_failed = True
+            self.results["Agent inventory"] = False
+            return False
+
+        self.results["Agent inventory"] = True
+        return True
 
     def _collect_bash_files(self) -> list[str]:
         files: list[str] = []
