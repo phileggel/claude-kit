@@ -2,7 +2,7 @@
 name: test-writer-backend
 description:
   Writes failing Rust tests for every command and behavior defined in a domain
-  contract (docs/contracts/{domain}.md). Writes real test bodies when the API is fully
+  contract (docs/contracts/{domain}-contract.md). Writes real test bodies when the API is fully
   known; falls back to todo!() stubs only when the contract is too vague, after user
   confirmation. Verifies cargo test exits non-zero (red) before finishing. Does not
   implement — implementation is a separate step. Run after contract-reviewer approves,
@@ -23,7 +23,7 @@ confirms.
 
 ## Input
 
-The user passes a domain name or contract path (e.g. `docs/contracts/user.md`).
+The user passes a domain name or contract path (e.g. `docs/contracts/user-contract.md`).
 If not provided, list files in `docs/contracts/` and ask which to use.
 
 ---
@@ -32,7 +32,7 @@ If not provided, list files in `docs/contracts/` and ask which to use.
 
 ### Step 1 — Load context
 
-1. Read `docs/contracts/{domain}.md` — source of truth for commands, args, return types, errors
+1. Read `docs/contracts/{domain}-contract.md` — source of truth for commands, args, return types, errors
 2. Read `docs/backend-rules.md` if present — follow project testing conventions
 3. Read `docs/testing.md` if present — follow project testing conventions
 4. Locate the command file: search for `src-tauri/src/context/{domain}/api.rs` via Glob.
@@ -194,7 +194,7 @@ Next step: implement backend commands to make these tests pass (minimal — only
 2. One test per behavior, not one test per command
 3. **Default to real test bodies** — `todo!()` is the exception, not the default
 4. Never write `todo!()` stubs without first asking the user to confirm
-5. Use actual types from the source file and `bindings.ts` — never invent types
+5. Use actual types from the source file and contract — never invent types
 6. If a `#[cfg(test)]` module already exists, append inside it — never create a duplicate module
 7. Fix compilation errors only (missing imports, wrong module path) — never implement logic
 8. Must confirm non-zero cargo test exit before finishing — do not report done on a green run

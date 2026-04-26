@@ -2,7 +2,7 @@
 name: test-writer-frontend
 description:
   Writes failing Vitest tests for every command and behavior defined in a domain
-  contract (docs/contracts/{domain}.md). Reads src/bindings.ts for actual generated TypeScript
+  contract (docs/contracts/{domain}-contract.md). Reads src/bindings.ts for actual generated TypeScript
   types. Writes real test bodies when the API is fully known; falls back to
   expect(true).toBe(false) stubs only when the contract is too vague, after user confirmation.
   Verifies vitest run exits non-zero (red) before finishing. Does not implement.
@@ -24,7 +24,7 @@ the user confirms.
 
 ## Input
 
-The user passes a domain name or contract path (e.g. `docs/contracts/user.md`).
+The user passes a domain name or contract path (e.g. `docs/contracts/user-contract.md`).
 If not provided, list files in `docs/contracts/` and ask which to use.
 
 ---
@@ -33,7 +33,7 @@ If not provided, list files in `docs/contracts/` and ask which to use.
 
 ### Step 1 — Load context
 
-1. Read `docs/contracts/{domain}.md` — source of truth for commands, args, return types, errors
+1. Read `docs/contracts/{domain}-contract.md` — source of truth for commands, args, return types, errors
 2. Read `src/bindings.ts` — use actual generated TypeScript types; never infer or invent types
 3. Read `docs/frontend-rules.md` if present — follow project gateway and test conventions
 4. Read `docs/testing.md` if present
