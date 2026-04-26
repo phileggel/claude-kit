@@ -32,12 +32,6 @@ The `/smart-commit` skill hardcodes `python3 scripts/check.py` as its quality ga
 projects (no profile), `scripts/check.py` doesn't exist. Fix: use `just check` instead — the recipe
 already guards on file existence and shows a clear error message if check.py is absent.
 
-## release.py (downstream tauri): remove --no-verify from git push
-
-`kit/scripts/tauri/release.py` uses `--no-verify` on `git push`, bypassing the pre-push hook.
-Contradicts CLAUDE.md's "never skip hooks" rule. Fix: remove `--no-verify` and let the hook run.
-If the pre-push hook is too slow for releases, add a `--skip-push-hook` flag with explicit opt-in.
-
 ## web profile: resolve "planned" state
 
 `kit/agents/web/` directory doesn't exist but is referenced in 4 places as "planned".

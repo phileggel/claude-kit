@@ -1,6 +1,6 @@
 # Release the kit specifically
-release:
-    python3 scripts/release-kit.py
+release *ARGS:
+    python3 scripts/release-kit.py {{ARGS}}
 
 # Auto-fix formatting and linting for this kit
 format:
