@@ -269,3 +269,6 @@ else
     echo -e "${GREEN}✅ Synced tauri-claude-kit@${VERSION} — generic agents only${NC}"
 fi
 echo -e "${YELLOW}→ Review changes before committing (git diff).${NC}"
+if [ -n "$PREV_VERSION" ] && [ "$PREV_VERSION" != "$VERSION" ]; then
+    echo -e "${YELLOW}→ Run /kit-discover to reconcile CLAUDE.md with the new kit surface.${NC}"
+fi
