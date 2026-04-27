@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Kit quality checker — validates Python, Bash, and Markdown files in this repo."""
 
+import re
 import shutil
 import subprocess
 import sys
@@ -112,6 +113,8 @@ class KitChecker:
 
         self._check_agent_inventory()
         self._check_tool_minimality()
+        self._check_kit_centric_language()
+        self._check_sync_coverage()
 
         self._report()
         return not self.suite_failed
@@ -194,6 +197,77 @@ class KitChecker:
             return False
 
         self.results["Tool minimality"] = True
+        return True
+
+    def _check_kit_centric_language(self) -> bool:
+        """Flag kit-centric paths or phrases inside agent/skill bodies (downstream-destined)."""
+        path_pat = re.compile(r"kit/(agents|skills|scripts|justfile|githooks)/")
+        phrase_pat = re.compile(
+            r"\b(this kit|in this kit|synced to downstream)\b", re.IGNORECASE
+        )
+
+        targets: list[Path] = []
+        for pattern in ["kit/agents/**/*.md", "kit/skills/**/SKILL.md"]:
+            targets.extend(sorted(REPO_ROOT.glob(pattern)))
+
+        failures: list[str] = []
+        for path in targets:
+            rel = str(path.relative_to(REPO_ROOT))
+            for lineno, line in enumerate(
+                path.read_text(encoding="utf-8").splitlines(), 1
+            ):
+                for m in path_pat.finditer(line):
+                    failures.append(f"{rel}:{lineno}: kit-centric path '{m.group(0)}'")
+                for m in phrase_pat.finditer(line):
+                    failures.append(
+                        f"{rel}:{lineno}: kit-centric phrase '{m.group(0)}'"
+                    )
+
+        if failures:
+            print("  Kit-centric language...")
+            for f in failures:
+                print(f"    ✗ {f}")
+            self.suite_failed = True
+            self.results["Kit-centric language"] = False
+            return False
+
+        self.results["Kit-centric language"] = True
+        return True
+
+    def _check_sync_coverage(self) -> bool:
+        """Verify every file sync.sh writes to .claude/ root is documented in kit-tools.md."""
+        sync_path = REPO_ROOT / "kit" / "scripts" / "sync.sh"
+        tools_path = REPO_ROOT / "kit" / "kit-tools.md"
+        if not sync_path.exists() or not tools_path.exists():
+            return True
+
+        cp_pat = re.compile(
+            r'^\s*cp\s+"\$TMP/kit/([^"]+)"\s+"\$PROJECT_ROOT/\.claude/"\s*$'
+        )
+        redirect_pat = re.compile(r'>\s*"\$PROJECT_ROOT/\.claude/([^/"]+)"')
+
+        synced_files: set[str] = set()
+        for line in sync_path.read_text(encoding="utf-8").splitlines():
+            m = cp_pat.match(line)
+            if m:
+                synced_files.add(Path(m.group(1)).name)
+            for m in redirect_pat.finditer(line):
+                synced_files.add(m.group(1))
+
+        tools_content = tools_path.read_text(encoding="utf-8")
+        missing = sorted(f for f in synced_files if f"`{f}`" not in tools_content)
+
+        if missing:
+            print("  Sync coverage...")
+            for f in missing:
+                print(
+                    f"    ✗ {f} written to .claude/ by sync.sh but not listed in kit/kit-tools.md"
+                )
+            self.suite_failed = True
+            self.results["Sync coverage"] = False
+            return False
+
+        self.results["Sync coverage"] = True
         return True
 
     def _collect_bash_files(self) -> list[str]:
