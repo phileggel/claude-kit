@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.4.0] - 2026-04-27
+
+### Added
+
+- add whats-next skill for session-start triage
+- add spec-diff skill for revisit-time drift detection
+- add output-format end-marker lint to check-kit.py
+
+### Fixed
+
+- drop already-done contract steps from feature plan
+
 ## [v3.3.0] - 2026-04-27
 
 ### Added
