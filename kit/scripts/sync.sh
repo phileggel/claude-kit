@@ -187,8 +187,71 @@ _PY_FILTER_EOF
     fi
 fi
 
-# ── Version stamp & summary ───────────────────────────────────────────────────
-echo "$VERSION" >"$PROJECT_ROOT/.claude-kit-version"
+# ── Version stamp & changelog delta ───────────────────────────────────────────
+# Read previous version: prefer .claude/kit-version.md (current format),
+# fall back to legacy .claude-kit-version (removed below once migrated).
+PREV_VERSION=""
+if [ -f "$PROJECT_ROOT/.claude/kit-version.md" ]; then
+    PREV_VERSION=$(grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' "$PROJECT_ROOT/.claude/kit-version.md" | head -n1 || true)
+fi
+if [ -z "$PREV_VERSION" ] && [ -f "$PROJECT_ROOT/.claude-kit-version" ]; then
+    PREV_VERSION=$(tr -d '[:space:]' <"$PROJECT_ROOT/.claude-kit-version")
+fi
+
+TODAY=$(date +%Y-%m-%d)
+
+if [ -z "$PREV_VERSION" ]; then
+    DELTA_BODY="_Initial install._"
+elif [ "$PREV_VERSION" = "$VERSION" ]; then
+    DELTA_BODY="_No changes since previous sync._"
+else
+    DELTA=$(
+        python3 - "$TMP/CHANGELOG.md" "$PREV_VERSION" "$VERSION" <<'_PY_DELTA_EOF'
+import re, sys
+path, prev, curr = sys.argv[1], sys.argv[2], sys.argv[3]
+try:
+    text = open(path).read()
+except FileNotFoundError:
+    sys.exit(0)
+header = re.compile(r'^## \[(v\d+\.\d+\.\d+)\].*$', re.MULTILINE)
+matches = list(header.finditer(text))
+collecting, out = False, []
+for i, m in enumerate(matches):
+    version = m.group(1)
+    if not collecting:
+        if version == curr:
+            collecting = True
+        else:
+            continue
+    if version == prev:
+        break
+    start = m.end()
+    end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+    bullets = re.findall(r'^- (.+)$', text[start:end], re.MULTILINE)
+    summary = '; '.join(bullets) if bullets else '(no changes recorded)'
+    out.append(f"- {version}: {summary}")
+print('\n'.join(out))
+_PY_DELTA_EOF
+    )
+    if [ -n "$DELTA" ]; then
+        DELTA_BODY="## Changes since ${PREV_VERSION} (your previous sync)
+
+${DELTA}"
+    else
+        DELTA_BODY="_No changelog entries between ${PREV_VERSION} and ${VERSION}._"
+    fi
+fi
+
+cat >"$PROJECT_ROOT/.claude/kit-version.md" <<EOF
+# Kit version
+
+tauri-claude-kit **${VERSION}** — synced ${TODAY}
+
+${DELTA_BODY}
+EOF
+
+# Remove legacy version file — superseded by .claude/kit-version.md
+rm -f "$PROJECT_ROOT/.claude-kit-version"
 
 if [ -n "${PROFILE:-}" ]; then
     echo -e "${GREEN}✅ Synced tauri-claude-kit@${VERSION} — generic agents + profile: ${PROFILE}${NC}"

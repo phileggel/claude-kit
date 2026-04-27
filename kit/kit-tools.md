@@ -25,6 +25,19 @@ use the generic layer and manage quality agents locally.
 
 ---
 
+## Discovery files (`.claude/`)
+
+Sync writes these kit-managed files at the root of `.claude/` alongside agents and skills.
+Read on demand to orient — none are auto-loaded by Claude Code.
+
+| File             | Purpose                                                                 |
+| ---------------- | ----------------------------------------------------------------------- |
+| `kit-tools.md`   | This inventory — what the kit provides across all surfaces              |
+| `kit-readme.md`  | Onboarding readme for the kit                                           |
+| `kit-version.md` | Current kit version + changelog delta since the project's previous sync |
+
+---
+
 ## Generic Agents (always synced)
 
 ### Spec & Planning Agents

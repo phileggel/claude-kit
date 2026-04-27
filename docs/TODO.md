@@ -1,12 +1,5 @@
 # List of TODOs
 
-## kit discovery & version awareness for downstream projects
-
-Make the kit fluid for downstream agents: a sync-managed `.claude/kit-version.md` with version and
-delta since last sync, a synced `.claude/kit-tools.md` inventory, and conditionally a `/kit-discover`
-skill for `CLAUDE.md` reconciliation. **See `docs/plan-kit-discovery.md` for the full plan** —
-phased, scoped, with acceptance criteria.
-
 ## add a spec-diff skill to detect when a spec change breaks existing TRIGRAM coverage
 
 A skill that diffs two versions of a spec file (via `git diff`), identifies added/modified/removed TRIGRAM-NNN rules, and outputs a delta report so the developer knows which plan tasks and tests are now stale.

@@ -22,18 +22,20 @@ Collect all modified downstream files by unioning these three commands:
 
 Filter the combined (deduplicated) list to keep only downstream artifacts — files that will be synced to downstream projects:
 
-**IA artifacts** (synced to `.claude/agents/` and `.claude/skills/`):
+**IA artifacts** (synced to `.claude/`, `.claude/agents/`, and `.claude/skills/`):
 
-- `kit/agents/*.md`
-- `kit/skills/*/*.md`
-- `kit/kit-tools.md`
+- `kit/agents/*.md` — generic agents
+- `kit/agents/*/*.md` — profile agent overlays (e.g. `kit/agents/tauri/`)
+- `kit/skills/*/*.md` — skills
+- `kit/kit-tools.md`, `kit/kit-readme.md` — discovery files synced to `.claude/`
 
 **Script artifacts** (synced to `scripts/`, `.githooks/`, project root):
 
-- `kit/scripts/check.py`, `kit/scripts/release.py`
-- `kit/scripts/sync.sh`
+- `kit/scripts/sync.sh` — sync logic
+- `kit/scripts/*/*.py` — profile-specific scripts (e.g. `kit/scripts/tauri/check.py`)
 - `kit/githooks/*`
-- `kit/common.just`
+- `kit/common.just` — generic justfile recipes
+- `kit/justfile/*.just` — profile-specific justfile recipes (appended to `common.just` downstream)
 
 If no modified files match — output `ℹ️ No modified kit artifacts — nothing to validate.` and stop.
 
@@ -74,7 +76,7 @@ For each agent/skill file, check:
 
 ### 3. Validate script quality
 
-For each file in `kit/scripts/` and `kit/githooks/`:
+For each file in `kit/scripts/` (including profile subdirs like `kit/scripts/tauri/`) and `kit/githooks/`:
 
 #### Bash scripts / git hooks
 
@@ -100,8 +102,9 @@ For each file in `kit/scripts/` and `kit/githooks/`:
 Cross-references are checked against the **full kit** (not just modified files) — a modified agent may reference an existing unmodified file, which is valid.
 
 - 🔴 Agent references a script that won't be synced downstream
-- 🔴 Agent A references agent B that isn't in `kit/agents/`
-- 🔴 Agent in `kit/agents/` missing from `kit/kit-tools.md` (only check staged agents)
+- 🔴 Agent A references agent B that isn't in `kit/agents/` or `kit/agents/<profile>/`
+- 🔴 Generic agent (in `kit/agents/`) missing from kit-tools.md "Generic Agents" section
+- 🔴 Profile agent (in `kit/agents/<profile>/`) missing from kit-tools.md "<profile> Profile Agents" section
 - 🟡 `kit/kit-tools.md` trigger or description diverges from agent frontmatter
 
 ---

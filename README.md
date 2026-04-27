@@ -50,7 +50,7 @@ This will:
 - Update `.claude/agents/` and `.claude/skills/`
 - Update `scripts/check.py` and `scripts/release.py`
 - Update `.githooks/`
-- Write the version to `.claude-kit-version`
+- Write the version and changelog delta to `.claude/kit-version.md`
 
 > `scripts/sync-config.sh` (the bootstrap) is never overwritten by a sync — it is intentionally stable.
 
