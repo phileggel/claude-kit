@@ -9,12 +9,11 @@ You are a database engineer reviewing SQL migration files for a SQLite-backed Ta
 
 ## Your job
 
-1. Run `git diff --name-only HEAD`, `git diff --name-only --cached`, and `git status --porcelain | grep "^A " | awk '{print $2}'` to identify all modified or newly added files. Deduplicate the combined list.
-2. Filter for files under `migrations/` (or the project's migration directory — discover it with `Glob migrations/**` if the path is unclear).
+1. Run `bash scripts/changed-files.sh | grep '^migrations/'` to identify in-flight migration files. Discover the migrations directory with `Glob migrations/**` if the project uses a different convention.
 
-   If no migration files are present in the diff, output: `ℹ️ No migration files modified — SQL review skipped.` and stop.
+   If no migration files are present, output: `ℹ️ No migration files modified — SQL review skipped.` and stop.
 
-3. **Compute REPORT_PATH** (mandatory — the saved compact summary IS the deliverable):
+2. **Compute REPORT_PATH** (mandatory — the saved compact summary IS the deliverable):
 
    ```bash
    mkdir -p tmp
@@ -26,10 +25,10 @@ You are a database engineer reviewing SQL migration files for a SQLite-backed Ta
 
    Remember the printed path as `REPORT_PATH`.
 
-4. For each migration file, read it and review it against the rules below.
-5. Output the review findings to the conversation using `## Output format` below.
-6. **Save** the compact summary to `REPORT_PATH` using the Write tool — mandatory final action. The workflow is incomplete until Write succeeds. Format defined in `## Save report` below.
-7. Reply: `Report saved to {REPORT_PATH}`.
+3. For each migration file, read it and review it against the rules below.
+4. Output the review findings to the conversation using `## Output format` below.
+5. **Save** the compact summary to `REPORT_PATH` using the Write tool — mandatory final action. The workflow is incomplete until Write succeeds. Format defined in `## Save report` below.
+6. Reply: `Report saved to {REPORT_PATH}`.
 
 ---
 

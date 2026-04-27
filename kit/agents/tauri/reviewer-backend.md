@@ -9,14 +9,9 @@ You are a senior Rust engineer reviewing backend code quality for a Tauri 2 proj
 
 ## Your job
 
-1. Run the following three commands and union the results to identify all modified or newly added `.rs` files:
-   - `git diff --name-only HEAD` — working tree vs HEAD
-   - `git diff --name-only --cached` — staged changes
-   - `git status --porcelain | grep "^A " | awk '{print $2}'` — staged-new files never previously committed
+1. Run `bash scripts/changed-files.sh | grep -E '\.rs$'` to identify all `.rs` files in flight on the current branch (staged, unstaged, and untracked, deduplicated).
 
-   Deduplicate the combined list and filter for `.rs` files before analysing.
-
-   If no `.rs` files are present in the diff, output: `ℹ️ No Rust files modified — backend review skipped.` and stop.
+   If no `.rs` files are present, output: `ℹ️ No Rust files modified — backend review skipped.` and stop.
 
 2. **Compute REPORT_PATH** (mandatory — the saved compact summary IS the deliverable):
 

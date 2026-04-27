@@ -8,13 +8,6 @@ A skill that diffs two versions of a spec file (via `git diff`), identifies adde
 
 Once the web profile ships and the kit is genuinely multi-stack, rename the GitHub repo and project from `tauri-claude-kit` to `claude-kit`. GitHub will redirect old clone URLs. Update `CLAUDE.md`, `kit-readme.md`, and any internal references at that time.
 
-## web profile: resolve "planned" state
-
-`kit/agents/web/` directory doesn't exist but is referenced in 4 places as "planned".
-Either: (a) create the directory with a `.gitkeep` so sync infrastructure is tested end-to-end,
-or (b) remove all "planned" references until web profile work actually begins (cleaner).
-Decide when Muvimu2 exits POC.
-
 ## advisor finding
 
 ---

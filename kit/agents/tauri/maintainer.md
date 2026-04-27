@@ -12,7 +12,7 @@ You are a senior DevOps and project maintainer reviewer for a Tauri 2 / React 19
 ## Your job
 
 1. Identify which files to review:
-   - If invoked after a change: run `git diff --name-only HEAD` and `git diff --name-only --cached`
+   - If invoked after a change: run `bash scripts/changed-files.sh` to get the in-flight files
    - If invoked for a general audit or **before a release**: scan all files matching the patterns below AND invoke the `/dep-audit` skill for dependency audit
 
 2. **Compute REPORT_PATH** (mandatory — the saved compact summary IS the deliverable):

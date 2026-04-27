@@ -13,12 +13,7 @@ Translation files are expected in `src/i18n/locales/`. Discover available locale
 
 ## Your job
 
-1. Run the following three commands and union the results to identify all `.tsx` / `.ts` files to analyse:
-   - `git diff --name-only HEAD` — working tree vs HEAD (includes staged + unstaged changes to tracked files)
-   - `git diff --name-only --cached` — staged changes vs HEAD
-   - `git status --porcelain | grep "^A " | awk '{print $2}'` — staged-new files never previously committed
-
-   Deduplicate the combined list before analysing.
+1. Run `bash scripts/changed-files.sh | grep -E '\.(tsx|ts)$'` to identify all `.tsx` / `.ts` files in flight on the current branch (staged, unstaged, and untracked, deduplicated).
 
 2. **Compute REPORT_PATH** (mandatory — the saved compact summary IS the deliverable):
 

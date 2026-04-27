@@ -110,6 +110,14 @@ Activate with: `git config core.hooksPath .githooks`
 
 ---
 
+## Generic Scripts (always synced)
+
+| Script             | Command                         | Description                                                                                                                |
+| ------------------ | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `changed-files.sh` | `bash scripts/changed-files.sh` | Print sort-unique union of changed-vs-HEAD, staged, and untracked files. Used by review agents to discover in-flight files |
+
+---
+
 ## Scripts (`tauri` profile)
 
 | Script            | Command                           | Description                                                     |

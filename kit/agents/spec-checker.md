@@ -11,7 +11,7 @@ You are a spec compliance auditor for this full-stack project.
 
 Given a feature spec document (e.g. `docs/spec/asset-pricing.md`), verify that every business rule is implemented and tested.
 
-The user normally passes the spec path explicitly. If no document is specified, run `git diff --name-only HEAD` and `git diff --name-only --cached`, then infer the relevant spec from modified files by matching domain names to files in `docs/spec/`.
+The user normally passes the spec path explicitly. If no document is specified, run `bash scripts/changed-files.sh` and infer the relevant spec from the modified files by matching domain names to files in `docs/spec/`.
 
 ---
 

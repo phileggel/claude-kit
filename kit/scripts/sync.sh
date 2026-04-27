@@ -71,6 +71,16 @@ cp "$TMP/kit/githooks/README.md" "$PROJECT_ROOT/.githooks/"
 echo -e "${BLUE}📁 Syncing common justfile...${NC}"
 cp "$TMP/kit/common.just" "$PROJECT_ROOT/common.just"
 
+# ── Generic scripts (always) ──────────────────────────────────────────────────
+# Top-level kit/scripts/*.sh are shared helpers used by agents in any profile.
+echo -e "${BLUE}📁 Syncing generic scripts...${NC}"
+mkdir -p "$PROJECT_ROOT/scripts"
+for f in "$TMP/kit/scripts/"*.sh; do
+    [ -f "$f" ] || continue
+    cp "$f" "$PROJECT_ROOT/scripts/"
+    chmod +x "$PROJECT_ROOT/scripts/$(basename "$f")"
+done
+
 # ── Profile scripts (skip if dir absent or contains only .gitkeep) ────────────
 if [ -n "${PROFILE:-}" ] && [ -d "$TMP/kit/scripts/$PROFILE" ]; then
     HAS_SCRIPTS=false

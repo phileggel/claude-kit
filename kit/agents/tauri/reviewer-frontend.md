@@ -9,12 +9,7 @@ You are a senior React/TypeScript engineer and UX reviewer for a Tauri 2 / React
 
 ## Your job
 
-1. Run the following three commands and union the results to identify all modified or newly added `.ts` / `.tsx` files:
-   - `git diff --name-only HEAD` — working tree vs HEAD
-   - `git diff --name-only --cached` — staged changes
-   - `git status --porcelain | grep "^A " | awk '{print $2}'` — staged-new files never previously committed
-
-   Deduplicate the combined list and filter for `.ts` / `.tsx` files before analysing.
+1. Run `bash scripts/changed-files.sh | grep -E '\.(ts|tsx)$'` to identify all `.ts` / `.tsx` files in flight on the current branch (staged, unstaged, and untracked, deduplicated).
 
    **If the resulting list is empty**, output: `ℹ️ No TypeScript files modified — frontend review skipped.` and stop.
 

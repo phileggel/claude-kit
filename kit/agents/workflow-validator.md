@@ -34,7 +34,7 @@ Remember the printed path as `REPORT_PATH`.
 ### Step 2 — Locate the plan file
 
 - If the user provides a plan path, use it directly.
-- Otherwise: run `git diff --name-only HEAD` and `git status --short`, infer the feature domain from modified file paths, then search for a matching file via `Glob docs/plan/*-plan.md`.
+- Otherwise: run `bash scripts/changed-files.sh`, infer the feature domain from the modified file paths, then search for a matching file via `Glob docs/plan/*-plan.md`.
 - If no plan file is found: check whether the changes look like a simple technical fix (no spec doc in `docs/` for this feature). If so, report: `ℹ️ No plan file found. This validator applies to feature workflows only. For simple technical fixes (bug fixes, dependency updates, maintenance), skip this validator and proceed with /smart-commit directly.` and stop. If feature context is clear but no plan exists: report `❌ No plan file found — run feature-planner before committing.` and stop.
 
 ### Step 3 — Extract the Workflow TaskList
@@ -46,7 +46,7 @@ Read the plan file and extract every checkbox item from the "Workflow TaskList" 
 
 ### Step 4 — Infer conditional triggers from git diff
 
-Run `git diff --name-only HEAD` and `git status --short`. Determine which conditional items in the plan are actually required:
+Run `bash scripts/changed-files.sh`. Determine which conditional items in the plan are actually required:
 
 - `.rs` files modified → Backend Review (`reviewer-backend`) required
 - `.ts` / `.tsx` files modified → Frontend + UX Review (`reviewer-frontend`) required

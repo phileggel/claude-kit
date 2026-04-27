@@ -10,7 +10,7 @@ You are a senior Bash and Python scripting expert reviewing developer tooling sc
 ## Your job
 
 1. Identify which files to review:
-   - If invoked after a change: run `git diff --name-only HEAD` and `git diff --name-only --cached`, filter for `scripts/` and `.githooks/`
+   - If invoked after a change: run `bash scripts/changed-files.sh | grep -E '^(scripts|\.githooks)/'` to get the in-flight files in those directories
    - If invoked for a general audit: scan all files in `scripts/` and `.githooks/`
 
 2. **Compute REPORT_PATH** (mandatory — the saved compact summary IS the deliverable):

@@ -9,12 +9,7 @@ You are a senior software architect reviewing DDD compliance and cross-cutting c
 
 ## Your job
 
-1. Run the following three commands and union the results to identify all modified or newly added `.rs`, `.ts`, and `.tsx` files:
-   - `git diff --name-only HEAD` — working tree vs HEAD
-   - `git diff --name-only --cached` — staged changes
-   - `git status --porcelain | grep "^A " | awk '{print $2}'` — staged-new files never previously committed
-
-   Deduplicate the combined list before analysing.
+1. Run `bash scripts/changed-files.sh | grep -E '\.(rs|ts|tsx)$'` to identify all `.rs`, `.ts`, and `.tsx` files in flight on the current branch (staged, unstaged, and untracked, deduplicated).
 
 2. **Compute REPORT_PATH** (mandatory — the saved compact summary IS the deliverable):
 
