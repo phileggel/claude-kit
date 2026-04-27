@@ -1,9 +1,5 @@
 # List of TODOs
 
-## add a spec-diff skill to detect when a spec change breaks existing TRIGRAM coverage
-
-A skill that diffs two versions of a spec file (via `git diff`), identifies added/modified/removed TRIGRAM-NNN rules, and outputs a delta report so the developer knows which plan tasks and tests are now stale.
-
 ## rename repo to claude-kit (post-web-profile)
 
 Once the web profile ships and the kit is genuinely multi-stack, rename the GitHub repo and project from `tauri-claude-kit` to `claude-kit`. GitHub will redirect old clone URLs. Update `CLAUDE.md`, `kit-readme.md`, and any internal references at that time.
