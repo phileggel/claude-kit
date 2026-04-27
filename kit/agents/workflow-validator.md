@@ -53,7 +53,7 @@ Run `bash scripts/changed-files.sh`. Determine which conditional items in the pl
 - User-visible text added/changed in `.tsx`/`.ts` feature files → i18n Review (`i18n-checker`) required
 - `migrations/` file added/modified → SQL Review (`reviewer-sql`) required
 - A spec doc exists in `docs/spec/` for this feature → `spec-checker` required
-- A contract doc exists in `docs/contracts/` for this feature's domain → Contract Review (`contract-reviewer`), Backend test stubs (`test-writer-backend`), and Frontend test stubs (`test-writer-frontend`) steps required
+- A contract doc exists in `docs/contracts/` for this feature's domain → Backend test stubs (`test-writer-backend`) and Frontend test stubs (`test-writer-frontend`) steps required
 - Any `.sh`, `.py` (in `scripts/`) or `.githooks/` file added/modified → Script Review (`script-reviewer`) required
 
 ### Step 5 — Validate each item

@@ -65,8 +65,6 @@ A synthetic checklist for mandatory quality and process steps:
 
 - [ ] 📖 Review Architecture & Rules (`ARCHITECTURE.md`, `backend-rules.md`, `frontend-rules.md`)
 - [ ] 🗄️ Database Migration (`just migrate` + `just prepare-sqlx`) — if schema changes required
-- [ ] 📄 Contract (`/contract` — human approves shape) — if backend rules present
-- [ ] 🔍 Contract Review (`contract-reviewer` → fix issues) — if backend rules present
 - [ ] ✍️ Backend test stubs (`test-writer-backend` — all stubs written, red confirmed) — if backend rules present
 - [ ] 🏗️ Backend Implementation (minimal — make failing tests pass, green confirmed)
 - [ ] 🧹 `just format` (rustfmt + clippy --fix)
