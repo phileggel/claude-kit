@@ -115,6 +115,7 @@ class KitChecker:
         self._check_tool_minimality()
         self._check_kit_centric_language()
         self._check_sync_coverage()
+        self._check_output_format_end_markers()
 
         self._report()
         return not self.suite_failed
@@ -268,6 +269,58 @@ class KitChecker:
             return False
 
         self.results["Sync coverage"] = True
+        return True
+
+    def _check_output_format_end_markers(self) -> bool:
+        """Flag natural-conclusion lines in '## Output format' sections.
+
+        Regression guard for commit 909f19b: a summary line outside a code
+        block at the end of `## Output format` (e.g. `i18n check: N critical…`)
+        is read by the model as task completion, causing the `## Save report`
+        Write call to be skipped. Summary text must live inside the saved
+        compact summary's code block, not as standalone prose.
+        """
+        suspect = re.compile(
+            r"^\s*("
+            r"final summary|review complete|result|score|verdict"
+            r"|[a-z0-9-]+(?: [a-z0-9-]+)? (?:check|coverage|review)"
+            r")\s*:\s+\S",
+            re.IGNORECASE,
+        )
+
+        failures: list[str] = []
+        for agent_path in sorted(REPO_ROOT.glob("kit/agents/**/*.md")):
+            lines = agent_path.read_text(encoding="utf-8").splitlines()
+            in_section = False
+            in_fence = False
+            rel = str(agent_path.relative_to(REPO_ROOT))
+            for lineno, line in enumerate(lines, 1):
+                if line.startswith("## "):
+                    if line.strip() == "## Output format":
+                        in_section = True
+                        in_fence = False
+                        continue
+                    if in_section and not in_fence:
+                        in_section = False
+                if not in_section:
+                    continue
+                if line.lstrip().startswith("```"):
+                    in_fence = not in_fence
+                    continue
+                if in_fence:
+                    continue
+                if suspect.match(line):
+                    failures.append(f"{rel}:{lineno}: end-marker '{line.strip()}'")
+
+        if failures:
+            print("  Output format end-markers...")
+            for f in failures:
+                print(f"    ✗ {f}")
+            self.suite_failed = True
+            self.results["Output format end-markers"] = False
+            return False
+
+        self.results["Output format end-markers"] = True
         return True
 
     def _collect_bash_files(self) -> list[str]:
