@@ -19,9 +19,9 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
 
 - **Never commit without explicit user authorization.** Always use `/smart-commit` and wait for a clear "go" before any `git commit` or `git push` — including hotfixes, release commits, and one-liners. No exceptions.
 
-- **Project Name Neutrality:** Agent files MUST NOT reference a specific project name (e.g., "PortfolioManager").
+- **Project Name Neutrality:** Agent files MUST NOT reference a specific project name (e.g., "MyApp").
   - ✅ Correct: "You are a senior code reviewer for a full-stack project."
-  - ❌ Wrong: "You are a senior code reviewer for PortfolioManager."
+  - ❌ Wrong: "You are a senior code reviewer for MyApp."
   - _Why it's critical:_ Agents are reusable; embedding project names creates stale references when copied or renamed.
 
 - **Tool Minimality:** Agent `tools:` fields should only list necessary tools. Review-only agents should not have `Edit` or `Write`.

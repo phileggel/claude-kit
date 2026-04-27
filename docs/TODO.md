@@ -12,13 +12,6 @@ Once the web profile ships and the kit is genuinely multi-stack, rename the GitH
 
 ---
 
-Improvement 1 — duplicated git file-discovery preamble across all review agents:
-The same 3-command union (git diff HEAD, --cached, porcelain) is copy-pasted in 5+ agents. Extract to
-scripts/changed-files.sh so a fix propagates everywhere.
-⚠️ Do opportunistically during v3.1.0 when agents are already being edited.
-
----
-
 Improvement 2 — `/review-pipeline` skill (experimental):
 A skill that reads git diff, determines which Phase 4 reviewers are triggered (same logic as
 workflow-validator step 3), runs each as a subagent, and outputs a unified pass/fail summary.

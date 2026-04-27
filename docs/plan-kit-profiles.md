@@ -7,7 +7,7 @@ cover with a named profile).
 
 **Status**: Design complete. Implementation deferred.
 **Effort**: ~8h for Phases A–E–F (structural, no web content). Phase D (web profile content)
-deferred until Muvimu2 exits POC — estimated 5–6h additional when triggered.
+deferred until a real Axum/React/PostgreSQL codebase exits POC — estimated 5–6h additional when triggered.
 **Release target**: v3.0.0 (major — breaking sync script interface + file moves)
 
 ---
@@ -40,7 +40,7 @@ in one folder creates three different sync rules for one directory — unnecessa
 ### 2. Additive sync — never delete local files
 
 The sync script copies kit files into downstream projects but **never deletes** files it
-didn't create. A Lumberjack/Lua project may have local `lua-reviewer.md` in `.claude/agents/`
+didn't create. A Lua project may have local `lua-reviewer.md` in `.claude/agents/`
 — that file must survive every `just sync-kit` untouched.
 
 Implementation: `cp` only, never `rsync --delete`.
@@ -109,7 +109,7 @@ the file for one-off syncs.
 ### 8. Web profile is 🚧 planned at v3.0.0
 
 The directory structure ships at v3.0.0 with `.gitkeep` placeholders. Content (7 agents,
-2 scripts, 1 justfile) is written as Phase D when Muvimu2 exits POC — so agents are
+2 scripts, 1 justfile) is written as Phase D when a real web codebase exits POC — so agents are
 validated against a real codebase before shipping.
 
 ### 9. Repo rename (deferred open question)
@@ -399,9 +399,9 @@ If no profile found: print `ℹ️  No .claude/kit-profile found — syncing gen
 
 ### Phase D — Create web profile content (~5–6h) ⚠️ DEFERRED
 
-**Trigger**: start this phase when Muvimu2 (Axum + React + PostgreSQL project at
-`/home/phil/projects/Muvimu2/`) exits POC phase. Writing agents without a real codebase
-to validate them against produces agents that miss real patterns.
+**Trigger**: start this phase when a real Axum + React + PostgreSQL reference project
+exits POC phase. Writing agents without a real codebase to validate them against
+produces agents that miss real patterns.
 
 **D.1 — `kit/agents/web/` (7 agent files)**
 
@@ -504,14 +504,14 @@ No behavior change after migration — same agents, same scripts, same justfile 
 
 ## Effort Summary
 
-| Phase | What                                                                         | Effort | When                     |
-| ----- | ---------------------------------------------------------------------------- | ------ | ------------------------ |
-| A     | Genericize 9 agents/skills (path abstraction, remove "IPC"/"Tauri" language) | ~2h    | v3.0.0                   |
-| B     | Restructure repo (move 9 files, split common.just, create dirs)              | ~1.5h  | v3.0.0                   |
-| C     | Sync script rewrite (profile-aware, additive-only) + sync-config.sh          | ~1.5h  | v3.0.0                   |
-| E     | Docs + check-kit.py (kit-tools, kit-readme, CLAUDE.md, check-kit.py)         | ~2h    | v3.0.0                   |
-| F     | Preflight + v3.0.0 release                                                   | ~1h    | v3.0.0                   |
-| D     | Web profile content (7 agents + 2 scripts + justfile)                        | ~5–6h  | v3.1.0, post-Muvimu2 POC |
+| Phase | What                                                                         | Effort | When                 |
+| ----- | ---------------------------------------------------------------------------- | ------ | -------------------- |
+| A     | Genericize 9 agents/skills (path abstraction, remove "IPC"/"Tauri" language) | ~2h    | v3.0.0               |
+| B     | Restructure repo (move 9 files, split common.just, create dirs)              | ~1.5h  | v3.0.0               |
+| C     | Sync script rewrite (profile-aware, additive-only) + sync-config.sh          | ~1.5h  | v3.0.0               |
+| E     | Docs + check-kit.py (kit-tools, kit-readme, CLAUDE.md, check-kit.py)         | ~2h    | v3.0.0               |
+| F     | Preflight + v3.0.0 release                                                   | ~1h    | v3.0.0               |
+| D     | Web profile content (7 agents + 2 scripts + justfile)                        | ~5–6h  | v3.1.0, post web POC |
 
 **Total to ship v3.0.0: ~8h across 2 sessions.**
 
@@ -524,8 +524,6 @@ Session 2 suggestion: Phases C + E + F
 
 - [ ] **Repo rename**: `tauri-claude-kit` → `claude-kit` — correct long-term name but breaks
       all downstream sync URLs. Decide separately, don't block v3.0.0.
-- [ ] **`workflow-validator.md`**: references `tauri.conf.json` as a `maintainer` trigger —
-      small Tauri-specific leak in a generic agent. Fix in Phase A or leave for v3.1.0.
-- [ ] **web.just path convention**: `server/` is Muvimu2's convention, not universal for web
+- [ ] **web.just path convention**: `server/` is one common convention, not universal for web
       projects. Phase D agents should read from `ARCHITECTURE.md`, not hardcode `server/`.
       Note this when writing Phase D.
