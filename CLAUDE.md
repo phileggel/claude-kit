@@ -107,9 +107,10 @@ All agents, skills, scripts, git hooks, and justfile recipes provided to downstr
 
 These are available in `.claude/` for working on the kit itself. They are **not synced** to downstream projects.
 
-| Type  | Name           | When to use                                                                                           |
-| ----- | -------------- | ----------------------------------------------------------------------------------------------------- |
-| skill | `preflight`    | Before any release — validates IA readiness, script quality, cross-component coherence (`/preflight`) |
-| skill | `smart-commit` | To create a validated conventional commit (`/smart-commit`)                                           |
+| Type  | Name           | When to use                                                                                            |
+| ----- | -------------- | ------------------------------------------------------------------------------------------------------ |
+| skill | `preflight`    | Before any release — validates IA readiness, script quality, cross-component coherence (`/preflight`)  |
+| skill | `smart-commit` | To create a validated conventional commit (`/smart-commit`)                                            |
+| skill | `whats-next`   | At session start to triage what to work on next across TODOs, plans, and in-flight git (`/whats-next`) |
 
-> `smart-commit` is synced from `kit/skills/smart-commit/` — keep `.claude/skills/smart-commit/SKILL.md` in sync manually when the source changes.
+> `smart-commit` and `whats-next` are mirrored from `kit/skills/` — keep the `.claude/skills/<name>/SKILL.md` copies in sync manually when the source changes.
