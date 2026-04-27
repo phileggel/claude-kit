@@ -38,3 +38,6 @@ Thumbs.db
 
 # Local development
 .env.local
+
+# Ephemeral skill reports (whats-next, reviewers, etc.)
+tmp/
