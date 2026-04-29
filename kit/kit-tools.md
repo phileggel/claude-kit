@@ -1,7 +1,7 @@
 # Kit Tools Reference
 
 Thematic index of all agents, skills, scripts, git hooks, and justfile recipes
-provided by **tauri-claude-kit**. Use this file to discover what is available
+provided by **claude-kit**. Use this file to discover what is available
 without reading each agent definition individually.
 
 ---

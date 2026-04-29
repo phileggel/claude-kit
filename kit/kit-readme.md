@@ -1,6 +1,6 @@
 # Kit Reference Guide
 
-Onboarding guide for tauri-claude-kit. For the full inventory of agents, skills, scripts, hooks, and justfile recipes, see `.claude/kit-tools.md`.
+Onboarding guide for claude-kit. For the full inventory of agents, skills, scripts, hooks, and justfile recipes, see `.claude/kit-tools.md`.
 
 **Location**: `.claude/kit-readme.md` (read-only reference)
 

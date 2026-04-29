@@ -1,6 +1,6 @@
-# tauri-claude-kit
+# claude-kit
 
-Shared Claude Code configuration for Tauri 2 / React 19 / Rust projects.
+Shared Claude Code configuration for full-stack projects (Tauri 2 and Axum / React 19 / PostgreSQL).
 
 ## Contents
 
@@ -23,12 +23,12 @@ Copy the bootstrap once — it never needs to be updated again:
 
 ```bash
 # curl
-curl -fsSL https://raw.githubusercontent.com/phileggel/tauri-claude-kit/main/kit/sync-config.sh \
+curl -fsSL https://raw.githubusercontent.com/phileggel/claude-kit/main/kit/sync-config.sh \
   -o scripts/sync-config.sh && chmod +x scripts/sync-config.sh
 
 # or wget
 wget -qO scripts/sync-config.sh \
-  https://raw.githubusercontent.com/phileggel/tauri-claude-kit/main/kit/sync-config.sh \
+  https://raw.githubusercontent.com/phileggel/claude-kit/main/kit/sync-config.sh \
   && chmod +x scripts/sync-config.sh
 ```
 
@@ -60,12 +60,12 @@ The sync architecture changed in v2.0.0: `scripts/sync-config.sh` is now a stabl
 
 ```bash
 # curl
-curl -fsSL https://raw.githubusercontent.com/phileggel/tauri-claude-kit/main/kit/sync-config.sh \
+curl -fsSL https://raw.githubusercontent.com/phileggel/claude-kit/main/kit/sync-config.sh \
   -o scripts/sync-config.sh && chmod +x scripts/sync-config.sh && ./scripts/sync-config.sh
 
 # or wget
 wget -qO scripts/sync-config.sh \
-  https://raw.githubusercontent.com/phileggel/tauri-claude-kit/main/kit/sync-config.sh \
+  https://raw.githubusercontent.com/phileggel/claude-kit/main/kit/sync-config.sh \
   && chmod +x scripts/sync-config.sh && ./scripts/sync-config.sh
 ```
 

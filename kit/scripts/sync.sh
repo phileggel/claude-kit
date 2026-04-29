@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# sync.sh — Profile-aware sync logic for tauri-claude-kit.
+# sync.sh — Profile-aware sync logic for claude-kit.
 #
 # Executed from the cloned kit by the bootstrap (kit/sync-config.sh).
 # This script is ephemeral — it runs from $TMP and is cleaned up on exit.
@@ -255,7 +255,7 @@ fi
 cat >"$PROJECT_ROOT/.claude/kit-version.md" <<EOF
 # Kit version
 
-tauri-claude-kit **${VERSION}** — synced ${TODAY}
+claude-kit **${VERSION}** — synced ${TODAY}
 
 ${DELTA_BODY}
 EOF
@@ -264,9 +264,9 @@ EOF
 rm -f "$PROJECT_ROOT/.claude-kit-version"
 
 if [ -n "${PROFILE:-}" ]; then
-    echo -e "${GREEN}✅ Synced tauri-claude-kit@${VERSION} — generic agents + profile: ${PROFILE}${NC}"
+    echo -e "${GREEN}✅ Synced claude-kit@${VERSION} — generic agents + profile: ${PROFILE}${NC}"
 else
-    echo -e "${GREEN}✅ Synced tauri-claude-kit@${VERSION} — generic agents only${NC}"
+    echo -e "${GREEN}✅ Synced claude-kit@${VERSION} — generic agents only${NC}"
 fi
 echo -e "${YELLOW}→ Review changes before committing (git diff).${NC}"
 if [ -n "$PREV_VERSION" ] && [ "$PREV_VERSION" != "$VERSION" ]; then

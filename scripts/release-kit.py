@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Release script for tauri-claude-kit.
+Release script for claude-kit.
 - Automatically detects version bump based on commits (feat/fix/breaking)
 - Updates CHANGELOG.md
 - Commits and pushes to origin

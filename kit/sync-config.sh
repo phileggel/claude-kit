@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# sync-config.sh — Stable bootstrap entry point for tauri-claude-kit.
+# sync-config.sh — Stable bootstrap entry point for claude-kit.
 #
 # Copy this file once to scripts/sync-config.sh in your downstream project.
 # This file is intentionally minimal — all sync logic lives in kit/scripts/sync.sh.
@@ -12,7 +12,7 @@ set -euo pipefail
 #   ./scripts/sync-config.sh --profile tauri    # explicit profile override
 #   ./scripts/sync-config.sh v2.0.0 --profile tauri
 
-REPO="https://github.com/phileggel/tauri-claude-kit"
+REPO="https://github.com/phileggel/claude-kit"
 BLUE='\033[0;34m'
 NC='\033[0m'
 
@@ -52,7 +52,7 @@ fi
 TMP=$(mktemp -d)
 # $TMP is NOT cleaned here — ownership passes to sync.sh via KIT_TMP
 
-echo -e "${BLUE}⬇  Cloning tauri-claude-kit@${VERSION}...${NC}"
+echo -e "${BLUE}⬇  Cloning claude-kit@${VERSION}...${NC}"
 git clone --depth 1 --branch "$VERSION" "$REPO" "$TMP" --quiet \
     -c core.autocrlf=false
 

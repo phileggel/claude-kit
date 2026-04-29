@@ -522,8 +522,7 @@ Session 2 suggestion: Phases C + E + F
 
 ## Open Questions (non-blocking)
 
-- [ ] **Repo rename**: `tauri-claude-kit` → `claude-kit` — correct long-term name but breaks
-      all downstream sync URLs. Decide separately, don't block v3.0.0.
+- [x] **Repo rename**: `tauri-claude-kit` → `claude-kit` — done in v3.8.0.
 - [ ] **web.just path convention**: `server/` is one common convention, not universal for web
       projects. Phase D agents should read from `ARCHITECTURE.md`, not hardcode `server/`.
       Note this when writing Phase D.
