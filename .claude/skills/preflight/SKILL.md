@@ -86,6 +86,16 @@ For each agent/skill file, check:
 - 🟡 **Terminology drift** — inconsistent use of terms (e.g., "TRIGRAM-NNN" vs "rule identifier")
 - 🟡 **Severity label missing** — a rule in an agent has no 🔴/🟡/🔵 label
 
+#### E — Bash Command Ergonomics (skills only)
+
+Claude Code's permission system does **not** auto-allow compound shell constructs, even when the first token is on the auto-allow list. Scan every fenced `bash`/`sh` code block in skill files for:
+
+- 🔴 **Compound operators** — `&&`, `||`, or `;` chaining two or more commands → split into separate Bash calls
+- 🔴 **Shell loops** — `for … do … done` or `while … do … done` → replace with `Glob` + `Read`/`Grep` or in-context logic
+- 🔴 **Pipelines delegating to non-trivial commands** — `cmd | awk …`, `cmd | sed …`, `cmd | while read …` → use dedicated tools or a simple `grep` call instead
+
+These constructs cause a permission prompt on every invocation, breaking the no-friction intent of skills. The fix is always one of: (a) split into multiple simple Bash calls, or (b) replace with `Glob`/`Read`/`Grep` tool calls.
+
 ---
 
 ### 3. Validate script quality

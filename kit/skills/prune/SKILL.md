@@ -71,15 +71,12 @@ If a report is found, note its path and format, then continue.
 
 ### Step 1 — Compute REPORT_PATH
 
-```bash
-mkdir -p tmp
-DATE=$(date +%Y-%m-%d)
-i=1
-while [ -f "tmp/prune-${DATE}-$(printf '%02d' $i).md" ]; do i=$((i+1)); done
-echo "tmp/prune-${DATE}-$(printf '%02d' $i).md"
-```
+1. Run `mkdir -p tmp` (Bash — single simple command).
+2. Run `date +%Y-%m-%d` (Bash) to get DATE.
+3. Use `Glob("tmp/prune-*.md")` to list existing reports; find the highest `{DATE}-NN` index for today in-context and increment it, or use `01` if none exist for today.
+4. Set `REPORT_PATH = tmp/prune-{DATE}-{NN}.md`.
 
-Store the printed path as `REPORT_PATH`.
+Store the derived path as `REPORT_PATH`.
 
 ---
 
