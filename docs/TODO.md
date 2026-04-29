@@ -4,7 +4,7 @@
 
 - [x] `check-kit.py`: extend `_check_agent_inventory` and `_check_tool_minimality` to cover `kit/agents/web/*.md` (currently hardcoded to `tauri` only; remove `kit/agents/web` from `PLANNED_PROFILE_DIRS`)
 - [x] Generic agents: neutralize Tauri-specific fallback paths in `retro-spec.md`, `feature-planner.md`, `spec-checker.md` (fallbacks reference `src-tauri/`); fix `spec-checker.md:76` `#[tauri::command]` hardcode in contract compliance step
-- [ ] `spec-diff` skill: replace hardcoded `src-tauri/` grep path with multi-path discovery (add `server/` to search list; update example output paths)
+- [x] `spec-diff` skill: replace hardcoded `src-tauri/` grep path with multi-path discovery (add `server/` to search list; update example output paths)
 
 ## Improvements
 

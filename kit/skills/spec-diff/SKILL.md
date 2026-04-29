@@ -122,12 +122,12 @@ If no plan file exists, note `(no plan file found at docs/plan/{feature}-plan.md
 
 ### Step 7 — Cross-reference against tests and code
 
-For each Removed or Modified rule, search the codebase for references to the id. Use the project's test conventions read from `ARCHITECTURE.md` if present; otherwise default to a broad search:
+For each Removed or Modified rule, search the codebase for references to the id. Read `ARCHITECTURE.md` to discover source directories; use those as search paths. If `ARCHITECTURE.md` is absent, fall back to a broad search across common roots:
 
 ```bash
 grep -rn "{TRIGRAM-NNN}" --include="*.rs" --include="*.ts" --include="*.tsx" \
     --exclude-dir=node_modules --exclude-dir=target --exclude-dir=.git \
-    docs/plan/ src/ src-tauri/ tests/ 2>/dev/null
+    docs/plan/ src/ server/ src-tauri/ tests/ 2>/dev/null
 ```
 
 Report each hit as `stale reference (rule {removed|changed})` with `file:line`.
@@ -165,8 +165,8 @@ Removed (N):
   - REF-040 — no Rules Coverage row references this id
 
 ### Stale references in code/tests
-  - src-tauri/tests/refund_test.rs:42 — references REF-030 (rule removed)
-  - src/features/refund/__tests__/threshold.test.ts:18 — references REF-020 (rule changed)
+  - {backend}/tests/refund_test.rs:42 — references REF-030 (rule removed)
+  - {frontend}/refund/__tests__/threshold.test.ts:18 — references REF-020 (rule changed)
 
 ### Malformed rules (skipped from delta)
   (omit section if none)
@@ -204,7 +204,7 @@ Stale plan tasks: N. Missing from plan: N. Stale code/test references: N.
 ### Stale items
 - REF-030 → docs/plan/refund-plan.md:47 — rule removed
 - REF-020 → docs/plan/refund-plan.md:32 — rule changed (scope, description)
-- REF-030 → src-tauri/tests/refund_test.rs:42 — rule removed
+- REF-030 → {backend}/tests/refund_test.rs:42 — rule removed
 - REF-040 → missing from plan
 ```
 
