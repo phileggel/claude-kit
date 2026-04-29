@@ -51,7 +51,7 @@ For each backend rule:
 
 ### Step 4 — Check frontend implementation
 
-Read `ARCHITECTURE.md` to locate the frontend module path (fall back to `src/features/` if absent). If the frontend path does not exist, skip this step and note it in the summary.
+Read `ARCHITECTURE.md` to locate the frontend module path. If absent, search for common frontend roots (`src/features/`, `client/src/`) and note the assumption. If no frontend path is found, skip this step and note it in the summary.
 
 For each frontend rule:
 

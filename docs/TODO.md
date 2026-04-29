@@ -14,6 +14,5 @@
 
 ## Experimental
 
-- [ ] Profile-aware agent templating: shared base + profile-specific overrides to reduce ~70–80% duplication between Tauri and web agents
 - [ ] Post-sync validator: `validate-sync.sh` that verifies all expected agents/scripts/hooks landed after `just sync-kit`
 - [ ] `reviewer-api` generic agent: web-profile contract-to-code traceability (HTTP route verification, equivalent to Tauri's `#[tauri::command]` check)

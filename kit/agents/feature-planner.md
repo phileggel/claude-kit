@@ -69,8 +69,8 @@ A synthetic checklist for mandatory quality and process steps:
 - [ ] 🏗️ Backend Implementation (minimal — make failing tests pass, green confirmed)
 - [ ] 🧹 `just format` (rustfmt + clippy --fix)
 - [ ] 🔍 Backend Review (`reviewer-backend` → fix issues) — if .rs modified
-- [ ] 🔗 Type Synchronization (`just generate-types`) — if backend rules present
-- [ ] 🔧 Compilation fixup (TypeScript errors from new bindings only — no UI work) — if backend rules present
+- [ ] 🔗 Type Synchronization (`just generate-types`) — Tauri profile only, if backend rules present
+- [ ] 🔧 Compilation fixup (TypeScript errors from new bindings only — no UI work) — Tauri profile only, if backend rules present
 - [ ] ✅ `just check` — TypeScript clean
 - [ ] 💾 Commit: backend layer (suggested title from plan)
 - [ ] ✍️ Frontend test stubs (`test-writer-frontend` — all stubs written, red confirmed) — if frontend rules present
@@ -102,7 +102,7 @@ A granular breakdown by architectural layer:
 2. **Language**: All entries in `docs/todo.md` MUST be written in English.
 3. **Path Verification**: Every file path must be verified with `Glob` before being included—never invent paths.
 4. **Convention Adherence**: Use Rust `snake_case` and TypeScript `camelCase`.
-5. **Synchronization**: Always include `just generate-types` as a mandatory step between Backend and Frontend tasks.
+5. **Synchronization**: On Tauri projects, include `just generate-types` as a mandatory step between Backend and Frontend tasks. Skip on other profiles (no TypeScript bindings generated from Rust).
 6. **No Code Implementation**: Your output is a plan describing _what_ to do and _where_, not the actual code.
 7. **Task Tracking**: Ensure the main agent can progressively update the checkboxes in this file during the implementation phase.
 8. **Cross-Context**: If a use case spans multiple bounded contexts, use the cross-context module as defined in `ARCHITECTURE.md` — never cross-import between context modules directly.

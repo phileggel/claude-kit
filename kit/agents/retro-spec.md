@@ -37,7 +37,7 @@ Read backend files and identify:
 - **Entities**: structs with fields, their types, constraints (e.g., `NOT NULL`, `unique`, validation guards)
 - **State transitions**: enum variants, match arms, status fields that gate behavior
 - **Business operations**: service methods and what conditions they enforce (e.g., guards, early returns, error variants)
-- **Tauri handlers**: exposed commands and their parameters — these define the public contract
+- **Public handlers**: exposed commands or route handlers and their parameters — these define the public contract
 
 For each meaningful behavior, draft a candidate rule in the form:
 
