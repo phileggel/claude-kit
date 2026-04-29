@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository, which is a shared configuration kit for Tauri 2 / React 19 / Rust projects.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository, which is a multi-profile configuration kit for full-stack projects (Tauri 2 and Axum/React 19).
 
 ## Simple Technical Workflow
 
@@ -60,7 +60,11 @@ Use semantic versioning via git tags:
 | `minor` | New agent/skill, significant improvement      |
 | `major` | Breaking change (renamed file, removed agent) |
 
-Run releases via `python3 scripts/release-kit.py` (interactive).
+Run releases via `just release` (interactive). Pass `-y` to auto-confirm the suggested version without a prompt — useful when running non-interactively:
+
+```bash
+just release -y
+```
 
 ## Git hooks
 
@@ -70,7 +74,7 @@ Hooks in `kit/githooks/` are synced to `.githooks/` in downstream projects and m
 git config core.hooksPath .githooks
 ```
 
-- **pre-commit**: runs `python3 scripts/check-kit.py --fast` (lint/format only)
+- **pre-commit**: runs `python3 scripts/check.py --fast` (lint/format only)
 - **commit-msg**: enforces conventional commit format (`type: description`, max 72 chars, no co-author lines, no test results in message)
 
 Valid commit types: `feat`, `fix`, `docs`, `test`, `chore`, `refactor`, `ci`
@@ -82,17 +86,20 @@ kit/                        ← everything synced downstream
   sync-config.sh            → scripts/sync-config.sh (bootstrap, copied once)
   agents/                   → .claude/agents/ (generic, always synced)
   agents/tauri/             → .claude/agents/ (tauri profile overlay)
-  agents/web/               → .claude/agents/ (web profile — 🚧 planned)
+  agents/web/               → .claude/agents/ (web profile overlay)
   skills/                   → .claude/skills/ (always synced)
   githooks/                 → .githooks/ (always synced)
   justfile/
     tauri.just              → appended to common.just (tauri profile)
+    web.just                → appended to common.just (web profile)
   scripts/
     sync.sh                 ephemeral sync logic (runs from $TMP, never copied)
     tauri/
       check.py              → scripts/check.py (tauri profile)
       release.py            → scripts/release.py (tauri profile)
-    web/                    (web profile — 🚧 planned)
+    web/
+      check.py              → scripts/check.py (web profile)
+      release.py            → scripts/release.py (web profile)
   common.just               → common.just (generic recipes + guards)
 scripts/                    ← kit-only tooling (not synced)
   check-kit.py              kit quality checker
