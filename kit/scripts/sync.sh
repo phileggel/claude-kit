@@ -123,7 +123,7 @@ import sys, re
 pat = re.compile(r"^([a-zA-Z_][a-zA-Z0-9_-]*)(?:[ \t]+[^:\n]*)?:(?!=)", re.MULTILINE)
 for path in sys.argv[1:]:
     try:
-        for m in pat.finditer(open(path).read()):
+        for m in pat.finditer(open(path, encoding='utf-8').read()):
             print(m.group(1))
     except (FileNotFoundError, IsADirectoryError):
         pass
@@ -220,7 +220,7 @@ else
 import re, sys
 path, prev, curr = sys.argv[1], sys.argv[2], sys.argv[3]
 try:
-    text = open(path).read()
+    text = open(path, encoding='utf-8').read()
 except FileNotFoundError:
     sys.exit(0)
 header = re.compile(r'^## \[(v\d+\.\d+\.\d+)\].*$', re.MULTILINE)
