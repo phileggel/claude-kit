@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.8.0] - 2026-04-29
+
+### Added
+
+- add integration test step to test-writer-backend
+
+### Fixed
+
+- scope artifact scan to changes since last release tag
+- address preflight warnings in generic agents
+- add clippy to web fast mode and neutralize SQLX_OFFLINE rule
+- add missing format recipe to web.just
+- make spec-diff code search profile-neutral
+- neutralize Tauri-specific paths in generic agents
+- extend check-kit agent coverage to all profile dirs
+- remove hardcoded server/ paths in web profile
+
 ## [v3.7.0] - 2026-04-29
 
 ### Added
