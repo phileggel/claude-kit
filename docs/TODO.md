@@ -9,8 +9,8 @@
 ## Improvements
 
 - [x] `web.just`: add `format` recipe (currently missing — `just format` breaks for all web-profile projects)
-- [ ] `web/check.py`: add `cargo clippy` to `--fast` mode (pre-commit parity with Tauri profile)
-- [ ] `script-reviewer.md:83`: reword Tauri-specific `SQLX_OFFLINE` rule to be stack-neutral
+- [x] `web/check.py`: add `cargo clippy` to `--fast` mode (pre-commit parity with Tauri profile)
+- [x] `script-reviewer.md:83`: reword Tauri-specific `SQLX_OFFLINE` rule to be stack-neutral
 
 ## Experimental
 

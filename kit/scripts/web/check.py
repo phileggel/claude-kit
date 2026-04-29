@@ -58,13 +58,11 @@ def main():
     # ── Backend: Rust ────────────────────────────────────────────────────────
     print(f"{YELLOW}Backend (Rust){NC}")
     results.append(check("cargo fmt --check", ["cargo", "fmt", "--check"], cwd=SERVER))
+    results.append(
+        check("cargo clippy", ["cargo", "clippy", "--", "-D", "warnings"], cwd=SERVER)
+    )
 
     if not args.fast:
-        results.append(
-            check(
-                "cargo clippy", ["cargo", "clippy", "--", "-D", "warnings"], cwd=SERVER
-            )
-        )
         results.append(check("cargo build", ["cargo", "build"], cwd=SERVER))
         results.append(check("cargo test", ["cargo", "test"], cwd=SERVER))
 

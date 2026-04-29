@@ -80,7 +80,7 @@ Skip silently any directory below that does not exist in the project.
 
 - 🟡 `PROJECT_ROOT` should be derived from `git rev-parse --show-toplevel` (used in `.githooks/`) or `"$(dirname "$(realpath "$0")")"` from the script's own location — never from `$PWD`
 - 🟡 Color variables (`RED`, `GREEN`, `YELLOW`, `NC`) are defined per-script — ensure they are consistent across scripts
-- 🟡 Any script that invokes `cargo`, `npm run`, or `tauri` must set `SQLX_OFFLINE=true` if building the Tauri app, to avoid requiring a live database
+- 🟡 Any script that invokes `cargo` in a project using SQLx must set `SQLX_OFFLINE=true` when building without a live database
 - 🔵 Scripts that produce tabular output should align columns for readability (use `printf "%-20s %s\n"` pattern)
 
 ---
