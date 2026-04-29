@@ -21,7 +21,7 @@ The user provides a domain name (e.g., `asset`, `payment`, `refund`). If not pro
 
 ### Step 1 — Discover the Domain
 
-Read `ARCHITECTURE.md` to discover the backend and frontend module paths. If absent, fall back to common conventions (`src-tauri/src/context/` for backend, `src/features/` for frontend) and note the assumption.
+Read `ARCHITECTURE.md` to discover the backend and frontend module paths. If absent, search for common roots (`src/`, `server/src/`, `src-tauri/src/` for backend; `src/features/`, `client/src/` for frontend) and note the assumption.
 
 Locate existing code for the domain:
 

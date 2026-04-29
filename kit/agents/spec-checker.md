@@ -40,7 +40,7 @@ Remember the printed path as `REPORT_PATH`.
 
 ### Step 3 — Check backend implementation
 
-Read `ARCHITECTURE.md` to locate the backend module path (fall back to `src-tauri/src/` if absent). If the backend path does not exist, skip this step and note it in the summary.
+Read `ARCHITECTURE.md` to locate the backend module path. If absent, search for common backend roots (`src/`, `server/src/`, `src-tauri/src/`) and note the assumption. If no backend path is found, skip this step and note it in the summary.
 
 For each backend rule:
 
@@ -73,7 +73,7 @@ If `docs/contracts/{domain}-contract.md` exists for this feature's domain:
 
 For each command in the contract:
 
-- **Backend**: verify a `#[tauri::command]` with that name exists in `src-tauri/`
+- **Backend**: verify a handler function with that name exists in the backend module path (from `ARCHITECTURE.md`). On Tauri projects, look for `#[tauri::command]`; on Axum projects, look for the function registered in the router.
 - **Frontend**: verify a gateway call to that command exists in the frontend module's `{domain}/gateway.ts` (path from `ARCHITECTURE.md`)
 - **Tests**: verify at least one `#[tokio::test]` (backend) and one `it(` or `test(` (frontend)
   references or is named after that command

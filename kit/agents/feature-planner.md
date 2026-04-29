@@ -40,7 +40,7 @@ Read the following to ensure compliance (skip silently if a file is absent):
 
 ### Step 3 — Codebase Verification
 
-Read `ARCHITECTURE.md` to discover the backend and frontend module layout. Verify paths with `Glob` or `Grep` before referencing them in the plan. If `ARCHITECTURE.md` is absent, fall back to common conventions (`src-tauri/src/context/` for backend, `src/features/` for frontend) and note the assumption.
+Read `ARCHITECTURE.md` to discover the backend and frontend module layout. Verify paths with `Glob` or `Grep` before referencing them in the plan. If `ARCHITECTURE.md` is absent, search for common roots (`src/`, `server/src/`, `src-tauri/src/` for backend; `src/features/`, `client/src/` for frontend) and note the assumption.
 
 ### Step 4 — Mapping & Dependency Graph
 
