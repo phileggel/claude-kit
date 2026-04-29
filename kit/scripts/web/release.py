@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Release manager for Axum + React projects (web profile).
 
-Reads version from server/Cargo.toml (source of truth), infers semver bump
-from conventional commits since the last tag, updates both version files and
+Discovers backend Cargo.toml (server/Cargo.toml, backend/Cargo.toml, or Cargo.toml)
+and frontend package.json (client/package.json, frontend/package.json, or package.json).
+Infers semver bump from conventional commits, updates both version files and
 CHANGELOG.md, then commits, tags, and pushes.
 
 Usage:
@@ -21,9 +22,19 @@ import sys
 from datetime import date
 from pathlib import Path
 
-ROOT = Path(__file__).parent.parent.parent
-CARGO_TOML = ROOT / "server" / "Cargo.toml"
-PKG_JSON = ROOT / "client" / "package.json"
+ROOT = Path(__file__).parent.parent
+
+
+def _find(candidates):
+    for p in candidates:
+        path = ROOT / p
+        if path.exists():
+            return path
+    return ROOT / candidates[0]
+
+
+CARGO_TOML = _find(["server/Cargo.toml", "backend/Cargo.toml", "Cargo.toml"])
+PKG_JSON = _find(["client/package.json", "frontend/package.json", "package.json"])
 CHANGELOG = ROOT / "CHANGELOG.md"
 
 GREEN = "\033[0;32m"
@@ -160,8 +171,8 @@ def main():
     pkg_ver = pkg_read()
 
     print(f"{BOLD}{BLUE}=== Release Manager ==={NC}\n")
-    print(f"  server/Cargo.toml  : {current_ver}  (source of truth)")
-    print(f"  client/package.json: {pkg_ver}")
+    print(f"  {CARGO_TOML.relative_to(ROOT)}: {current_ver}  (source of truth)")
+    print(f"  {PKG_JSON.relative_to(ROOT)}: {pkg_ver}")
     if pkg_ver != current_ver:
         print(
             f"  {YELLOW}⚠  versions are out of sync — package.json will be updated{NC}"
@@ -195,8 +206,8 @@ def main():
     print(f"\n{BLUE}Updating version files...{NC}")
     cargo_write(current_ver, new_ver)
     pkg_write(new_ver)
-    print(f"  ✓ server/Cargo.toml → {new_ver}")
-    print(f"  ✓ client/package.json → {new_ver}")
+    print(f"  ✓ {CARGO_TOML.relative_to(ROOT)} → {new_ver}")
+    print(f"  ✓ {PKG_JSON.relative_to(ROOT)} → {new_ver}")
 
     print(f"\n{BLUE}Updating CHANGELOG.md...{NC}")
     update_changelog(new_ver, commits)

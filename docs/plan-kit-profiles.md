@@ -523,6 +523,7 @@ Session 2 suggestion: Phases C + E + F
 ## Open Questions (non-blocking)
 
 - [x] **Repo rename**: `tauri-claude-kit` → `claude-kit` — done in v3.8.0.
-- [ ] **web.just path convention**: `server/` is one common convention, not universal for web
+- [x] **web.just path convention**: `server/` is one common convention, not universal for web
       projects. Phase D agents should read from `ARCHITECTURE.md`, not hardcode `server/`.
-      Note this when writing Phase D.
+      Resolved: scripts use discovery with fallback, web.just uses `BACKEND_DIR` variable,
+      agents read `ARCHITECTURE.md` and default to `server/` where needed.

@@ -11,9 +11,13 @@ import sys
 import time
 from pathlib import Path
 
-ROOT = Path(__file__).parent.parent.parent
-SERVER = ROOT / "server"
-CLIENT = ROOT / "client"
+ROOT = Path(__file__).parent.parent
+SERVER = next(
+    (ROOT / d for d in ["server", "backend"] if (ROOT / d).is_dir()), ROOT / "server"
+)
+CLIENT = next(
+    (ROOT / d for d in ["client", "frontend"] if (ROOT / d).is_dir()), ROOT / "client"
+)
 
 GREEN = "\033[0;32m"
 RED = "\033[0;31m"

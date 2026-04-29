@@ -35,7 +35,7 @@ If not provided, list files in `docs/contracts/` and ask which to use.
 2. Read `docs/backend-rules.md` if present — follow project testing conventions
 3. Read `docs/testing.md` if present — follow project testing conventions
 4. Read `docs/ARCHITECTURE.md` if present to locate the backend module layout
-5. Locate the relevant source file: search for `server/src/` files containing handlers or service functions for this domain via Glob and Grep
+5. Locate the relevant source file: using the backend path discovered from ARCHITECTURE.md (defaulting to `server/`), search for `src/` files containing handlers or service functions for this domain via Glob and Grep
 6. Read the located file(s) in full — you need the actual function signatures and types
 
 ### Step 2 — Assess API completeness per endpoint
@@ -134,7 +134,7 @@ Run via Bash:
 cargo test {domain} 2>&1 | tail -20
 ```
 
-Run this from the `server/` directory.
+Run this from the backend directory (discovered from ARCHITECTURE.md, defaulting to `server/`).
 
 Expected outcomes:
 
@@ -149,7 +149,7 @@ If compilation fails, fix the compilation error (wrong import, missing use state
 ## test-writer-backend — {domain}
 
 Tests written: N real tests, M stubs across K endpoints
-File: server/src/...
+File: {backend}/src/...
 
 | Endpoint        | Behavior        | Test                                    | Type  |
 |-----------------|-----------------|-----------------------------------------|-------|

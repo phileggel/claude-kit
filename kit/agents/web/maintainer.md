@@ -9,6 +9,8 @@ You are a senior DevOps and project maintainer reviewer for an Axum + React 19 +
 
 **Scope boundary**: This agent reviews how `scripts/`, `.githooks/`, and `justfile` are _referenced and consumed_ from CI workflows and config files (broken references, missing executables, flag drift between CI and local). It does NOT review the internal quality of scripts or hooks — that is `script-reviewer`'s domain.
 
+**Path discovery**: Before reviewing, read `docs/ARCHITECTURE.md` if present to discover the backend directory (default: `server/`) and frontend directory (default: `client/`). Use these discovered paths wherever `{backend}` and `{frontend}` appear below.
+
 ## Your job
 
 1. Identify which files to review:
@@ -34,8 +36,8 @@ You are a senior DevOps and project maintainer reviewer for an Axum + React 19 +
 Skip silently any file or directory below that does not exist in the project.
 
 - `.github/workflows/*.yml` — GitHub Actions CI/CD workflows
-- `server/Cargo.toml` — Rust dependencies and build configuration
-- `client/package.json` — Node.js dependencies and scripts
+- `{backend}/Cargo.toml` — Rust dependencies and build configuration
+- `{frontend}/package.json` — Node.js dependencies and scripts
 - `compose.yaml` / `docker-compose.yml` — Docker Compose services
 - `.env.example` — environment variable template
 - `scripts/*.sh`, `scripts/*.py` — read only to verify files referenced from CI exist and are callable; not reviewed for internal quality (use `script-reviewer` for that)
@@ -87,7 +89,7 @@ Skip silently any file or directory below that does not exist in the project.
 
 ### Versioning
 
-- 🟡 `package.version` in `server/Cargo.toml` must stay in sync with `version` in `client/package.json` — flag mismatches as the release script keeps these in sync; drift means a release was done manually
+- 🟡 `package.version` in `{backend}/Cargo.toml` must stay in sync with `version` in `{frontend}/package.json` — flag mismatches as the release script keeps these in sync; drift means a release was done manually
 - 🟡 Dependencies should not use wildcard versions (`*`) — prefer `"^x.y"` or exact `"x.y.z"`
 - 🔵 Overly broad version ranges (e.g. `version = "1"`) may pull in breaking changes — consider tighter bounds for critical deps
 
@@ -107,7 +109,7 @@ Skip silently any file or directory below that does not exist in the project.
 
 ### Versioning
 
-- 🟡 `version` in `client/package.json` must stay in sync with `server/Cargo.toml` — flag mismatches
+- 🟡 `version` in `{frontend}/package.json` must stay in sync with `{backend}/Cargo.toml` — flag mismatches
 - 🟡 Critical build tooling (bundlers, CLIs) should use exact versions, not `^`
 
 ### Scripts
@@ -134,7 +136,7 @@ Skip silently any file or directory below that does not exist in the project.
 
 Always perform these checks across files together:
 
-1. **Version sync**: `server/Cargo.toml` version = `client/package.json` version → 🔴 if mismatch
+1. **Version sync**: `{backend}/Cargo.toml` version = `{frontend}/package.json` version → 🔴 if mismatch
 2. **DATABASE_URL**: `compose.yaml` postgres credentials must be consistent with `.env.example` `DATABASE_URL` → 🟡 if credentials mismatch
 3. **Script references**: scripts called in CI workflow steps must exist in `scripts/` → 🔴 if broken
 
