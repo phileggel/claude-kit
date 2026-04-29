@@ -28,11 +28,17 @@ If it fails, fix those issues before continuing — they are blocking and unambi
 
 ### 1. Identify downstream artifacts to validate
 
-Collect all modified downstream files by unioning these three commands:
+Collect all downstream files changed since the last release tag — this is the full set that will ship:
 
-- `git diff --name-only HEAD` — unstaged changes vs HEAD
-- `git diff --cached --name-only` — staged changes vs HEAD
-- `git status --porcelain | grep "^?" | awk '{print $2}'` — untracked new files
+1. Run `git describe --tags --abbrev=0` to get the last release tag (e.g. `v3.7.0`).
+2. Run `git diff --name-only <last-tag>..HEAD` to get every file committed since that tag.
+3. Also collect any working-tree changes not yet committed (for edits made right before the release):
+   - `git diff --name-only HEAD` — unstaged changes
+   - `git diff --cached --name-only` — staged changes
+   - `git status --porcelain | grep "^?" | awk '{print $2}'` — untracked new files
+4. Union and deduplicate all sources.
+
+If `git describe` finds no tags, fall back to `git diff --name-only HEAD` (first release in the repo).
 
 Filter the combined (deduplicated) list to keep only downstream artifacts — files that will be synced to downstream projects:
 
