@@ -19,12 +19,6 @@ REPO_ROOT = Path(__file__).parent.parent
 PYTHON_DIRS = ["scripts", "kit/scripts"]
 BASH_DIRS = ["kit/scripts", "kit/githooks"]
 
-# Profile subdirs treated as known gaps — not errors when empty or .gitkeep only
-PLANNED_PROFILE_DIRS = [
-    "kit/agents/web",
-    "kit/scripts/web",
-]
-
 
 class KitChecker:
     def __init__(
@@ -120,15 +114,24 @@ class KitChecker:
         self._report()
         return not self.suite_failed
 
+    def _agent_patterns(self) -> list[str]:
+        """Return glob patterns covering all agent files across all profiles."""
+        agents_dir = REPO_ROOT / "kit" / "agents"
+        patterns = ["kit/agents/*.md"]
+        for subdir in sorted(agents_dir.iterdir()):
+            if subdir.is_dir():
+                patterns.append(f"kit/agents/{subdir.name}/*.md")
+        return patterns
+
     def _check_agent_inventory(self) -> bool:
-        """Verify every agent in kit/agents/ and kit/agents/tauri/ is listed in kit-tools.md."""
+        """Verify every agent in kit/agents/ and all profile subdirs is listed in kit-tools.md."""
         tools_path = REPO_ROOT / "kit" / "kit-tools.md"
         if not tools_path.exists():
             return True
         tools_content = tools_path.read_text(encoding="utf-8")
 
         missing: list[str] = []
-        for pattern in ["kit/agents/*.md", "kit/agents/tauri/*.md"]:
+        for pattern in self._agent_patterns():
             for agent_path in sorted((REPO_ROOT).glob(pattern)):
                 agent_name = agent_path.stem
                 if f"`{agent_name}`" not in tools_content:
@@ -152,7 +155,7 @@ class KitChecker:
 
         failures: list[str] = []
 
-        for pattern in ["kit/agents/*.md", "kit/agents/tauri/*.md"]:
+        for pattern in self._agent_patterns():
             for agent_path in sorted((REPO_ROOT).glob(pattern)):
                 stem = agent_path.stem.lower()
                 content = agent_path.read_text(encoding="utf-8")
