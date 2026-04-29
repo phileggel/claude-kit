@@ -17,3 +17,10 @@ db-reset:
 # Prerequisites: DATABASE_URL must be set to a running database
 prepare-sqlx:
     cd {{BACKEND_DIR}} && cargo sqlx prepare
+
+# Auto-fix formatting and linting
+format:
+    @cd {{BACKEND_DIR}} && cargo fmt
+    @cd {{BACKEND_DIR}} && cargo clippy --fix --allow-dirty --quiet
+    @npm run format:fix
+    @npm run format:docs
