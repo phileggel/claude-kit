@@ -85,7 +85,7 @@ Use **AskUserQuestion** with Yes / Cancel. Stop if cancelled.
 First, detect the default branch:
 
 ```bash
-git remote show origin | grep 'HEAD branch' | awk '{print $NF}'
+git remote show origin | grep 'HEAD branch' | grep -o '[^ ]*$'
 ```
 
 Use the result as `{base}` (fall back to `main` if the command fails or returns empty).

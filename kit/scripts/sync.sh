@@ -64,6 +64,7 @@ echo -e "${BLUE}📁 Syncing .githooks...${NC}"
 mkdir -p "$PROJECT_ROOT/.githooks"
 cp "$TMP/kit/githooks/commit-msg" "$PROJECT_ROOT/.githooks/"
 cp "$TMP/kit/githooks/pre-commit" "$PROJECT_ROOT/.githooks/"
+cp "$TMP/kit/githooks/pre-merge-commit" "$PROJECT_ROOT/.githooks/"
 cp "$TMP/kit/githooks/pre-push" "$PROJECT_ROOT/.githooks/"
 cp "$TMP/kit/githooks/README.md" "$PROJECT_ROOT/.githooks/"
 
