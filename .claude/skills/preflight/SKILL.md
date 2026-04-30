@@ -8,7 +8,7 @@ tools: Read, Grep, Glob, Bash
 
 Validates that all kit artifacts are production-ready for downstream projects before a release.
 
-> **Deterministic checks live in `python3 scripts/check-kit.py`** — kit-centric language,
+> **Deterministic checks live in `python3 scripts/check.py`** — kit-centric language,
 > agent inventory coverage, sync→kit-tools.md coverage, and tool-minimality are enforced there
 > on every commit. Run it first; if it passes, focus this skill on the semantic checks below
 > that only a reader can judge: tone, ambiguous references, terminology drift, and
@@ -21,7 +21,7 @@ Validates that all kit artifacts are production-ready for downstream projects be
 ### 0. Run deterministic checks first
 
 ```
-python3 scripts/check-kit.py
+python3 scripts/check.py
 ```
 
 If it fails, fix those issues before continuing — they are blocking and unambiguous.
@@ -69,7 +69,7 @@ For each agent/skill file, check:
 
 #### A — Language & Context
 
-> Kit-centric paths and phrases are caught by `check-kit.py` (Step 0). Focus here on:
+> Kit-centric paths and phrases are caught by `check.py` (Step 0). Focus here on:
 
 - 🔴 **Wrong downstream paths** — references to paths that don't exist downstream (e.g. assumes a directory not present in the project layout)
 - 🟡 **Ambiguous "this" references** — unclear if referring to the agent itself, the kit, or the downstream project
@@ -132,7 +132,7 @@ For each file in `kit/scripts/` (including profile subdirs like `kit/scripts/tau
 Cross-references are checked against the **full kit** (not just modified files) — a modified agent may reference an existing unmodified file, which is valid.
 
 > Inventory coverage (every agent listed in kit-tools.md, every synced root file documented)
-> is enforced by `check-kit.py` (Step 0). Focus here on:
+> is enforced by `check.py` (Step 0). Focus here on:
 
 - 🔴 Agent references a script that won't be synced downstream
 - 🔴 Agent A references agent B that isn't in `kit/agents/` or `kit/agents/<profile>/`
@@ -166,7 +166,7 @@ Ready for release: yes / no (if critical > 0).
 
 ## Critical Rules
 
-1. **`check-kit.py` is the deterministic gate** — it enforces kit-centric language, agent inventory, sync→kit-tools.md coverage, and tool-minimality. Do not duplicate those checks here.
+1. **`check.py` is the deterministic gate** — it enforces kit-centric language, agent inventory, sync→kit-tools.md coverage, and tool-minimality. Do not duplicate those checks here.
 2. **All cross-references verified** — if agent A mentions agent B or script X, both must exist and be synced
 3. **Script safety non-negotiable** — `set -euo pipefail`, shebang, quoted variables; no exceptions
 4. **Run before every release** — this skill is the gate before `python3 scripts/release-kit.py`

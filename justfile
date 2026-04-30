@@ -11,3 +11,11 @@ format:
 
 stat:
     cloc . --vcs=git
+
+# Run kit quality checks
+check:
+    python3 scripts/check.py
+
+# Mirror kit skills and hooks to .claude/skills/ and .githooks/ for local kit development
+mirror-local:
+    bash scripts/mirror-local.sh

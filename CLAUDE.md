@@ -10,7 +10,7 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
 2.  **Direct Plan**: Propose a concise TODO plan with exact file paths in the chat. Ask user to validate.
 3.  **Tracking**: Use internal `TaskCreate` / `TaskUpdate` tools to track workflow steps (mark `in_progress` when starting, `completed` when done) for user visibility.
 4.  **Implementation**: Execute the code changes.
-5.  **Review & Quality**: Run static checks (`python3 scripts/check-kit.py`), write tests, and run `/preflight` before any release.
+5.  **Review & Quality**: Run static checks (`python3 scripts/check.py`), write tests, and run `/preflight` before any release.
 6.  **Closure**: Ask user if another task is needed before commit, otherwise use **`/smart-commit`** skill.
 
 ## Critical Patterns
@@ -34,8 +34,8 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
   - ❌ Wrong: `tools: Read, Grep, Glob, Bash, Edit, Write` for a review agent.
   - _Why it's critical:_ Over-privileged agents are slower and pose a security risk.
 
-- **Kit-local tooling only:** When working on this repository, only use tools from `.claude/` (skills, agents) and `scripts/` (check-kit.py, release-kit.py). Never invoke agents or skills from `kit/agents/` or `kit/agents/tauri/` directly — those are downstream artifacts, not kit tooling.
-  - ✅ Correct: `/preflight`, `/smart-commit`, `python3 scripts/check-kit.py`
+- **Kit-local tooling only:** When working on this repository, only use tools from `.claude/` (skills, agents) and `scripts/` (check.py, release-kit.py). Never invoke agents or skills from `kit/agents/` or `kit/agents/tauri/` directly — those are downstream artifacts, not kit tooling.
+  - ✅ Correct: `/preflight`, `/smart-commit`, `python3 scripts/check.py`
   - ❌ Wrong: running `reviewer`, `spec-checker`, or any `kit/agents/**/*.md` agent on kit files
   - _Why it's critical:_ Kit agents are written for downstream project structure which does not exist in this repository.
 
@@ -107,7 +107,7 @@ kit/                        ← everything synced downstream
       release.py            → scripts/release.py (web profile)
   common.just               → common.just (generic recipes + guards)
 scripts/                    ← kit-only tooling (not synced)
-  check-kit.py              kit quality checker
+  check.py                kit quality checker
   release-kit.py            kit release manager
 ```
 
@@ -124,5 +124,6 @@ These are available in `.claude/` for working on the kit itself. They are **not 
 | skill | `preflight`    | Before any release — validates IA readiness, script quality, cross-component coherence (`/preflight`)  |
 | skill | `smart-commit` | To create a validated conventional commit (`/smart-commit`)                                            |
 | skill | `whats-next`   | At session start to triage what to work on next across TODOs, plans, and in-flight git (`/whats-next`) |
+| skill | `create-pr`    | Push the current feature branch and open a GitHub PR (`/create-pr`)                                    |
 
-> `smart-commit` and `whats-next` are mirrored from `kit/skills/` — keep the `.claude/skills/<name>/SKILL.md` copies in sync manually when the source changes.
+> `smart-commit`, `whats-next`, and `create-pr` are mirrored from `kit/skills/`, and all hooks from `kit/githooks/` — run `just mirror-local` to sync both after changing sources. Activate hooks once with `git config core.hooksPath .githooks`.

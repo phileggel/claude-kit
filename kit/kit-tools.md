@@ -103,11 +103,12 @@ Read on demand to orient — none are auto-loaded by Claude Code.
 
 ## Git Hooks (`.githooks/`)
 
-| Hook         | Runs on      | Behaviour                                                                                                          |
-| ------------ | ------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `pre-commit` | `git commit` | Blocks direct commits to `main`; runs `python3 scripts/check.py --fast` (lint + format); rejects commit on failure |
-| `commit-msg` | `git commit` | Enforces conventional format (`type: description`), valid types, ≤72-char title, no co-author lines                |
-| `pre-push`   | `git push`   | Runs `python3 scripts/check.py` (full suite: tests + build + lint); blocks push on failure                         |
+| Hook               | Runs on      | Behaviour                                                                                                          |
+| ------------------ | ------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `pre-commit`       | `git commit` | Blocks direct commits to `main`; runs `python3 scripts/check.py --fast` (lint + format); rejects commit on failure |
+| `commit-msg`       | `git commit` | Enforces conventional format (`type: description`), valid types, ≤72-char title, no co-author lines                |
+| `pre-push`         | `git push`   | Runs `python3 scripts/check.py` (full suite: tests + build + lint); blocks push on failure                         |
+| `pre-merge-commit` | `git merge`  | Blocks non-fast-forward merge commits to enforce linear history; does not affect `--ff-only` or `--squash`         |
 
 Activate with: `git config core.hooksPath .githooks`
 

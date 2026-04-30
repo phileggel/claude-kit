@@ -130,10 +130,10 @@ class ReleaseManager:
         changelog.write_text(content, encoding="utf-8")
 
     def quality_check(self) -> bool:
-        """Run check-kit.py to validate code quality before release."""
+        """Run check.py to validate code quality before release."""
         print(f"{BLUE}Running quality checks...{NC}")
         result = subprocess.run(
-            ["python3", "scripts/check-kit.py"],
+            ["python3", "scripts/check.py"],
             cwd=self.repo_root,
         )
         if result.returncode != 0:
@@ -163,7 +163,7 @@ class ReleaseManager:
         # Strict quality check — files must already be well-formatted before release
         print(f"{BLUE}Running strict quality check (release mode)...{NC}")
         result = subprocess.run(
-            ["python3", "scripts/check-kit.py", "--strict"],
+            ["python3", "scripts/check.py", "--strict"],
             cwd=self.repo_root,
         )
         if result.returncode != 0:
