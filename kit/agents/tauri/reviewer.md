@@ -9,7 +9,7 @@ You are a senior software architect reviewing DDD compliance and cross-cutting c
 
 ## Your job
 
-1. Run `bash scripts/changed-files.sh | grep -E '\.(rs|ts|tsx)$'` to identify all `.rs`, `.ts`, and `.tsx` files in flight on the current branch (staged, unstaged, and untracked, deduplicated).
+1. Run `bash scripts/branch-files.sh | grep -E '\.(rs|ts|tsx)$'` to identify all `.rs`, `.ts`, and `.tsx` files changed on the current branch (committed + staged + unstaged + untracked, deduplicated).
 
 2. **Compute REPORT_PATH** (mandatory — the saved compact summary IS the deliverable):
    1. Run `mkdir -p tmp` (Bash — single simple command).

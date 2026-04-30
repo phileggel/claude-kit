@@ -1,5 +1,13 @@
 # List of TODOs
 
+## New features
+
+- [ ] `/create-pr` skill: standalone skill that checks you're on a feature branch, pushes if needed, generates PR title + description from branch commits and plan doc, then calls `gh pr create` with user confirmation before push
+
+## Cleanup
+
+- [ ] Remove `spec-diff` skill — no identified use case; remove `kit/skills/spec-diff/`, its entry in `kit/kit-tools.md`, and any references in agent descriptions
+
 ## Experimental
 
 - [ ] Post-sync validator: `validate-sync.sh` that verifies all expected agents/scripts/hooks landed after `just sync-kit`

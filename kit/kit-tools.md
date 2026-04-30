@@ -104,11 +104,11 @@ Read on demand to orient — none are auto-loaded by Claude Code.
 
 ## Git Hooks (`.githooks/`)
 
-| Hook         | Runs on      | Behaviour                                                                                           |
-| ------------ | ------------ | --------------------------------------------------------------------------------------------------- |
-| `pre-commit` | `git commit` | Runs `python3 scripts/check.py --fast` (lint + format); rejects commit on failure                   |
-| `commit-msg` | `git commit` | Enforces conventional format (`type: description`), valid types, ≤72-char title, no co-author lines |
-| `pre-push`   | `git push`   | Runs `python3 scripts/check.py` (full suite: tests + build + lint); blocks push on failure          |
+| Hook         | Runs on      | Behaviour                                                                                                          |
+| ------------ | ------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `pre-commit` | `git commit` | Blocks direct commits to `main`; runs `python3 scripts/check.py --fast` (lint + format); rejects commit on failure |
+| `commit-msg` | `git commit` | Enforces conventional format (`type: description`), valid types, ≤72-char title, no co-author lines                |
+| `pre-push`   | `git push`   | Runs `python3 scripts/check.py` (full suite: tests + build + lint); blocks push on failure                         |
 
 Activate with: `git config core.hooksPath .githooks`
 
@@ -118,7 +118,8 @@ Activate with: `git config core.hooksPath .githooks`
 
 | Script             | Command                         | Description                                                                                                                |
 | ------------------ | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `changed-files.sh` | `bash scripts/changed-files.sh` | Print sort-unique union of changed-vs-HEAD, staged, and untracked files. Used by review agents to discover in-flight files |
+| `changed-files.sh` | `bash scripts/changed-files.sh` | Print sort-unique union of changed-vs-HEAD, staged, and untracked files. Use for pre-commit / uncommitted-work context     |
+| `branch-files.sh`  | `bash scripts/branch-files.sh`  | Print sort-unique union of all files changed on the current branch vs main, plus uncommitted changes. Use in review agents |
 
 ---
 

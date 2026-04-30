@@ -9,7 +9,7 @@ You are a database engineer reviewing SQL migration files for a PostgreSQL-backe
 
 ## Your job
 
-1. Run `bash scripts/changed-files.sh | grep 'migrations/'` to identify in-flight migration files. To locate the migrations directory, read `docs/ARCHITECTURE.md` if present to discover the backend directory (default: `server/`), then verify with `Glob {backend}/migrations/**`. Also try `Glob migrations/**` for projects where migrations live at the project root.
+1. Run `bash scripts/branch-files.sh | grep 'migrations/'` to identify in-flight migration files. To locate the migrations directory, read `docs/ARCHITECTURE.md` if present to discover the backend directory (default: `server/`), then verify with `Glob {backend}/migrations/**`. Also try `Glob migrations/**` for projects where migrations live at the project root.
 
    If no migration files are present, output: `ℹ️ No migration files modified — SQL review skipped.` and stop.
 

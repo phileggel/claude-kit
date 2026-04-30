@@ -15,6 +15,11 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
 
 ## Critical Patterns
 
+- **Always work on a feature branch**: Never commit directly to `main`. Create a branch for every change and merge via PR.
+  - ✅ Correct: `git checkout -b feat/your-feature` → implement → `/smart-commit` → merge to main
+  - ❌ Wrong: committing directly to `main` (the pre-commit hook will hard-block it)
+  - _Why it's critical:_ Review agents use branch scope (`branch-files.sh`) to discover all modified files. On `main`, the branch base equals HEAD and agents see nothing.
+
 - **Always use `just`**: Never suggest or execute native commands if a corresponding recipe exists in `justfile`.
 
 - **Never commit without explicit user authorization.** Always use `/smart-commit` and wait for a clear "go" before any `git commit` or `git push` — including hotfixes, release commits, and one-liners. No exceptions.
