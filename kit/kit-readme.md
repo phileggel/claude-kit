@@ -91,7 +91,7 @@ git checkout -b feat/{feature-name}
 4. Update documentation (`ARCHITECTURE.md`, `docs/todo.md`).
 5. Run **`spec-checker`** agent → confirm all spec rules and contract commands are covered.
 6. **`/smart-commit`**: tests & docs. [HARD GATE]
-7. Run **`workflow-validator`** agent → final sign-off (verifies all plan checkboxes ticked).
+7. **`/create-pr`** → push branch and open PR (or merge directly: `git checkout main && git merge --no-ff feat/{name}`).
 
 ---
 
@@ -107,6 +107,7 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
 4. **Implementation**: Execute the code changes.
 5. **Review & Quality**: Run `python3 scripts/check.py` (or `just check-full`), write missing tests, and run relevant subagents (`reviewer`, `script-reviewer`, etc.) as in Phase 3 above.
 6. **Closure**: Ask user if another task is needed before commit, otherwise use **`/smart-commit`** skill.
+7. **`/create-pr`** → push branch and open PR (or merge directly: `git checkout main && git merge --no-ff fix/{name}`).
 
 ---
 

@@ -83,7 +83,7 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 - [ ] Update `ARCHITECTURE.md` + `docs/todo.md`
 - [ ] `spec-checker` → all rules and contract commands covered
 - [ ] `/smart-commit`: tests & docs [HARD GATE]
-- [ ] `workflow-validator` → final sign-off
+- [ ] `/create-pr` → push branch and open PR (or merge directly: `git checkout main && git merge --no-ff feat/{name}`)
 ```
 
 ---
@@ -106,4 +106,5 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 - [ ] Run relevant reviewers (`reviewer`, `script-reviewer`, etc.) as needed
 - [ ] Ask user if another task is needed
 - [ ] `/smart-commit` [HARD GATE]
+- [ ] `/create-pr` → push branch and open PR (or merge directly: `git checkout main && git merge --no-ff fix/{name}`)
 ```

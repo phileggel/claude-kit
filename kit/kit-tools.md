@@ -61,11 +61,10 @@ Read on demand to orient — none are auto-loaded by Claude Code.
 
 ### Quality & Process Agents
 
-| Agent                | Trigger                                                        | Description                                                                                                      |
-| -------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `i18n-checker`       | Any `.ts` / `.tsx` or translation JSON modified                | Hardcoded strings, missing/unused translation keys, cross-locale mismatches                                      |
-| `workflow-validator` | Before committing a feature implementation                     | Reads `docs/plan/*-plan.md` Workflow TaskList; produces ✅/❌ table; blocks commit if required steps are missing |
-| `script-reviewer`    | Any `.sh`, `.py` (in `scripts/`) or `.githooks/` file modified | Script quality: `set -euo pipefail`, shebang, quoting, portability, security                                     |
+| Agent             | Trigger                                                        | Description                                                                  |
+| ----------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `i18n-checker`    | Any `.ts` / `.tsx` or translation JSON modified                | Hardcoded strings, missing/unused translation keys, cross-locale mismatches  |
+| `script-reviewer` | Any `.sh`, `.py` (in `scripts/`) or `.githooks/` file modified | Script quality: `set -euo pipefail`, shebang, quoting, portability, security |
 
 ---
 
@@ -95,7 +94,7 @@ Read on demand to orient — none are auto-loaded by Claude Code.
 | `dep-audit`    | `/dep-audit`     | Audit npm + Cargo dependencies for outdated versions and CVEs; run before every release                                                                  |
 | `adr-manager`  | `/adr-manager`   | Create, update (supersede), or index Architecture Decision Records in `docs/adr/`                                                                        |
 | `spec-writer`  | `/spec-writer`   | Interactive spec writer: interviews user, reads domain, produces `docs/spec/{feature}.md` with TRIGRAM-NNN rules                                         |
-| `spec-diff`    | `/spec-diff`     | Diffs a spec against an earlier git ref (default: last commit touching the matching plan file); flags stale plan tasks and code/test references          |
+| `create-pr`    | `/create-pr`     | Push the current feature branch and open a GitHub PR; drafts title + body from commits and plan doc; requires `gh` CLI                                   |
 | `contract`     | `/contract`      | Derives or updates `docs/contracts/{domain}-contract.md` from a validated spec; upsert-aware, human-approved                                             |
 | `kit-discover` | `/kit-discover`  | Cross-references CLAUDE.md against `kit-tools.md` and `kit-version.md`; surfaces drift, gaps, and redundancies and proposes a patch (never auto-applied) |
 | `prune`        | `/prune [path]`  | Audit the project for dead code, pass-through methods, verbose patterns, and duplicate definitions; coverage report mandatory, read-only output          |
