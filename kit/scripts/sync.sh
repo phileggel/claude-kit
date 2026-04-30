@@ -158,7 +158,7 @@ for path in sys.argv[1:]:
 import sys, re
 
 src_file, skip_names = sys.argv[1], set(sys.argv[2:])
-with open(src_file) as f:
+with open(src_file, encoding='utf-8') as f:
     lines = f.readlines()
 
 RECIPE_RE = re.compile(r'^([a-zA-Z_][a-zA-Z0-9_-]*)(?:[ \t]+[^:\n]*)?:(?!=)')
