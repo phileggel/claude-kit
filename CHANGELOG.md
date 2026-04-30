@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.9.0] - 2026-04-30
+
+### Added
+
+- add mirror-local script and pre-merge-commit hook
+- add create-pr skill and remove spec-diff and workflow-validator
+- enforce branch workflow and fix reviewer file scope
+
+### Fixed
+
+- use --no-verify on release commits to bypass main hook
+- sync pre-merge-commit hook and replace awk in create-pr
+- dynamic base branch in create-pr, Tauri-only on generate-types
+- add utf-8 encoding to remaining open() call
+- add utf-8 encoding to open() calls in sync.sh and prune shipped TODOs
+
 ## [v3.8.0] - 2026-04-29
 
 ### Added
