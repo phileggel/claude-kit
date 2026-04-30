@@ -19,3 +19,14 @@ check:
 # Mirror kit skills and hooks to .claude/skills/ and .githooks/ for local kit development
 mirror-local:
     bash scripts/mirror-local.sh
+
+# Fast-forward current branch into main (no merge commit), then delete the branch
+merge:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    branch=$(git rev-parse --abbrev-ref HEAD)
+    if [ "$branch" = "main" ]; then echo "❌ Already on main — nothing to merge."; exit 1; fi
+    git checkout main
+    git merge --ff-only "$branch"
+    git branch -d "$branch"
+    echo "✅ $branch fast-forwarded into main and deleted."
