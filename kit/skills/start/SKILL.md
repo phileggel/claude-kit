@@ -51,6 +51,9 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 **Type**: {type}
 **Workflow**: A — Full Feature Workflow
 
+### Pre-flight
+- [ ] 🌿 On a feature branch (not `main`)? If not: `git checkout -b feat/{feature-name}`
+
 ### Phase 1 — Spec & Contract & Plan
 - [ ] `/spec-writer` → `docs/spec/{domain}.md`
 - [ ] `spec-reviewer` → validate spec quality [soft gate — hard if 🔴]
@@ -95,6 +98,7 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 **Workflow**: B — Simple Technical Workflow
 
 ### Steps
+- [ ] 🌿 On a feature branch (not `main`)? If not: `git checkout -b fix/{description}` (or `chore/`, `test/`, etc.)
 - [ ] Analyze: read relevant docs and code
 - [ ] Propose plan in chat → wait for user validation
 - [ ] Implement changes

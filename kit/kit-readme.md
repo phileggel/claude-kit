@@ -50,6 +50,12 @@ _Use for: New features, new business logic, significant UI changes, or complex r
 - **Hard gate** — must stop and wait for user: `/smart-commit` only
 - **Soft gate** — agent presents output, user may review; auto-proceeds if no 🔴 criticals
 
+**Before starting:** confirm you are on a feature branch, not `main` (the pre-commit hook blocks direct commits to `main`). Create one if needed:
+
+```bash
+git checkout -b feat/{feature-name}
+```
+
 **Phase 1: Pre-implementation (Spec & Contract & Plan)**
 
 1. Run **`/spec-writer`** skill → produces `docs/spec/{feature}.md`. [soft gate]
@@ -92,6 +98,8 @@ _Use for: New features, new business logic, significant UI changes, or complex r
 ### Option B — Simple Technical Workflow
 
 _Use for: Bug fixes, dependency updates, minor maintenance (no new business rules or features)._
+
+**Before starting:** create a feature branch if on `main`: `git checkout -b fix/{description}` (or `chore/`, `test/`, etc.)
 
 1. **Analysis**: Read relevant documentation and analyze the codebase.
 2. **Direct Plan**: Propose a concise TODO plan with exact file paths in the chat. Ask user to validate.
