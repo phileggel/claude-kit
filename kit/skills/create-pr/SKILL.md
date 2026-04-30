@@ -82,6 +82,14 @@ Use **AskUserQuestion** with Yes / Cancel. Stop if cancelled.
 
 ## Step 6 — Push and create PR
 
+First, detect the default branch:
+
+```bash
+git remote show origin | grep 'HEAD branch' | awk '{print $NF}'
+```
+
+Use the result as `{base}` (fall back to `main` if the command fails or returns empty).
+
 ```bash
 git push -u origin HEAD
 ```
@@ -91,7 +99,7 @@ Pass the body via `--body-file` (write to a temp file first to avoid shell quoti
 ```bash
 BODY_FILE=$(mktemp)
 printf '%s' '{body}' > "$BODY_FILE"
-gh pr create --title "{title}" --base main --body-file "$BODY_FILE"
+gh pr create --title "{title}" --base {base} --body-file "$BODY_FILE"
 rm -f "$BODY_FILE"
 ```
 

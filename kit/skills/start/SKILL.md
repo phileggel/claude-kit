@@ -66,7 +66,7 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 - [ ] Implement backend (make tests green)
 - [ ] `just format`
 - [ ] `reviewer-backend` → fix issues
-- [ ] `just generate-types` → updates `src/bindings.ts`
+- [ ] `just generate-types` → updates `src/bindings.ts` _(Tauri only)_
 - [ ] `/smart-commit`: backend layer [HARD GATE]
 
 ### Phase 3 — Frontend
