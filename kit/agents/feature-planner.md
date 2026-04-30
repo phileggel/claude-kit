@@ -78,9 +78,8 @@ A synthetic checklist for mandatory quality and process steps:
 - [ ] 🧹 `just format`
 - [ ] 🔍 Frontend Review (`reviewer-frontend` → fix issues) — if .ts/.tsx modified
 - [ ] 💾 Commit: frontend layer (suggested title from plan)
-- [ ] 🔍 Cross-cutting Review (`reviewer` always + `reviewer-sql` if migrations + `maintainer` if project config files modified (see `ARCHITECTURE.md`))
+- [ ] 🔍 Cross-cutting Review (`reviewer-arch` always + `reviewer-sql` if migrations + `reviewer-infra` if any config, script, hook, or workflow file changed)
 - [ ] 🌐 i18n Review (`i18n-checker` if UI text changed)
-- [ ] 🔧 Script Review (`script-reviewer` if any script or hook was added/modified)
 - [ ] 📚 Documentation Update (`ARCHITECTURE.md` + `docs/todo.md` — entries in English)
 - [ ] ✅ Spec check (`spec-checker`)
 - [ ] 💾 Commit: tests & docs (suggested title from plan)

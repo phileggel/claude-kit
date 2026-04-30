@@ -61,10 +61,9 @@ Read on demand to orient — none are auto-loaded by Claude Code.
 
 ### Quality & Process Agents
 
-| Agent             | Trigger                                                        | Description                                                                  |
-| ----------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `i18n-checker`    | Any `.ts` / `.tsx` or translation JSON modified                | Hardcoded strings, missing/unused translation keys, cross-locale mismatches  |
-| `script-reviewer` | Any `.sh`, `.py` (in `scripts/`) or `.githooks/` file modified | Script quality: `set -euo pipefail`, shebang, quoting, portability, security |
+| Agent          | Trigger                                         | Description                                                                 |
+| -------------- | ----------------------------------------------- | --------------------------------------------------------------------------- |
+| `i18n-checker` | Any `.ts` / `.tsx` or translation JSON modified | Hardcoded strings, missing/unused translation keys, cross-locale mismatches |
 
 ---
 
@@ -74,13 +73,13 @@ Read on demand to orient — none are auto-loaded by Claude Code.
 
 | Agent                  | Trigger                                                               | Description                                                                                                                                                                                           | Status      |
 | ---------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| `reviewer`             | Any `.rs`, `.ts`, or `.tsx` modified                                  | DDD architecture: bounded context isolation, gateway pattern, factory methods, data flow direction, dead code, English-only                                                                           | ✅ complete |
+| `reviewer-arch`        | Any `.rs`, `.ts`, or `.tsx` modified                                  | DDD architecture: bounded context isolation, gateway pattern, factory methods, data flow direction, dead code, English-only                                                                           | ✅ complete |
 | `reviewer-backend`     | Any `.rs` modified                                                    | Rust quality: anyhow error handling, no `unwrap()` in production, Clippy, trait-based repositories, async correctness, inline tests                                                                   | ✅ complete |
 | `reviewer-frontend`    | Any `.ts` / `.tsx` modified                                           | React/TS quality + UX/M3: gateway encapsulation, hook colocation, presenter layer, `useCallback`/`useMemo` correctness, M3 design tokens, UX completeness (empty/loading/error states), accessibility | ✅ complete |
 | `reviewer-sql`         | Any `migrations/` file modified or added                              | SQL migrations: atomicity, idempotency, destructive DDL guards, FK indexes, SQLite type affinity, primary key convention, NOT NULL                                                                    | ✅ complete |
 | `test-writer-backend`  | After contract-reviewer, before backend impl                          | Writes all failing Rust test stubs from the domain contract; confirms red via cargo test                                                                                                              | ✅ complete |
 | `test-writer-frontend` | After backend commit, before frontend impl                            | Writes all failing Vitest stubs from the domain contract; reads fresh bindings.ts; confirms red via vitest                                                                                            | ✅ complete |
-| `maintainer`           | Any workflow, config, or capabilities file modified; before a release | CI/config/capability correctness, security, consistency; delegates dependency audit to `/dep-audit`                                                                                                   | ✅ complete |
+| `reviewer-infra`       | Any workflow, config, or capabilities file modified; before a release | CI/config/capability correctness, security, consistency; delegates dependency audit to `/dep-audit`                                                                                                   | ✅ complete |
 
 ---
 
@@ -129,13 +128,13 @@ Activate with: `git config core.hooksPath .githooks`
 
 | Agent                  | Trigger                                                               | Description                                                                                                                                               | Status      |
 | ---------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| `reviewer`             | Any `.rs`, `.ts`, or `.tsx` modified                                  | Architecture reviewer: handler/service layering, API gateway encapsulation, data flow direction, dead code, English-only                                  | ✅ complete |
+| `reviewer-arch`        | Any `.rs`, `.ts`, or `.tsx` modified                                  | Architecture reviewer: handler/service layering, API gateway encapsulation, data flow direction, dead code, English-only                                  | ✅ complete |
 | `reviewer-backend`     | Any `.rs` modified                                                    | Rust/Axum quality: anyhow error handling, no `unwrap()` in handlers, Clippy, Axum extractors, `IntoResponse`, async correctness, `sqlx::test` conventions | ✅ complete |
 | `reviewer-frontend`    | Any `.ts` / `.tsx` modified                                           | React/TS quality + UX: API gateway encapsulation, hook colocation, presenter layer, `useCallback`/`useMemo` correctness, UX completeness, accessibility   | ✅ complete |
 | `reviewer-sql`         | Any `server/migrations/` file modified or added                       | SQL migrations: atomicity, idempotency, destructive DDL guards, FK indexes, PostgreSQL type conventions, primary key convention, NOT NULL                 | ✅ complete |
 | `test-writer-backend`  | After contract-reviewer, before backend impl                          | Writes all failing Rust tests from the domain contract using `#[sqlx::test]` + `PgPool`; confirms red via cargo test                                      | ✅ complete |
 | `test-writer-frontend` | After backend commit, before frontend impl                            | Writes all failing Vitest tests from the domain contract; mocks the API module; confirms red via vitest                                                   | ✅ complete |
-| `maintainer`           | Any workflow, config, or docker-compose file modified; before release | CI/config/compose correctness, security, version sync; delegates dependency audit to `/dep-audit`                                                         | ✅ complete |
+| `reviewer-infra`       | Any workflow, config, or docker-compose file modified; before release | CI/config/compose correctness, security, version sync; delegates dependency audit to `/dep-audit`                                                         | ✅ complete |
 
 ---
 

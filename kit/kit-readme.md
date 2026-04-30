@@ -85,9 +85,9 @@ git checkout -b feat/{feature-name}
 
 **Phase 4: Review & Closure**
 
-1. Run **`reviewer`** agent (always) + **`reviewer-sql`** (if migrations) + **`maintainer`** (if project config files changed).
+1. Run **`reviewer-arch`** agent (always) + **`reviewer-sql`** (if migrations) + **`reviewer-infra`** (if project config files changed).
 2. Run **`i18n-checker`** if UI text changed.
-3. Run **`script-reviewer`** if scripts or hooks were modified.
+3. Run **`reviewer-infra`** if scripts, hooks, workflow, or config files were modified.
 4. Update documentation (`ARCHITECTURE.md`, `docs/todo.md`).
 5. Run **`spec-checker`** agent → confirm all spec rules and contract commands are covered.
 6. **`/smart-commit`**: tests & docs. [HARD GATE]
@@ -105,7 +105,7 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
 2. **Direct Plan**: Propose a concise TODO plan with exact file paths in the chat. Ask user to validate.
 3. **Tracking**: Use `TaskCreate` / `TaskUpdate` tools to track workflow steps (`in_progress` when starting, `completed` when done).
 4. **Implementation**: Execute the code changes.
-5. **Review & Quality**: Run `python3 scripts/check.py` (or `just check-full`), write missing tests, and run relevant subagents (`reviewer`, `script-reviewer`, etc.) as in Phase 3 above.
+5. **Review & Quality**: Run `python3 scripts/check.py` (or `just check-full`), write missing tests, and run relevant subagents (`reviewer-arch`, `reviewer-infra`, etc.) as in Phase 3 above.
 6. **Closure**: Ask user if another task is needed before commit, otherwise use **`/smart-commit`** skill.
 7. **`/create-pr`** → push branch and open PR (or merge directly: `git checkout main && git merge --no-ff fix/{name}`).
 
@@ -172,7 +172,7 @@ If you need to extend a kit agent's behaviour:
 
 - Check if the agent file exists: `ls -la .claude/agents/`
 - Re-sync the kit (with your profile): `./scripts/sync-config.sh`
-- Tauri-profile agents (reviewer, maintainer, test-writer-\*) require `.claude/kit-profile` to contain `tauri`
+- Tauri-profile agents (reviewer-arch, reviewer-infra, test-writer-\*) require `.claude/kit-profile` to contain `tauri`
 
 **Agent gives wrong output?**
 
