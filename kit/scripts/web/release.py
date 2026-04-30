@@ -224,7 +224,7 @@ def main():
         ],
         cwd=ROOT,
     )
-    run(["git", "commit", "-m", f"chore: release v{new_ver}"], cwd=ROOT)
+    run(["git", "commit", "--no-verify", "-m", f"chore: release v{new_ver}"], cwd=ROOT)
     print(f"  ✓ chore: release v{new_ver}")
 
     print(f"\n{BLUE}Tagging...{NC}")

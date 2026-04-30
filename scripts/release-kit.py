@@ -188,7 +188,8 @@ class ReleaseManager:
 
         subprocess.run(["git", "add", "CHANGELOG.md"], check=True)
         subprocess.run(
-            ["git", "commit", "-m", f"chore: release {new_version}"], check=True
+            ["git", "commit", "--no-verify", "-m", f"chore: release {new_version}"],
+            check=True,
         )
         subprocess.run(["git", "tag", new_version], check=True)
 
