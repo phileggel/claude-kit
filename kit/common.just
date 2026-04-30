@@ -1,3 +1,5 @@
+# Common recipes — synced from kit to downstream projects via sync-config.sh
+
 sync-kit:
     ./scripts/sync-config.sh
 
