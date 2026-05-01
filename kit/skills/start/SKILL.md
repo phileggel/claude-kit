@@ -32,9 +32,16 @@ Use **AskUserQuestion** to collect two things in one call:
 - `A — Full workflow` — new feature, business logic, contract changes, significant refactor
 - `B — Simple workflow` — bug fix, chore, tests, maintenance, no new business rules
 
-## Step 3 — Output working context
+## Step 3 — Check branch before outputting context
 
-Output the block below immediately after the user answers. This block is the main agent's session context — it drives the rest of the work.
+Before outputting anything, run `git branch --show-current` to check the current branch.
+
+- If on `main`: use **AskUserQuestion** to ask for a branch name, then run `git checkout -b {branch}`. Do not proceed until the branch is created.
+- If already on a feature branch: proceed.
+
+## Step 4 — Output working context
+
+Output the block below immediately after the branch check. This block is the main agent's session context — it drives the rest of the work.
 
 ---
 
@@ -50,9 +57,6 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 **Task**: {task}
 **Type**: {type}
 **Workflow**: A — Full Feature Workflow
-
-### Pre-flight
-- [ ] 🌿 On a feature branch (not `main`)? If not: `git checkout -b feat/{feature-name}`
 
 ### Phase 1 — Spec & Contract & Plan
 - [ ] `/spec-writer` → `docs/spec/{domain}.md`
@@ -73,8 +77,10 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 - [ ] `test-writer-frontend` → Vitest stubs from contract, confirm red
 - [ ] Implement frontend (make tests green)
 - [ ] `just format`
-- [ ] `reviewer-frontend` → fix issues
-- [ ] `/smart-commit`: frontend layer [HARD GATE]
+- [ ] `reviewer-frontend` → fix issues (Parts A + B + C)
+- [ ] `test-writer-e2e` → E2E stubs from contract, confirm red _(Tauri only — run `/setup-e2e` first if not done)_
+- [ ] Make E2E tests green (fix selector gaps per `docs/e2e-rules.md`)
+- [ ] `/smart-commit`: frontend + E2E layer [HARD GATE]
 
 ### Phase 4 — Review & Closure
 - [ ] `reviewer-arch` (always) + `reviewer-sql` (if migrations) + `reviewer-infra` (if any config, script, hook, or workflow file changed)
@@ -97,7 +103,6 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 **Workflow**: B — Simple Technical Workflow
 
 ### Steps
-- [ ] 🌿 On a feature branch (not `main`)? If not: `git checkout -b fix/{description}` (or `chore/`, `test/`, etc.)
 - [ ] Analyze: read relevant docs and code
 - [ ] Propose plan in chat → wait for user validation
 - [ ] Implement changes
