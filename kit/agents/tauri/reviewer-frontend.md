@@ -16,7 +16,8 @@ You are a senior React/TypeScript engineer and UX reviewer for a Tauri 2 / React
 2. **Compute REPORT_PATH** (mandatory — the saved compact summary IS the deliverable): Run `bash scripts/report-path.sh reviewer-frontend` and remember the output as `REPORT_PATH`.
 
 3. Read `docs/frontend-rules.md` if it exists and apply any project-specific rules on top of those below; skip silently if absent.
-4. For each modified file, apply **Part A** (all `.ts` and `.tsx` files) and **Part B** (`.tsx` files only).
+   Read `docs/e2e-rules.md` if it exists — apply the E2E testability checks in Part C below; skip silently if absent.
+4. For each modified file, apply **Part A** (all `.ts` and `.tsx` files) and **Part B** (`.tsx` files only), and **Part C** (`.tsx` files with forms, inputs, or modals — only when `docs/e2e-rules.md` exists).
 5. Output the review findings to the conversation using `## Output format` below.
 6. **Save** the compact summary to `REPORT_PATH` using the Write tool — mandatory final action. The workflow is incomplete until Write succeeds. Format defined in `## Save report` below.
 7. Reply: `Report saved to {REPORT_PATH}`.
@@ -123,6 +124,33 @@ Available components (import from `@/ui/components`): `Button`, `IconButton`, `D
 - Cancel MUST be `variant="secondary"`, confirm MUST be `variant="primary"`, destructive confirm MUST be `variant="danger"`.
 - All user-visible text MUST use `useTranslation` — no hardcoded strings.
 - Dates MUST use `Intl.DateTimeFormat` or a shared formatter — never raw ISO strings shown to user.
+
+---
+
+## Part C — E2E Testability (`.tsx` files with forms, inputs, or modals)
+
+Only apply when `docs/e2e-rules.md` exists. Skip silently if the file is absent or if no forms/inputs/modals are in the diff.
+
+### Form and input identifiers (E1, E2)
+
+- Every `<form>` element MUST have an `id` attribute — flag missing `id` on `<form>` as 🟡 Warning
+- Every `<input>` (direct or via a wrapper component like `TextField`, `DateField`, `AmountField`) MUST have an `id` forwarded to the underlying DOM `<input>` — flag missing `id` as 🟡 Warning
+- Naming convention: `{feature}-{action}-form` for forms, `{form-prefix}-{field}` for inputs (e.g. `price-modal-form`, `price-modal-date`) — flag deviations as 🔵 Suggestion
+
+### Submit button linkage (E3)
+
+- Submit buttons MUST use `type="submit"` AND `form="{form-id}"` — an `onClick`-only submit has no stable E2E selector
+- Flag a submit button without `type="submit" form="..."` as 🟡 Warning
+
+### Error message discoverability (E5)
+
+- Inline validation and submit error messages MUST have `role="alert"` — already covered by Accessibility but verify
+- Flag error `<p>` or `<span>` without `role="alert"` as 🟡 Warning
+
+### Navigation and action button labels (E4)
+
+- Icon-only buttons that trigger navigation or domain actions MUST have `aria-label={t("...")}` — already covered by Accessibility
+- Verify the i18n key resolves to a stable English string (check `en/common.json` for the key) — flag hardcoded strings as 🔴 Critical
 
 ---
 

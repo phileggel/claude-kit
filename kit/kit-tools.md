@@ -19,7 +19,7 @@ use the generic layer and manage quality agents locally.
 
 | Profile | Stack                        | Agents | Scripts              | Justfile   | Status         |
 | ------- | ---------------------------- | ------ | -------------------- | ---------- | -------------- |
-| `tauri` | Tauri 2 + React 19 + Rust    | 7      | check.py, release.py | tauri.just | ✅ complete    |
+| `tauri` | Tauri 2 + React 19 + Rust    | 8      | check.py, release.py | tauri.just | ✅ complete    |
 | `web`   | Axum + React 19 + PostgreSQL | 7      | check.py, release.py | web.just   | ✅ complete    |
 | (none)  | any                          | —      | —                    | —          | ✅ first-class |
 
@@ -80,23 +80,25 @@ Read on demand to orient — none are auto-loaded by Claude Code.
 | `test-writer-backend`  | After contract-reviewer, before backend impl                          | Writes all failing Rust test stubs from the domain contract; confirms red via cargo test                                                                                                                        | ✅ complete |
 | `test-writer-frontend` | After backend commit, before frontend impl                            | Writes two layers of failing Vitest tests: gateway unit tests (mocking invoke, from contract + bindings.ts) and RTL component integration tests (mocking the gateway, both directions); confirms red via vitest | ✅ complete |
 | `reviewer-infra`       | Any workflow, config, or capabilities file modified; before a release | CI/config/capability correctness, security, consistency; delegates dependency audit to `/dep-audit`                                                                                                             | ✅ complete |
+| `test-writer-e2e`      | After frontend implementation, before release                         | Writes failing Tauri WebDriver E2E tests for every command in a domain contract; exercises full UI→IPC→backend against the real running app; no mocking at any layer; verifies red before finishing             | ✅ complete |
 
 ---
 
 ## Skills (slash commands)
 
-| Skill          | Command          | Description                                                                                                                                              |
-| -------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `start`        | `/start [scope]` | Select workflow A (full) or B (simple) for the current task; outputs actionable checklist. Optional scope: `fix`, `chore`, `test`, `feature`, `refactor` |
-| `whats-next`   | `/whats-next`    | Triage pending work across TODOs, plans, specs, and in-flight git; returns value/effort table and one suggested next action                              |
-| `smart-commit` | `/smart-commit`  | Conventional commit with sensitive-file check, linter run, suggested title with char count, and user confirmation                                        |
-| `dep-audit`    | `/dep-audit`     | Audit npm + Cargo dependencies for outdated versions and CVEs; run before every release                                                                  |
-| `adr-manager`  | `/adr-manager`   | Create, update (supersede), or index Architecture Decision Records in `docs/adr/`                                                                        |
-| `spec-writer`  | `/spec-writer`   | Interactive spec writer: interviews user, reads domain, produces `docs/spec/{feature}.md` with TRIGRAM-NNN rules                                         |
-| `create-pr`    | `/create-pr`     | Push the current feature branch and open a GitHub PR; drafts title + body from commits and plan doc; requires `gh` CLI                                   |
-| `contract`     | `/contract`      | Derives or updates `docs/contracts/{domain}-contract.md` from a validated spec; upsert-aware, human-approved                                             |
-| `kit-discover` | `/kit-discover`  | Cross-references CLAUDE.md against `kit-tools.md` and `kit-version.md`; surfaces drift, gaps, and redundancies and proposes a patch (never auto-applied) |
-| `prune`        | `/prune [path]`  | Audit the project for dead code, pass-through methods, verbose patterns, and duplicate definitions; coverage report mandatory, read-only output          |
+| Skill          | Command          | Description                                                                                                                                                                           |
+| -------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `start`        | `/start [scope]` | Select workflow A (full) or B (simple) for the current task; outputs actionable checklist. Optional scope: `fix`, `chore`, `test`, `feature`, `refactor`                              |
+| `whats-next`   | `/whats-next`    | Triage pending work across TODOs, plans, specs, and in-flight git; returns value/effort table and one suggested next action                                                           |
+| `smart-commit` | `/smart-commit`  | Conventional commit with sensitive-file check, linter run, suggested title with char count, and user confirmation                                                                     |
+| `dep-audit`    | `/dep-audit`     | Audit npm + Cargo dependencies for outdated versions and CVEs; run before every release                                                                                               |
+| `adr-manager`  | `/adr-manager`   | Create, update (supersede), or index Architecture Decision Records in `docs/adr/`                                                                                                     |
+| `spec-writer`  | `/spec-writer`   | Interactive spec writer: interviews user, reads domain, produces `docs/spec/{feature}.md` with TRIGRAM-NNN rules                                                                      |
+| `create-pr`    | `/create-pr`     | Push the current feature branch and open a GitHub PR; drafts title + body from commits and plan doc; requires `gh` CLI                                                                |
+| `contract`     | `/contract`      | Derives or updates `docs/contracts/{domain}-contract.md` from a validated spec; upsert-aware, human-approved                                                                          |
+| `kit-discover` | `/kit-discover`  | Cross-references CLAUDE.md against `kit-tools.md` and `kit-version.md`; surfaces drift, gaps, and redundancies and proposes a patch (never auto-applied)                              |
+| `prune`        | `/prune [path]`  | Audit the project for dead code, pass-through methods, verbose patterns, and duplicate definitions; coverage report mandatory, read-only output                                       |
+| `setup-e2e`    | `/setup-e2e`     | One-time Tauri WebDriver E2E setup: installs npm packages, generates `wdio.conf.ts` from the binary name, adds `test:e2e` / `test:e2e:ci` scripts. Idempotent. _(Tauri profile only)_ |
 
 ---
 
@@ -110,6 +112,19 @@ Read on demand to orient — none are auto-loaded by Claude Code.
 | `pre-merge-commit` | `git merge`  | Blocks non-fast-forward merge commits to enforce linear history; does not affect `--ff-only` or `--squash`         |
 
 Activate with: `git config core.hooksPath .githooks`
+
+---
+
+## Doc Templates (profile-specific, copy-once)
+
+These files are copied to `docs/` on first sync only — never overwritten on re-sync,
+so project teams can customize them freely after initial install.
+
+### Tauri profile (`tauri`)
+
+| File           | Destination         | Purpose                                                                                                                                                              |
+| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `e2e-rules.md` | `docs/e2e-rules.md` | E2E testability conventions: form ids (E1–E2), submit buttons (E3), aria-labels (E4), role=alert (E5), setReactInputValue (E6), locale dates (E7–E9), timeouts (E10) |
 
 ---
 
