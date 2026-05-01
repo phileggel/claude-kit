@@ -110,6 +110,7 @@ class KitChecker:
         self._check_kit_centric_language()
         self._check_sync_coverage()
         self._check_output_format_end_markers()
+        self._check_no_settings_json_in_scripts()
 
         self._report()
         return not self.suite_failed
@@ -324,6 +325,36 @@ class KitChecker:
             return False
 
         self.results["Output format end-markers"] = True
+        return True
+
+    def _check_no_settings_json_in_scripts(self) -> bool:
+        """Flag any kit script that references settings.json — it must stay user-managed."""
+        failures: list[str] = []
+        for d in BASH_DIRS + ["kit/scripts"]:
+            p = REPO_ROOT / d
+            if not p.exists():
+                continue
+            for f in sorted(p.rglob("*")):
+                if not f.is_file():
+                    continue
+                try:
+                    text = f.read_text(encoding="utf-8")
+                except OSError:
+                    continue
+                for lineno, line in enumerate(text.splitlines(), 1):
+                    if "settings.json" in line:
+                        rel = str(f.relative_to(REPO_ROOT))
+                        failures.append(f"{rel}:{lineno}: references settings.json")
+
+        if failures:
+            print("  No settings.json in scripts...")
+            for f in failures:
+                print(f"    ✗ {f}")
+            self.suite_failed = True
+            self.results["No settings.json in scripts"] = False
+            return False
+
+        self.results["No settings.json in scripts"] = True
         return True
 
     def _collect_bash_files(self) -> list[str]:

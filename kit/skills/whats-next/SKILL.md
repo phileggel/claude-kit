@@ -35,10 +35,9 @@ Not needed when you already know what you're working on — use `/start` instead
 
 The saved compact summary IS the deliverable — compute its path before scanning anything:
 
-1. Run `mkdir -p tmp` (Bash — single simple command).
-2. Run `date +%Y-%m-%d` (Bash) to get DATE.
-3. Use `Glob("tmp/whats-next-*.md")` to list existing reports; from the results, find the highest `{DATE}-NN` index for today and increment it, or use `01` if none exist for today. Derive this in-context — no loop needed.
-4. Set `REPORT_PATH = tmp/whats-next-{DATE}-{NN}.md`.
+1. Run `date +%Y-%m-%d` (Bash) to get DATE.
+2. Use `Glob("tmp/whats-next-*.md")` to list existing reports; from the results, find the highest `{DATE}-NN` index for today and increment it, or use `01` if none exist for today. Derive this in-context — no loop needed. (If `tmp/` does not exist yet, Glob returns empty — treat as `01`.)
+3. Set `REPORT_PATH = tmp/whats-next-{DATE}-{NN}.md`.
 
 Remember the derived path as `REPORT_PATH`.
 
