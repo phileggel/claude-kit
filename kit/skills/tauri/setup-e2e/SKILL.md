@@ -114,10 +114,10 @@ If all are present, report `✅ npm E2E packages already installed.` and skip.
 ## Step 3 — Check tauri-driver
 
 ```bash
-ls ~/.cargo/bin/tauri-driver 2>/dev/null && echo "found" || echo "missing"
+ls ~/.cargo/bin/tauri-driver
 ```
 
-If missing, report:
+If the command exits with an error (binary not found), report:
 
 ```
 ⚠️  tauri-driver not found. Install it manually (takes ~1 min):
@@ -136,10 +136,10 @@ If found, report `✅ tauri-driver found.`
 ## Step 4 — Check WebKitWebDriver (Linux only)
 
 ```bash
-which WebKitWebDriver 2>/dev/null && echo "found" || echo "missing"
+which WebKitWebDriver
 ```
 
-If missing on Linux:
+If the command exits with an error (not found on Linux):
 
 ```
 ⚠️  WebKitWebDriver not found. Install it (required on Linux):

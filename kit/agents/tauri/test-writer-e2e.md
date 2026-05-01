@@ -45,8 +45,8 @@ If not provided, list files in `docs/contracts/` and ask which to use.
 3. Verify `wdio.conf.ts` exists at the project root — if absent, stop and tell the user to run `/setup-e2e`
 4. Locate UI entry points: Glob `src/features/{domain}/**/*.tsx` and read relevant component
    files to confirm form `id`, input `id`, and `aria-label` values (per e2e-rules E1–E5)
-   - Cross-check any `aria-label={t("...")}` keys against `src/i18n/locales/en/common.json`
-     to get the exact English string used in selectors
+   - Cross-check any `aria-label={t("...")}` keys against the project's English translation
+     file (e.g. `src/i18n/locales/en/common.json`) to get the exact string used in selectors
 
 ### Step 2 — Assess writability per command
 
@@ -127,12 +127,13 @@ async function setReactInputValue(
 }
 
 /**
- * Converts ISO date to the locale display format DateField expects. (E2E rule E7)
- * DateField renders type="text" with fr-FR locale (DD/MM/YYYY) by default.
+ * Converts ISO date to the display format DateField expects. (E2E rule E7)
+ * Adjust the return format to match your project's DateField locale
+ * (e.g. DD/MM/YYYY for fr-FR, MM/DD/YYYY for en-US).
  */
 function isoToDisplayDate(iso: string): string {
   const [year, month, day] = iso.split("-");
-  return `${day}/${month}/${year}`;
+  return `${day}/${month}/${year}`; // adjust to project locale
 }
 ```
 
@@ -140,8 +141,8 @@ function isoToDisplayDate(iso: string): string {
 
 ```typescript
 // Deterministic values — one constant per write operation.
-// Fixed past dates (never today) to avoid DuplicateDate errors from prior runs.
-// Date values use locale format (fr-FR: DD/MM/YYYY) via isoToDisplayDate().
+// Fixed past dates (never today) to avoid duplicate-value errors from prior runs.
+// Date values use the project's DateField display format via isoToDisplayDate().
 const DATES = {
   create: isoToDisplayDate("2020-01-15"),
   update: isoToDisplayDate("2020-01-16"),
@@ -245,8 +246,10 @@ it("{command} {behavior}", async () => {
 ### Step 4 — Verify red
 
 ```bash
-npm run test:e2e 2>&1 | tail -30
+npm run test:e2e
 ```
+
+Check the exit code and the last lines of output.
 
 Expected outcomes:
 

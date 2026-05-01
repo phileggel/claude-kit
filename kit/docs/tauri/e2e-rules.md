@@ -99,15 +99,17 @@ event-loop tick. The next `waitForEnabled` poll will see the updated disabled st
 
 ## E7 — Custom date pickers require locale-formatted input
 
-`DateField` renders `<input type="text">` and displays dates in the component locale
-(default `fr-FR` → `DD/MM/YYYY`). `setReactInputValue` must receive the display format,
-not ISO:
+`DateField` renders `<input type="text">` and displays dates in the project's configured
+locale. `setReactInputValue` must receive the display format, not ISO. Adjust
+`isoToDisplayDate` to match your project's locale (e.g. `DD/MM/YYYY` for `fr-FR`,
+`MM/DD/YYYY` for `en-US`):
 
 ```typescript
-// Convert ISO to the DateField display format (fr-FR locale)
+// Convert ISO to the DateField display format — adjust to project locale.
+// Example below uses DD/MM/YYYY (fr-FR). Change as needed.
 function isoToDisplayDate(iso: string): string {
   const [year, month, day] = iso.split("-");
-  return `${day}/${month}/${year}`; // "2020-01-15" → "15/01/2020"
+  return `${day}/${month}/${year}`; // "2020-01-15" → "15/01/2020" (fr-FR)
 }
 
 await setReactInputValue("price-modal-date", isoToDisplayDate("2020-01-15"));
@@ -128,10 +130,11 @@ Use fixed past dates (not today's date) to avoid `DuplicateDate` errors from pri
 
 ```typescript
 // One constant per test that writes data — never share dates between seeding ops.
+// Format must match the project's DateField locale (see E7).
 const DATES = {
-  record: "15/01/2020", // locale format for DateField
-  update_original: "10/02/2020",
-  delete: "05/03/2020",
+  record: isoToDisplayDate("2020-01-15"),
+  update_original: isoToDisplayDate("2020-02-10"),
+  delete: isoToDisplayDate("2020-03-05"),
 } as const;
 ```
 
