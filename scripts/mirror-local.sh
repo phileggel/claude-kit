@@ -38,6 +38,18 @@ for src in "$PROJECT_ROOT/kit/githooks/"*; do
     echo "✅ Mirrored hook:  $filename"
 done
 
+# Generic scripts (mirrors what sync.sh copies to downstream projects)
+# Excludes sync.sh — that is ephemeral kit infrastructure, not a project helper.
+mkdir -p "$PROJECT_ROOT/scripts"
+for src in "$PROJECT_ROOT/kit/scripts/"*.sh; do
+    filename="$(basename "$src")"
+    [ "$filename" = "sync.sh" ] && continue
+
+    cp "$src" "$PROJECT_ROOT/scripts/$filename"
+    chmod +x "$PROJECT_ROOT/scripts/$filename"
+    echo "✅ Mirrored script: $filename"
+done
+
 # Remind user to activate hooks if not already done
 HOOKS_PATH="$(git -C "$PROJECT_ROOT" config core.hooksPath 2>/dev/null || true)"
 if [ "$HOOKS_PATH" != ".githooks" ]; then
