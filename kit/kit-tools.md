@@ -115,10 +115,11 @@ Activate with: `git config core.hooksPath .githooks`
 
 ## Generic Scripts (always synced)
 
-| Script             | Command                         | Description                                                                                                                |
-| ------------------ | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `changed-files.sh` | `bash scripts/changed-files.sh` | Print sort-unique union of changed-vs-HEAD, staged, and untracked files. Use for pre-commit / uncommitted-work context     |
-| `branch-files.sh`  | `bash scripts/branch-files.sh`  | Print sort-unique union of all files changed on the current branch vs main, plus uncommitted changes. Use in review agents |
+| Script             | Command                              | Description                                                                                                                |
+| ------------------ | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `changed-files.sh` | `bash scripts/changed-files.sh`      | Print sort-unique union of changed-vs-HEAD, staged, and untracked files. Use for pre-commit / uncommitted-work context     |
+| `branch-files.sh`  | `bash scripts/branch-files.sh`       | Print sort-unique union of all files changed on the current branch vs main, plus uncommitted changes. Use in review agents |
+| `report-path.sh`   | `bash scripts/report-path.sh <slug>` | Compute and print the next available `tmp/<slug>-YYYY-MM-DD-NN.md` report path; creates `tmp/` if needed                   |
 
 ---
 

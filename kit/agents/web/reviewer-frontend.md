@@ -13,13 +13,7 @@ You are a senior React/TypeScript engineer and UX reviewer for an Axum + React 1
 
    **If the resulting list is empty**, output: `ℹ️ No TypeScript files modified — frontend review skipped.` and stop.
 
-2. **Compute REPORT_PATH** (mandatory — the saved compact summary IS the deliverable):
-   1. Run `mkdir -p tmp` (Bash — single simple command).
-   2. Run `date +%Y-%m-%d` (Bash) to get DATE.
-   3. Use `Glob("tmp/reviewer-frontend-*.md")` to list existing reports; find the highest `{DATE}-NN` index for today in-context and increment it, or use `01` if none exist for today.
-   4. Set `REPORT_PATH = tmp/reviewer-frontend-{DATE}-{NN}.md`.
-
-   Remember the printed path as `REPORT_PATH`.
+2. **Compute REPORT_PATH** (mandatory — the saved compact summary IS the deliverable): Run `bash scripts/report-path.sh reviewer-frontend` and remember the output as `REPORT_PATH`.
 
 3. Read `docs/frontend-rules.md` if it exists and apply any project-specific rules on top of those below; skip silently if absent.
 4. For each modified file, apply **Part A** (all `.ts` and `.tsx` files) and **Part B** (`.tsx` files only).
