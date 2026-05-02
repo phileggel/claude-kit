@@ -78,11 +78,11 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 - [ ] Implement frontend (make tests green)
 - [ ] `just format`
 - [ ] `reviewer-frontend` → fix issues (Parts A + B + C)
-- [ ] `test-writer-e2e` → E2E stubs from contract, confirm red _(Tauri only — run `/setup-e2e` first if not done)_
-- [ ] Make E2E tests green (fix selector gaps per `docs/e2e-rules.md`)
-- [ ] `/smart-commit`: frontend + E2E layer [HARD GATE]
+- [ ] `/smart-commit`: frontend layer [HARD GATE]
 
 ### Phase 4 — Review & Closure
+- [ ] `test-writer-e2e` → E2E tests from contract, confirm green _(Tauri only — run `/setup-e2e` first if not done)_
+- [ ] `reviewer-frontend` _(Tauri only — reviews E2E test files)_
 - [ ] `reviewer-arch` (always) + `reviewer-sql` (if migrations) + `reviewer-infra` (if any config, script, hook, or workflow file changed)
 - [ ] `i18n-checker` (if UI text changed)
 - [ ] Update `ARCHITECTURE.md` + `docs/todo.md`
