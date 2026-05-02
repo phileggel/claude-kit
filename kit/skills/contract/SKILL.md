@@ -67,7 +67,7 @@ Before writing anything, glob all existing contracts and scan for command name c
   ```
 - Do not write the contract until all conflicts are resolved.
 
-### 6. Check for existing contract
+### 5. Check for existing contract
 
 Run `Glob docs/contracts/{domain}-contract.md`.
 
@@ -92,7 +92,7 @@ Run `Glob docs/contracts/{domain}-contract.md`.
 
 ---
 
-### 7. Write changelog entry
+### 6. Write changelog entry
 
 After writing or patching, append to the `## Changelog` section:
 
@@ -102,7 +102,7 @@ After writing or patching, append to the `## Changelog` section:
 
 ---
 
-### 8. Confirm and hand off
+### 7. Confirm and hand off
 
 Report:
 

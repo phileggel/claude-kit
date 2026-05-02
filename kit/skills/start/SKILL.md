@@ -1,7 +1,7 @@
 ---
 name: start
 description: Select the right workflow for the current task and output an actionable working context for the session. Optional scope argument (fix, chore, test, feature, refactor) pre-selects a workflow; user can always switch.
-tools: AskUserQuestion
+tools: AskUserQuestion, Bash
 ---
 
 # Skill — `start`
