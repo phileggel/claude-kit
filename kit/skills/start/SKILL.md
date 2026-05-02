@@ -83,6 +83,7 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 ### Phase 4 — Review & Closure
 - [ ] `test-writer-e2e` → E2E tests from contract, confirm green _(Tauri only — run `/setup-e2e` first if not done)_
 - [ ] `reviewer-frontend` _(Tauri only — reviews E2E test files)_
+- [ ] `/smart-commit`: E2E layer [HARD GATE] _(Tauri only)_
 - [ ] `reviewer-arch` (always) + `reviewer-sql` (if migrations) + `reviewer-infra` (if any config, script, hook, or workflow file changed)
 - [ ] `i18n-checker` (if UI text changed)
 - [ ] Update `ARCHITECTURE.md` + `docs/todo.md`

@@ -80,7 +80,7 @@ Read on demand to orient — none are auto-loaded by Claude Code.
 | `test-writer-backend`  | After contract-reviewer, before backend impl                          | Writes all failing Rust test stubs from the domain contract; confirms red via cargo test                                                                                                                        | ✅ complete |
 | `test-writer-frontend` | After backend commit, before frontend impl                            | Writes two layers of failing Vitest tests: gateway unit tests (mocking invoke, from contract + bindings.ts) and RTL component integration tests (mocking the gateway, both directions); confirms red via vitest | ✅ complete |
 | `reviewer-infra`       | Any workflow, config, or capabilities file modified; before a release | CI/config/capability correctness, security, consistency; delegates dependency audit to `/dep-audit`                                                                                                             | ✅ complete |
-| `test-writer-e2e`      | After frontend implementation, before release                         | Writes failing Tauri WebDriver E2E tests for every command in a domain contract; exercises full UI→IPC→backend against the real running app; no mocking at any layer; verifies red before finishing             | ✅ complete |
+| `test-writer-e2e`      | Phase 4 (quality) — after full implementation, before release         | Writes passing Tauri WebDriver E2E tests for every command in a domain contract; exercises full UI→IPC→backend against the real running app; no mocking at any layer; verifies green before finishing           | ✅ complete |
 
 ---
 

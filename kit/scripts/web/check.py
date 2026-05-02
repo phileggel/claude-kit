@@ -65,7 +65,9 @@ def main():
 
     if not args.fast:
         sqlx_env = {**os.environ, "SQLX_OFFLINE": "true"}
-        results.append(check("cargo build", ["cargo", "build"], cwd=SERVER))
+        results.append(
+            check("cargo build", ["cargo", "build"], cwd=SERVER, env=sqlx_env)
+        )
         results.append(check("cargo test", ["cargo", "test"], cwd=SERVER, env=sqlx_env))
 
     # ── Frontend: TypeScript / React ─────────────────────────────────────────

@@ -77,6 +77,15 @@ From the **contract**: collect every command (name, args, return, errors) and ev
 
 - 🟡 A command has no error variants and no inline comment explaining why it cannot fail
 
+#### G — Scope integrity
+
+Run `Glob docs/contracts/*-contract.md` and read every contract file other than the one under review.
+
+- 🔴 A command name in this contract already exists in another contract — each command must belong
+  to exactly one backend boundary; duplication means the domain split is wrong
+- 🟡 The contract domain name matches a frontend concept (page name, UI feature, route segment)
+  rather than a backend module (`use_cases/` or `context/` folder) — may signal wrong granularity
+
 ### Step 5 — Output, save, confirm
 
 1. Output the review to the conversation using `## Output format` below.
@@ -109,6 +118,9 @@ From the **contract**: collect every command (name, args, return, errors) and ev
 
 ### F — Infallible commands
 🟡 `list_payments` has no error variants — add a comment if this is intentional.
+
+### G — Scope integrity
+✅ None.
 
 Review complete: 3 critical, 3 warning(s).
 Ready for feature-planner: no — blocked by 3 critical finding(s).
@@ -153,4 +165,4 @@ Replace `{date}-{N}` with the values used in `REPORT_PATH`. Omit any section tha
 3. Every 🔴 finding blocks progression to `feature-planner` — the user must fix the contract
    (re-run `/contract`) and re-run this reviewer before continuing
 4. 🟡 warnings are non-blocking but must be listed — the user decides whether to address them
-5. Do not invent checks beyond the six categories above
+5. Do not invent checks beyond the seven categories above

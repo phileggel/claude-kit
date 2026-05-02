@@ -255,9 +255,12 @@ Expected outcomes:
 - **Real tests**: pass — the feature is implemented and selectors match
 - **Stubs**: fail on `assert.fail()` (acceptable only for commands with no UI surface)
 
-If any real test fails, read the error, fix the selector or assertion, and re-run. Do not
-report done until all real tests pass (exit code zero). Stub failures are expected and
-do not block completion.
+If any real test fails, read the error and determine the cause:
+
+- **Selector or assertion issue** (wrong `id`, wrong `aria-label`, wrong timeout) → fix in the test file and re-run.
+- **Implementation issue** (command returns wrong data, UI behaviour missing, IPC error) → stop, report the failure to the user, and do not attempt to fix implementation code. The test writer's scope ends at the test files.
+
+Do not report done until all real tests pass (exit code zero). Stub failures are expected and do not block completion.
 
 ### Step 5 — Report
 
