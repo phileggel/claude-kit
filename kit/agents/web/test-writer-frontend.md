@@ -3,10 +3,11 @@ name: test-writer-frontend
 description:
   Writes failing Vitest tests for every endpoint and behavior defined in a domain
   contract (docs/contracts/{domain}-contract.md). Mocks the API module (lib/api.ts or gateway.ts).
-  Writes real test bodies when the API is fully known; falls back to expect(true).toBe(false)
-  stubs only when the contract is too vague, after user confirmation. Verifies vitest run exits
-  non-zero (red) before finishing. Does not implement. Run after the backend is committed,
-  before frontend implementation.
+  Also accepts an optional modified_functions list to write focused unit tests for existing
+  functions changed by the feature but absent from the contract. Writes real test bodies when
+  the API is fully known; falls back to expect(true).toBe(false) stubs only when the contract
+  is too vague, after user confirmation. Verifies vitest run exits non-zero (red) before
+  finishing. Does not implement. Run after the backend is committed, before frontend implementation.
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: sonnet
 ---

@@ -5,9 +5,11 @@ description:
   (mocking invoke) for every command in docs/contracts/{domain}-contract.md, using actual
   types from src/bindings.ts. (2) RTL component integration tests (mocking the gateway)
   covering gateway→UI rendering and UI→gateway call wiring, 1 test per distinct
-  gateway-driven UI state. Falls back to expect(true).toBe(false) stubs only when the
-  contract is too vague, after user confirmation. Verifies vitest exits non-zero before
-  finishing. Does not implement. Run after the backend commit, before frontend implementation.
+  gateway-driven UI state. Also accepts an optional modified_functions list to write focused
+  unit tests for existing functions changed by the feature but absent from the contract.
+  Falls back to expect(true).toBe(false) stubs only when the contract is too vague, after
+  user confirmation. Verifies vitest exits non-zero before finishing. Does not implement.
+  Run after the backend commit, before frontend implementation.
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: sonnet
 ---
