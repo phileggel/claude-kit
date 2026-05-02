@@ -4,7 +4,7 @@ description:
   Reviews a domain contract (docs/contracts/{domain}-contract.md) against its source spec for
   coverage, traceability, error exhaustiveness, and type correctness. Blocks progression to
   feature-planner on critical findings. Run after /contract produces or updates the contract.
-tools: Read, Grep, Glob, Bash, Write
+tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
 
@@ -23,18 +23,14 @@ If no path is given, list files in `docs/contracts/` and ask which to review.
 
 ## Process
 
-### Step 1 — Compute REPORT_PATH
-
-Run `bash scripts/report-path.sh contract-reviewer` and remember the output as `REPORT_PATH`.
-
-### Step 2 — Load files
+### Step 1 — Load files
 
 1. Read the contract file in full
 2. Extract the source spec name from the contract's `> Last updated by:` line; read that spec
    from `docs/spec/{name}.md`
 3. Read `docs/adr/` if present — ADRs constrain valid types (e.g. `i64` for amounts)
 
-### Step 3 — Extract reference data
+### Step 2 — Extract reference data
 
 From the **spec**: collect every rule with scope `backend` or `frontend + backend`. Note each
 rule's operation type (create / read / update / delete / transition), described error cases, and
@@ -42,7 +38,7 @@ entities involved.
 
 From the **contract**: collect every command (name, args, return, errors) and every shared type.
 
-### Step 4 — Apply review checks
+### Step 3 — Apply review checks
 
 #### A — Coverage (spec → contract)
 
@@ -86,11 +82,9 @@ Run `Glob docs/contracts/*-contract.md` and read every contract file other than 
 - 🟡 The contract domain name matches a frontend concept (page name, UI feature, route segment)
   rather than a backend module (`use_cases/` or `context/` folder) — may signal wrong granularity
 
-### Step 5 — Output, save, confirm
+### Step 4 — Output
 
-1. Output the review to the conversation using `## Output format` below.
-2. **Save** the compact summary to `REPORT_PATH` using the Write tool — mandatory final action. The workflow is incomplete until Write succeeds. Format defined in `## Save report` below.
-3. Reply: `Report saved to {REPORT_PATH}`.
+Output the review to the conversation using `## Output format` below.
 
 ---
 
@@ -134,27 +128,6 @@ If all checks pass:
 Review complete: 0 critical, N warning(s).
 Ready for feature-planner: yes — 0 critical findings.
 ```
-
----
-
-## Save report
-
-The compact summary written to `REPORT_PATH` (Step 5 of `## Process`) uses this format:
-
-```
-## contract-reviewer — {date}-{N}
-
-Review complete: N critical, N warning(s).
-Ready for feature-planner: yes/no — {reason}.
-
-### 🔴 Critical
-- {section}: {issue}
-
-### 🟡 Warning
-- {section}: {issue}
-```
-
-Replace `{date}-{N}` with the values used in `REPORT_PATH`. Omit any section that has no findings.
 
 ---
 
