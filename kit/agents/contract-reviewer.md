@@ -55,6 +55,10 @@ From the **contract**: collect every command (name, args, return, errors) and ev
 - 🔴 An error case explicitly described in a spec rule is absent from the command's Errors column
 - 🟡 A command lists only a generic error (e.g. `DbError` alone) when the spec describes specific
   domain failure conditions (e.g. "cannot delete if linked records exist")
+- 🔴 A command accepts a parameter identifying an entity from another bounded context (a
+  foreign-domain ID) but has no corresponding error variant for that entity not being found —
+  cross-context existence checks must surface as typed errors on the mutating command, not as
+  separate commands
 
 #### D — Type correctness
 
@@ -80,7 +84,16 @@ Run `Glob docs/contracts/*-contract.md` and read every contract file other than 
 - 🔴 A command name in this contract already exists in another contract — each command must belong
   to exactly one backend boundary; duplication means the domain split is wrong
 - 🟡 The contract domain name matches a frontend concept (page name, UI feature, route segment)
-  rather than a backend module (`use_cases/` or `context/` folder) — may signal wrong granularity
+  rather than a bounded context or aggregate root (`context/` folder) — may signal wrong granularity
+- 🟡 The contract domain name matches a use-case or operation name (e.g. `create-payment`,
+  `enroll-user`) rather than an aggregate or bounded context (`payment`, `user`) — use cases are
+  implementation details; the contract must be scoped to the aggregate it primarily mutates
+- 🔴 A command mutates aggregates from two or more distinct bounded contexts [DECISION] — this
+  signals a missing domain concept: the cross-domain operation likely has a name of its own
+  (e.g. `transfer_funds` implies a `Transfer` aggregate with its own contract); ask a domain
+  expert whether the operation can be named as a thing; if yes, introduce the new aggregate and
+  its contract; if no, own the command in the dominant aggregate and surface side-effects as
+  typed errors and domain events; this finding requires domain expert validation before sign-off
 
 ### Step 4 — Output
 
@@ -122,6 +135,16 @@ Ready for feature-planner: no — blocked by 3 critical finding(s).
 
 If a section has no issues, write `✅ None.`
 
+Use the `[DECISION]` tag when the correct resolution requires a domain design choice that cannot
+be made without domain expert input:
+
+```
+### G — Scope integrity
+🔴 `transfer_funds` mutates both `account` and `fund` aggregates [DECISION] — signals a missing
+   `Transfer` aggregate; domain expert must decide whether to introduce it or own the command in
+   the dominant aggregate; sign-off required before proceeding.
+```
+
 If all checks pass:
 
 ```
@@ -139,3 +162,6 @@ Ready for feature-planner: yes — 0 critical findings.
    (re-run `/contract`) and re-run this reviewer before continuing
 4. 🟡 warnings are non-blocking but must be listed — the user decides whether to address them
 5. Do not invent checks beyond the seven categories above
+6. Use `[DECISION]` on a 🔴 finding when the resolution requires a domain design choice that
+   cannot be made without domain expert input — these findings block progression and require
+   explicit user sign-off; do not use it for findings with an obvious mechanical fix
