@@ -52,6 +52,7 @@ For each TRIGRAM-NNN rule, identify concrete tasks:
 - Define dependencies (e.g., Backend logic -> `just generate-types` -> Frontend gateway).
 - **Commit phases**: identify thematic boundaries where a `/smart-commit` is appropriate. Suggest a conventional commit title for each (e.g., `feat(asset): implement pricing backend`).
 - **Schema changes**: identify rules that imply a database schema change (new entity, new field, new status column, new FK). For each, note the expected migration filename (`{timestamp}_create_{table}.sql` or `{timestamp}_add_{column}_to_{table}.sql`) and infer the columns from the domain rules. Flag that `just prepare-sqlx` must be run after migrating.
+- **Modified-function coverage**: For each rule scoped to `frontend` or `frontend + backend` that **modifies an existing function** (not a new file/creation), mark it `[unit-test-needed]` in the Rules Coverage table. Collect these as a `modified_functions` list in the Phase 3 task description — e.g. `test-writer-frontend → {contract} + modified_functions: [useEditFoo.ts:recomputeUnitPrice]`. These rules have no contract entry and would otherwise receive no test coverage.
 
 ---
 
@@ -73,7 +74,7 @@ A synthetic checklist for mandatory quality and process steps:
 - [ ] 🔧 Compilation fixup (TypeScript errors from new bindings only — no UI work) — Tauri profile only, if backend rules present
 - [ ] ✅ `just check` — TypeScript clean
 - [ ] 💾 Commit: backend layer (suggested title from plan)
-- [ ] ✍️ Frontend test stubs (`test-writer-frontend` — all stubs written, red confirmed) — if frontend rules present
+- [ ] ✍️ Frontend test stubs (`test-writer-frontend` — all stubs written, red confirmed; pass `modified_functions` list if any `[unit-test-needed]` rules were identified in Step 4) — if frontend rules present
 - [ ] 💻 Frontend Implementation (minimal — make failing tests pass, green confirmed)
 - [ ] 🧹 `just format`
 - [ ] 🔍 Frontend Review (`reviewer-frontend` → fix issues) — if .ts/.tsx modified
