@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.12.0] - 2026-05-02
+
+### Added
+
+- enforce backend boundary and uniqueness
+- survey roadmap.md as source f
+
+### Fixed
+
+- correct contract step numbering and add Bash to start
+- reposition test-writer-e2e as green verifier in quality phase
+- add vitest and SQLX_OFFLINE to check.py full mode
+- enforce branch creation and add E2E step
+- mirror generic scripts in mirror-local.sh
+
 ## [v3.11.0] - 2026-05-01
 
 ### Added
