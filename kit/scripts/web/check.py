@@ -6,6 +6,7 @@ Full mode (default): fast checks + build + tests.
 """
 
 import argparse
+import os
 import subprocess
 import sys
 import time
@@ -27,14 +28,14 @@ BOLD = "\033[1m"
 NC = "\033[0m"
 
 
-def run_cmd(cmd, cwd=None):
-    result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
+def run_cmd(cmd, cwd=None, env=None):
+    result = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True)
     return result.returncode == 0, result.stdout + result.stderr
 
 
-def check(label, cmd, cwd=None):
+def check(label, cmd, cwd=None, env=None):
     start = time.monotonic()
-    passed, output = run_cmd(cmd, cwd=cwd)
+    passed, output = run_cmd(cmd, cwd=cwd, env=env)
     duration = time.monotonic() - start
     symbol = f"{GREEN}PASS{NC}" if passed else f"{RED}FAIL{NC}"
     print(f"  {label:<30} {symbol}  ({duration:.1f}s)")
@@ -63,8 +64,9 @@ def main():
     )
 
     if not args.fast:
+        sqlx_env = {**os.environ, "SQLX_OFFLINE": "true"}
         results.append(check("cargo build", ["cargo", "build"], cwd=SERVER))
-        results.append(check("cargo test", ["cargo", "test"], cwd=SERVER))
+        results.append(check("cargo test", ["cargo", "test"], cwd=SERVER, env=sqlx_env))
 
     # ── Frontend: TypeScript / React ─────────────────────────────────────────
     print(f"\n{YELLOW}Frontend (TypeScript){NC}")
@@ -72,6 +74,7 @@ def main():
     results.append(check("tsc --noEmit", ["npx", "tsc", "--noEmit"], cwd=CLIENT))
 
     if not args.fast:
+        results.append(check("vitest run", ["npx", "vitest", "run"], cwd=CLIENT))
         results.append(check("vite build", ["npx", "vite", "build"], cwd=CLIENT))
 
     # ── Summary ──────────────────────────────────────────────────────────────
