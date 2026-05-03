@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.17.0] - 2026-05-03
+
+### Added
+
+- add security reviewer for Tauri profile
+
+### Fixed
+
+- align boundary unit definition with contract-reviewer
+- add SQLX_OFFLINE=1 to Clippy step in tauri check.py
+
 ## [v3.16.0] - 2026-05-03
 
 ### Added
