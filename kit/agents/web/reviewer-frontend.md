@@ -14,7 +14,8 @@ You are a senior React/TypeScript engineer and UX reviewer for an Axum + React 1
    **If the resulting list is empty**, output: `ℹ️ No TypeScript files modified — frontend review skipped.` and stop.
 
 2. Read `docs/frontend-rules.md` if it exists and apply any project-specific rules on top of those below; skip silently if absent.
-3. For each modified file, apply **Part A** (all `.ts` and `.tsx` files) and **Part B** (`.tsx` files only).
+   Read `docs/i18n-rules.md` if it exists — apply the i18n checks in Part C below; skip silently if absent.
+3. For each modified file, apply **Part A** (all `.ts` and `.tsx` files) and **Part B** (`.tsx` files only), and **Part C** (`.tsx` files — only when `docs/i18n-rules.md` exists).
 4. Output the review findings to the conversation using `## Output format` below.
 
 ---
@@ -72,7 +73,33 @@ You are a senior React/TypeScript engineer and UX reviewer for an Axum + React 1
 ### Consistency
 
 - Dates MUST use `Intl.DateTimeFormat` or a shared formatter — never raw ISO strings shown to the user.
-- All user-visible text MUST follow a consistent localisation approach — no hardcoded strings scattered across components when an i18n system is in use.
+
+---
+
+## Part C — i18n (`.tsx` files — only when `docs/i18n-rules.md` exists)
+
+Only apply when `docs/i18n-rules.md` exists. Skip silently if absent or if no user-visible text was added or changed in the diff.
+
+Read `docs/i18n-rules.md` for project-specific locale path and key naming conventions.
+
+### 1. Hardcoded user-visible strings
+
+🔴 **Critical** — Any user-visible text rendered in `.tsx` not wrapped in `t("key")`:
+
+- button labels, placeholder text, error messages, column headers, page titles, tooltip content
+- Exclude: variable names, comments, logger calls, `className` strings, `id`/`data-*` attributes, date format strings, URLs
+
+### 2. Missing translation keys
+
+🔴 **Critical** — For every `t("some.key")` call in modified files, verify the key exists in the translation JSON for every discovered locale. Missing in any locale → Critical.
+
+### 3. Dead keys (translation JSON modified)
+
+🟡 **Warning** — If a translation JSON file was modified, verify each newly added key is referenced by `t("…")` somewhere in `src/`. Unreferenced new keys → Warning.
+
+### 4. Cross-locale key consistency
+
+🟡 **Warning** — For every key in one locale's JSON, the same key must exist in every other locale's matching JSON file. Missing in one locale → Warning.
 
 ---
 

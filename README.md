@@ -1,6 +1,8 @@
 # claude-kit
 
-Shared Claude Code configuration for full-stack projects (Tauri 2 and Axum / React 19 / PostgreSQL).
+Spec-driven dev toolchain for full-stack projects (Tauri 2 and Axum / React 19 / PostgreSQL).
+
+Provides the agents, skills, scripts, and git hooks that drive the **spec → contract → plan → test-first → verify** workflow. Stack-specific conventions (architecture rules, testing patterns, UI rules) live in the `tauri-conventions` repo, not here.
 
 ## Contents
 

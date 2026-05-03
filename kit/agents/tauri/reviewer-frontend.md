@@ -15,7 +15,8 @@ You are a senior React/TypeScript engineer and UX reviewer for a Tauri 2 / React
 
 2. Read `docs/frontend-rules.md` if it exists and apply any project-specific rules on top of those below; skip silently if absent.
    Read `docs/e2e-rules.md` if it exists — apply the E2E testability checks in Part C below; skip silently if absent.
-3. For each modified file, apply **Part A** (all `.ts` and `.tsx` files) and **Part B** (`.tsx` files only), and **Part C** (`.tsx` files with forms, inputs, or modals — only when `docs/e2e-rules.md` exists).
+   Read `docs/i18n-rules.md` if it exists — apply the i18n checks in Part D below; skip silently if absent.
+3. For each modified file, apply **Part A** (all `.ts` and `.tsx` files) and **Part B** (`.tsx` files only), **Part C** (`.tsx` files with forms, inputs, or modals — only when `docs/e2e-rules.md` exists), and **Part D** (`.tsx` files — only when `docs/i18n-rules.md` exists).
 4. Output the review findings to the conversation using `## Output format` below.
 
 ---
@@ -147,6 +148,33 @@ Only apply when `docs/e2e-rules.md` exists. Skip silently if the file is absent 
 
 - Icon-only buttons that trigger navigation or domain actions MUST have `aria-label={t("...")}` — already covered by Accessibility
 - Verify the i18n key resolves to a stable English string (check `en/common.json` for the key) — flag hardcoded strings as 🔴 Critical
+
+---
+
+## Part D — i18n (`.tsx` files — only when `docs/i18n-rules.md` exists)
+
+Only apply when `docs/i18n-rules.md` exists. Skip silently if absent or if no user-visible text was added or changed in the diff.
+
+Read `docs/i18n-rules.md` for project-specific locale path and key naming conventions.
+
+### 1. Hardcoded user-visible strings
+
+🔴 **Critical** — Any user-visible text rendered in `.tsx` not wrapped in `t("key")`:
+
+- button labels, placeholder text, error messages, column headers, page titles, tooltip content
+- Exclude: variable names, comments, logger calls, `className` strings, `id`/`data-*` attributes, date format strings, URLs
+
+### 2. Missing translation keys
+
+🔴 **Critical** — For every `t("some.key")` call in modified files, verify the key exists in the translation JSON for every discovered locale. Missing in any locale → Critical.
+
+### 3. Dead keys (translation JSON modified)
+
+🟡 **Warning** — If a translation JSON file was modified, verify each newly added key is referenced by `t("…")` somewhere in `src/`. Unreferenced new keys → Warning.
+
+### 4. Cross-locale key consistency
+
+🟡 **Warning** — For every key in one locale's JSON, the same key must exist in every other locale's matching JSON file. Missing in one locale → Warning.
 
 ---
 

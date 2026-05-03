@@ -140,7 +140,34 @@ Cross-references are checked against the **full kit** (not just modified files) 
 
 ---
 
-### 5. Output
+### 5. SDD scope drift
+
+Every artifact added to this kit should map to a recognized role in the **spec → contract → plan → test-first → verify** pipeline. Check new files that don't already exist in the kit (additions, not edits).
+
+**Recognized SDD roles:**
+
+| Category             | Examples                                                                                           |
+| -------------------- | -------------------------------------------------------------------------------------------------- |
+| Spec layer           | spec-reviewer, contract-reviewer, feature-planner, spec-checker, retro-spec, spec-writer, contract |
+| Implementation layer | test-writer-\*, reviewer-backend, reviewer-frontend, reviewer-arch, reviewer-sql                   |
+| Delivery layer       | smart-commit, create-pr, reviewer-infra                                                            |
+| Maintenance & sanity | prune, dep-audit, whats-next, kit-discover, start                                                  |
+| Setup                | setup-e2e, adr-manager                                                                             |
+
+**Drift signals — check each newly added agent or skill for:**
+
+- 🔴 **Convention doc added to `kit/docs/`** — convention docs belong in `tauri-conventions`, not here. Flag any new file under `kit/docs/` as misplaced.
+- 🔴 **Convention baked into agent** — agent encodes rules (naming patterns, file layout, UI conventions) that should live in an optional `docs/{name}-rules.md` readable from downstream projects. The agent should read the doc if it exists and skip silently if absent.
+- 🟡 **No clear SDD role** — a new agent or skill whose description does not map to any of the categories above. Requires explicit user validation before release. State which category it _might_ fit and why it's ambiguous.
+- 🟡 **Maintenance tool without coverage gate or scope limit** — a new maintenance/sanity tool that can modify files (not read-only). Flag: maintenance tools should be read-only or require explicit user confirmation before applying changes.
+
+For each 🟡 drift finding: **do not block the release automatically**. Instead, present the finding and ask the user to confirm: "This artifact appears to be outside the SDD toolchain scope. Confirm it belongs here before releasing."
+
+If no new files were added — skip this step entirely.
+
+---
+
+### 6. Output
 
 ```
 ## Preflight Report
@@ -157,9 +184,13 @@ Cross-references are checked against the **full kit** (not just modified files) 
 ✅ All agent cross-references valid.
 ✅ kit-tools.md complete.
 
+### SDD Scope Drift
+🟡 kit/agents/example-new.md — no clear SDD role. Describe maps to "convention checker"; closest fit is Maintenance & sanity, but it encodes UI rules that should live in docs/example-rules.md. Confirm this belongs in the toolchain before releasing.
+(or: ✅ No scope drift — all new artifacts map to recognized SDD roles.)
+
 ---
-Preflight complete: N critical, N warnings.
-Ready for release: yes / no (if critical > 0).
+Preflight complete: N critical, N warnings, N scope-drift (user validation required).
+Ready for release: yes / no (if critical > 0 or scope-drift unconfirmed).
 ```
 
 ---
@@ -169,4 +200,5 @@ Ready for release: yes / no (if critical > 0).
 1. **`check.py` is the deterministic gate** — it enforces kit-centric language, agent inventory, sync→kit-tools.md coverage, and tool-minimality. Do not duplicate those checks here.
 2. **All cross-references verified** — if agent A mentions agent B or script X, both must exist and be synced
 3. **Script safety non-negotiable** — `set -euo pipefail`, shebang, quoted variables; no exceptions
-4. **Run before every release** — this skill is the gate before `python3 scripts/release-kit.py`
+4. **SDD scope drift requires user confirmation** — a 🟡 drift finding does not auto-block but must be presented and acknowledged before releasing. Never silently skip it.
+5. **Run before every release** — this skill is the gate before `python3 scripts/release-kit.py`
