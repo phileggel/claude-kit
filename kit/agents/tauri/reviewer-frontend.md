@@ -44,6 +44,7 @@ If you are unsure whether a finding survives the pre-check, default to **discard
 
 - No component or hook may call `invoke(...)` or `commands.*` directly — all Tauri command calls must go through the feature's `gateway.ts`
 - Flag any direct `invoke` or `commands.*` usage outside a `gateway.ts` file as 🔴 Critical
+- **Carve-out**: Tauri plugin APIs that are not Rust command invocations (e.g. `open()` from `@tauri-apps/plugin-dialog`, `readFile()` / `writeFile()` / `readTextFile()` from `@tauri-apps/plugin-fs`) are **not** covered by this rule — they may be called directly in hooks or components. Only `invoke(...)` and `commands.*` calls require gateway encapsulation.
 
 ### Hook Colocation
 
