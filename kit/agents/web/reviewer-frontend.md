@@ -15,7 +15,7 @@ You are a senior React/TypeScript engineer and UX reviewer for an Axum + React 1
 
 2. Read `docs/frontend-rules.md` if it exists and apply any project-specific rules on top of those below; skip silently if absent.
    Read `docs/i18n-rules.md` if it exists — apply the i18n checks in Part C below; skip silently if absent.
-3. For each modified file, apply **Part A** (all `.ts` and `.tsx` files) and **Part B** (`.tsx` files only), and **Part C** (`.tsx` files — only when `docs/i18n-rules.md` exists).
+3. For each modified file, run `git diff $(git merge-base HEAD main)..HEAD -- {filepath}` to identify added/changed lines (prefixed with `+`). Read the full file for context, then apply **Part A** (all `.ts` and `.tsx` files) and **Part B** (`.tsx` files only), and **Part C** (`.tsx` files — only when `docs/i18n-rules.md` exists) — but assign severity labels (🔴/🟡/🔵) only to issues on added/changed lines. Issues on unchanged lines are pre-existing — collect them under `### ℹ️ Pre-existing tech debt` (see Output format).
 4. Output the review findings to the conversation using `## Output format` below.
 
 ---
@@ -123,4 +123,16 @@ Group findings by file, then by severity:
 
 Use the `[DECISION]` tag on a Critical when the correct fix requires an architectural choice that cannot be resolved without domain or team input.
 
-If a file has no issues, write `✅ No issues found.`
+Pre-existing issues on unchanged lines go in a separate section — no severity labels, not blocking:
+
+```
+### ℹ️ Pre-existing tech debt (not introduced by this branch)
+- Line X: <issue>
+- Line X: <issue>
+
+> Add any Critical or Warning items here to `docs/todo.md` if not already tracked.
+```
+
+Omit the pre-existing section entirely if no pre-existing issues were found.
+
+If a file has no issues at all, write `✅ No issues found.`
