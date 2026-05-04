@@ -248,7 +248,7 @@ VP_PORT={vite_preview_port} VP_HOST={vite_preview_host} VP_NAME={ComponentName} 
 Stop Vite:
 
 ```bash
-kill $(lsof -ti tcp:{vite_preview_port}) 2>/dev/null || true
+lsof -ti tcp:{vite_preview_port} | xargs kill 2>/dev/null
 ```
 
 Delete the capture script:
@@ -263,7 +263,10 @@ rm -f .visual-proof-capture.mjs
 
 ```bash
 git add screenshots/
-git restore --staged screenshots/.console-errors.json 2>/dev/null || true
+```
+
+```bash
+git restore --staged screenshots/.console-errors.json 2>/dev/null
 ```
 
 ```bash
