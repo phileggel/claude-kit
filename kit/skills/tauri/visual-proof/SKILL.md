@@ -163,7 +163,7 @@ const MASK_SELECTORS = (process.env.VP_MASK || "").split(",").filter(Boolean);
 const consoleErrors = [];
 await mkdir("screenshots", { recursive: true });
 
-const browser = await chromium.launch();
+const browser = await chromium.launch({ args: ["--no-sandbox"] });
 
 for (const scheme of ["light", "dark"]) {
   const context = await browser.newContext({
@@ -211,10 +211,10 @@ if (consoleErrors.length > 0) {
 await browser.close();
 ```
 
-Check if `playwright` is importable:
+Check if `playwright` is installed:
 
 ```bash
-node -e "require.resolve('playwright')"
+ls node_modules/playwright 2>/dev/null
 ```
 
 If it fails, install it:
@@ -248,7 +248,7 @@ VP_PORT={vite_preview_port} VP_HOST={vite_preview_host} VP_NAME={ComponentName} 
 Stop Vite:
 
 ```bash
-fuser -k {vite_preview_port}/tcp
+kill $(lsof -ti tcp:{vite_preview_port}) 2>/dev/null || true
 ```
 
 Delete the capture script:
@@ -263,6 +263,7 @@ rm -f .visual-proof-capture.mjs
 
 ```bash
 git add screenshots/
+git restore --staged screenshots/.console-errors.json 2>/dev/null || true
 ```
 
 ```bash
@@ -273,7 +274,7 @@ Report the outcome:
 
 - List every screenshot staged.
 - If `screenshots/.console-errors.json` was written, show the errors and flag them as
-  potential bugs to investigate before merging.
+  potential bugs to investigate before merging. Delete the file after reporting.
 - If video clips were produced (`.webm`), list them.
 
 Then output:
