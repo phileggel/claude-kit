@@ -1,8 +1,8 @@
 # claude-kit
 
-Spec-driven dev toolchain for full-stack projects (Tauri 2 and Axum / React 19 / PostgreSQL).
+Opinionated Claude-assisted factory for Tauri 2 + Axum / React 19 projects, built around Spec Driven Development.
 
-Provides the agents, skills, scripts, and git hooks that drive the **spec → contract → plan → test-first → verify** workflow. Stack-specific conventions (architecture rules, testing patterns, UI rules) live in the `tauri-conventions` repo, not here.
+Provides the agents, skills, scripts, and git hooks that drive the **spec → contract → plan → test-first → verify** workflow. Stack-specific conventions (architecture rules, testing patterns, UI rules) are bundled directly in this repo under `kit/docs/` and synced copy-once to downstream projects.
 
 ## Contents
 
@@ -11,6 +11,7 @@ kit/
   sync-config.sh   Stable bootstrap entry point (copied once to downstream projects)
   agents/          Claude Code subagent definitions → .claude/agents/
   skills/          Claude Code skill definitions → .claude/skills/
+  docs/tauri/      Convention docs → docs/ (copy-once, never overwritten by sync)
   githooks/        Git hooks → .githooks/
   scripts/
     sync.sh        Sync logic (ephemeral, runs from $TMP)
