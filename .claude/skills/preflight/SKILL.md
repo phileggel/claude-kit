@@ -156,7 +156,7 @@ Every artifact added to this kit should map to a recognized role in the **spec �
 
 **Drift signals — check each newly added agent or skill for:**
 
-- 🔴 **Convention doc added to `kit/docs/`** — convention docs belong in `tauri-conventions`, not here. Flag any new file under `kit/docs/` as misplaced.
+- 🟡 **Convention doc added to `kit/docs/`** — verify the file belongs under `kit/docs/{profile}/` (synced copy-once to downstream `docs/`) and is listed in `kit/kit-tools.md` under the Convention Docs section. Flag if placed outside a profile subdirectory or missing from kit-tools.md.
 - 🔴 **Convention baked into agent** — agent encodes rules (naming patterns, file layout, UI conventions) that should live in an optional `docs/{name}-rules.md` readable from downstream projects. The agent should read the doc if it exists and skip silently if absent.
 - 🟡 **No clear SDD role** — a new agent or skill whose description does not map to any of the categories above. Requires explicit user validation before release. State which category it _might_ fit and why it's ambiguous.
 - 🟡 **Maintenance tool without coverage gate or scope limit** — a new maintenance/sanity tool that can modify files (not read-only). Flag: maintenance tools should be read-only or require explicit user confirmation before applying changes.

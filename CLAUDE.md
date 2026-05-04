@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository, which is a multi-profile configuration kit for full-stack projects (Tauri 2 and Axum/React 19).
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository, which is an opinionated Claude-assisted factory for Tauri 2 + Axum/React 19 projects, built around Spec Driven Development. It ships the full stack: SDD workflow agents, quality reviewers, convention docs, scripts, hooks, and justfile recipes.
 
 ## Simple Technical Workflow
 
@@ -93,6 +93,7 @@ kit/                        ← everything synced downstream
   agents/tauri/             → .claude/agents/ (tauri profile overlay)
   agents/web/               → .claude/agents/ (web profile overlay)
   skills/                   → .claude/skills/ (always synced)
+  docs/tauri/               → docs/ (tauri profile, copy-once — never overwrites)
   githooks/                 → .githooks/ (always synced)
   justfile/
     tauri.just              → appended to common.just (tauri profile)
