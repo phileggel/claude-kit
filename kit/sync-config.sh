@@ -11,6 +11,7 @@ set -euo pipefail
 #   ./scripts/sync-config.sh v2.0.0             # sync a specific tag
 #   ./scripts/sync-config.sh --profile tauri    # explicit profile override
 #   ./scripts/sync-config.sh v2.0.0 --profile tauri
+#   ./scripts/sync-config.sh -f                 # overwrite drifted docs without prompting
 
 REPO="https://github.com/phileggel/claude-kit"
 BLUE='\033[0;34m'
@@ -18,6 +19,7 @@ NC='\033[0m'
 
 VERSION=""
 PROFILE=""
+KIT_SYNC_FORCE="false"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -28,6 +30,10 @@ while [[ $# -gt 0 ]]; do
     --profile)
         PROFILE="${2:-}"
         shift 2
+        ;;
+    -f | --force)
+        KIT_SYNC_FORCE="true"
+        shift
         ;;
     *)
         VERSION="$1"
@@ -58,4 +64,5 @@ git clone --depth 1 --branch "$VERSION" "$REPO" "$TMP" --quiet \
 
 export KIT_TMP="$TMP"
 export PROFILE
+export KIT_SYNC_FORCE
 exec bash "$TMP/kit/scripts/sync.sh" "$VERSION"
