@@ -74,6 +74,22 @@ wget -qO scripts/sync-config.sh \
 
 After this, future syncs work as usual with `./scripts/sync-config.sh`.
 
+## Kit development setup
+
+If you're hacking on the kit itself (not just consuming it downstream), `just check` runs the kit's lint suite and expects the following tools on `PATH`:
+
+| Tool         | Purpose                                     | Install (Debian/Ubuntu)                                         |
+| ------------ | ------------------------------------------- | --------------------------------------------------------------- |
+| `just`       | Task runner                                 | `sudo apt install just`                                         |
+| `ruff`       | Python lint + format (mandatory)            | `sudo apt install pipx && pipx ensurepath && pipx install ruff` |
+| `shfmt`      | Bash format (mandatory if `.sh`)            | `sudo apt install shfmt`                                        |
+| `shellcheck` | Bash lint (optional, recommended)           | `sudo apt install shellcheck`                                   |
+| `npx`        | Runs Prettier for Markdown (release-strict) | `sudo apt install nodejs npm`                                   |
+
+After installing pipx-based tools, ensure `~/.local/bin` is on your `PATH` (open a new shell, or `export PATH="$HOME/.local/bin:$PATH"`).
+
+Sanity check: `just check` from the repo root should exit clean.
+
 ## Versioning
 
 This repo uses semantic versioning via git tags:
