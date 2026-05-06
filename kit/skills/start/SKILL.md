@@ -72,6 +72,7 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 - [ ] `reviewer-backend` → fix issues
 - [ ] `just generate-types` → updates `src/bindings.ts` _(Tauri only)_
 - [ ] `/smart-commit`: backend layer [HARD GATE]
+- [ ] `/create-pr` if the **PR Plan** section of `docs/plan/{feature}-plan.md` slices BE into its own PR; otherwise continue. After merge, branch the next phase off updated `main`.
 
 ### Phase 3 — Frontend
 - [ ] `test-writer-frontend` → Vitest stubs from contract, confirm red
@@ -79,6 +80,7 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 - [ ] `just format`
 - [ ] `reviewer-frontend` → fix issues (Parts A + B + C)
 - [ ] `/smart-commit`: frontend layer [HARD GATE]
+- [ ] `/create-pr` if the **PR Plan** slices FE into its own PR; otherwise continue. After merge, branch the next phase off updated `main`.
 
 ### Phase 4 — Review & Closure
 - [ ] `test-writer-e2e` → E2E tests from contract, confirm green _(Tauri only — run `/setup-e2e` first if not done)_
@@ -88,8 +90,10 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 - [ ] Update `ARCHITECTURE.md` + `docs/todo.md`
 - [ ] `spec-checker` → all rules and contract commands covered
 - [ ] `/smart-commit`: tests & docs [HARD GATE]
-- [ ] `/create-pr` → push branch and open PR (or merge directly: `git checkout main && git merge --no-ff feat/{name}`)
+- [ ] `/create-pr` → final PR per the **PR Plan** (or merge directly: `git checkout main && git merge --no-ff feat/{name}`)
 ```
+
+> **Reading the PR Plan**: after `feature-planner` writes `docs/plan/{feature}-plan.md`, open it and locate the **PR Plan** section. The strategy (`1 PR` / `2 PRs` / `3 PRs`) tells you which `/create-pr` checkpoints above are active. Default behaviour when the section is absent: single `/create-pr` at the end of Phase 4.
 
 ---
 

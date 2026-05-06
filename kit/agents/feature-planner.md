@@ -1,7 +1,7 @@
 ---
 name: feature-planner
 description: Senior Architect Agent that translates a validated spec into a persistent, detailed implementation plan (docs/plan/{feature-name}-plan.md) mapping TRIGRAM-NNN rules to DDD layers and CLAUDE.md workflow. Use after spec-reviewer and contract-reviewer both approve.
-tools: Read, Write, Grep, Glob, Bash
+tools: Read, Write, Grep, Glob, Bash, AskUserQuestion
 model: opus
 ---
 
@@ -54,6 +54,18 @@ For each TRIGRAM-NNN rule, identify concrete tasks:
 - **Schema changes**: identify rules that imply a database schema change (new entity, new field, new status column, new FK). For each, note the expected migration filename (`{timestamp}_create_{table}.sql` or `{timestamp}_add_{column}_to_{table}.sql`) and infer the columns from the domain rules. Flag that `just prepare-sqlx` must be run after migrating.
 - **Modified-function coverage**: For each rule scoped to `frontend` or `frontend + backend` that **modifies an existing function** (not a new file/creation), mark it `[unit-test-needed]` in the Rules Coverage table. Collect these as a `modified_functions` list in the Phase 3 task description — e.g. `test-writer-frontend → {contract} + modified_functions: [useEditFoo.ts:recomputeUnitPrice]`. These rules have no contract entry and would otherwise receive no test coverage.
 
+### Step 4.5 — PR Plan
+
+From the tasks identified in Step 4, estimate the change size per layer (rough file count and LOC). Then ask the user how to slice the merge using `AskUserQuestion`:
+
+- **1 PR** — single merge covering all layers. Recommended for small or tightly-coupled features (rename, contract reshape, migration that demands both layers in lockstep).
+- **2 PRs** — backend (spec + migration + Rust + bindings) merges first; frontend + E2E + closure follow on a branch rebased off `main` after the BE PR merges.
+- **3 PRs** — backend; then frontend (gateway / hooks / components / i18n); then E2E + ARCHITECTURE/todo/spec-checker closure. Each PR branches off the prior one once merged.
+
+Pre-select based on the estimate: if **either layer exceeds ~20 files OR ~500 LOC**, recommend 2 PRs (or 3 if E2E adds significant volume); otherwise recommend 1 PR. The estimate is advisory — the user picks; coupling judgment trumps the threshold.
+
+Surface the estimate explicitly in the question (e.g. "BE: ~14 files / ~380 LOC; FE: ~9 files / ~210 LOC"). Capture the answer verbatim in the deliverable's **PR Plan** section.
+
 ---
 
 ## Deliverable Structure (`docs/plan/{feature}-plan.md`)
@@ -96,6 +108,20 @@ A granular breakdown by architectural layer:
 - **Backend**: Exact file paths, struct names, factory methods (follow project conventions from `docs/backend-rules.md`), service methods, and command handlers.
 - **Frontend**: Exact file paths, gateway methods, custom hooks, and React components.
 - **Rules Coverage**: A table mapping every TRIGRAM-NNN rule to its corresponding implementation task.
+
+### 3. PR Plan
+
+Captures the answer from Step 4.5. Format:
+
+- **Strategy**: `1 PR` | `2 PRs` | `3 PRs`
+- **Estimate**: per-layer file count and LOC used to pre-select.
+- **PR list** — for each planned PR:
+  - **Title** (conventional commit format, e.g. `feat(asset): pricing backend`)
+  - **Scope**: which layer(s) and which Workflow TaskList checkpoints terminate it
+  - **Dependency**: what must be merged first (e.g. "rebase off main after PR #1 merges")
+  - **Branch suffix** (suggestion): `feat/{name}-be`, `feat/{name}-fe`, `feat/{name}-e2e` for multi-PR strategies; `feat/{name}` for single-PR
+
+`/start` reads this section to decide where to emit `/create-pr` checkpoints in the working context.
 
 ---
 
