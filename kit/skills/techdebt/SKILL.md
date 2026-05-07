@@ -104,4 +104,4 @@ Do not write to any file. Do not ask the user where to put it — that's the mai
 
 This skill complements the `[DECISION]` reviewer tag (see `kit-readme.md` § "Handling [DECISION] Criticals"). Reviewers flag; the main agent decides; this skill normalizes the persisted record.
 
-`whats-next` reads `docs/techdebt.md` (when present) to surface entries pending triage, but does not score them as work candidates — tech-debt entries are observations, not commitments. Promotion to a real task happens when the main agent or user moves an entry from `docs/techdebt.md` into `docs/todo.md` (or files an issue) with an actionable description.
+`whats-next` reads `docs/techdebt.md` (when present) and surfaces entries as work candidates alongside TODOs, plans, and specs — with the source labelled `docs/techdebt.md (DATE)` so the user can tell observations from explicit todos. The "observation, not fix" framing applies to _how entries are written_ (capture the smell, not the prescription); once captured, an entry is fair game for triage and scoring like any other backlog item.
