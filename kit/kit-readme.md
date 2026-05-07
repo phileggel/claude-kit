@@ -88,12 +88,13 @@ git checkout -b feat/{feature-name}
 **Phase 2: Backend layer**
 
 1. Read `docs/plan/{feature}-plan.md` — Primary TaskList. Do not deviate from it.
-2. Run **`test-writer-backend`** agent → writes all Rust stubs from contract, confirms red.
-3. Implement backend — minimal: make failing tests pass, confirm green.
-4. Run `just format` (rustfmt + clippy --fix).
-5. Run **`reviewer-backend`** agent → fix issues.
-6. _(Tauri only)_ Run `just generate-types` → updates `src/bindings.ts`. Fix TypeScript compilation errors from new bindings only (no UI work). Run `just check` → TypeScript clean.
-7. **`/smart-commit`**: backend layer. [HARD GATE]
+2. _(If schema changes per plan)_ Write migration → `just migrate` → `just prepare-sqlx`.
+3. Run **`test-writer-backend`** agent → writes all Rust stubs from contract, confirms red.
+4. Implement backend — minimal: make failing tests pass, confirm green.
+5. Run `just format` (rustfmt + clippy --fix).
+6. Run **`reviewer-backend`** agent → fix issues.
+7. _(Tauri only)_ Run `just generate-types` → updates `src/bindings.ts`. Fix TypeScript compilation errors from new bindings only (no UI work). Run `just check` → TypeScript clean.
+8. **`/smart-commit`**: backend layer. [HARD GATE]
 
 **Phase 3: Frontend layer**
 
@@ -105,11 +106,14 @@ git checkout -b feat/{feature-name}
 
 **Phase 4: Review & Closure**
 
-1. Run **`reviewer-arch`** agent (always) + **`reviewer-sql`** (if migrations) + **`reviewer-infra`** (if scripts, hooks, workflow, or config files were modified).
-2. Update documentation (`ARCHITECTURE.md`, `docs/todo.md`).
-3. Run **`spec-checker`** agent → confirm all spec rules and contract commands are covered.
-4. **`/smart-commit`**: tests & docs. [HARD GATE]
-5. **`/create-pr`** → push branch and open PR (or merge directly: `git checkout main && git merge --no-ff feat/{name}`).
+1. _(Tauri only)_ Run **`test-writer-e2e`** agent → E2E tests from contract, confirms green. Run `/setup-e2e` first if not done.
+2. _(Tauri only)_ Run **`reviewer-frontend`** agent on E2E test files → fix issues.
+3. _(Tauri only)_ **`/smart-commit`**: E2E layer. [HARD GATE]
+4. Run **`reviewer-arch`** agent (always) + **`reviewer-sql`** (if migrations) + **`reviewer-infra`** (if scripts, hooks, workflow, or config files were modified).
+5. Update documentation (`ARCHITECTURE.md`, `docs/todo.md`).
+6. Run **`spec-checker`** agent → confirm all spec rules and contract commands are covered.
+7. **`/smart-commit`**: tests & docs. [HARD GATE]
+8. **`/create-pr`** → push branch and open PR (or merge directly: `git checkout main && git merge --no-ff feat/{name}`).
 
 ---
 

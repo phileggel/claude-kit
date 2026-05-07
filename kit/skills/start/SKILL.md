@@ -71,11 +71,14 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 > to `opus` only if a reviewer surfaces a design-level finding that requires re-planning.
 
 ### Phase 2 — Backend _(main agent: sonnet)_
+- [ ] Database migration (`just migrate` + `just prepare-sqlx`) _(if schema changes per plan)_
 - [ ] `test-writer-backend` → Rust stubs from contract, confirm red
 - [ ] Implement backend (make tests green)
 - [ ] `just format`
 - [ ] `reviewer-backend` → fix issues
 - [ ] `just generate-types` → updates `src/bindings.ts` _(Tauri only)_
+- [ ] Fix TS compilation errors from new bindings only — no UI work _(Tauri only)_
+- [ ] `just check` — TypeScript clean
 - [ ] `/smart-commit`: backend layer [HARD GATE]
 - [ ] `/create-pr` if the **PR Plan** section of `docs/plan/{feature}-plan.md` slices BE into its own PR; otherwise continue. After merge, branch the next phase off updated `main`.
 
@@ -83,6 +86,7 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 - [ ] `test-writer-frontend` → Vitest stubs from contract, confirm red
 - [ ] Implement frontend (make tests green)
 - [ ] `just format`
+- [ ] `/visual-proof` → capture final state; stage screenshots before commit _(Tauri only — if .tsx/.css changed)_
 - [ ] `reviewer-frontend` → fix issues (Parts A + B + C)
 - [ ] `/smart-commit`: frontend layer [HARD GATE]
 - [ ] `/create-pr` if the **PR Plan** slices FE into its own PR; otherwise continue. After merge, branch the next phase off updated `main`.
