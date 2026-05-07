@@ -59,9 +59,47 @@ cp "$TMP/kit/githooks/pre-merge-commit" "$PROJECT_ROOT/.githooks/"
 cp "$TMP/kit/githooks/pre-push" "$PROJECT_ROOT/.githooks/"
 cp "$TMP/kit/githooks/README.md" "$PROJECT_ROOT/.githooks/"
 
-# ── common.just ───────────────────────────────────────────────────────────────
+# ── common.just (per-recipe override detection) ──────────────────────────────
 echo -e "${BLUE}📁 Syncing common justfile...${NC}"
-cp "$TMP/kit/common.just" "$PROJECT_ROOT/common.just"
+
+# Collect recipe names defined in any local .just / justfile EXCEPT common.just
+# (which we are about to overwrite). Each kit recipe whose name collides with
+# a local definition is skipped from the synced common.just so the local one wins.
+_local_recipes=""
+for _f in "$PROJECT_ROOT"/*.just "$PROJECT_ROOT"/justfile; do
+    [ -f "$_f" ] || continue
+    [ "$(basename "$_f")" = "common.just" ] && continue
+    _local_recipes+=$(grep -hE '^[a-zA-Z_][a-zA-Z0-9_-]*[^:]*:' "$_f" 2>/dev/null | sed -E 's/[ *:].*//')$'\n'
+done
+_local_recipes=$(printf '%s' "$_local_recipes" | sort -u | sed '/^$/d')
+
+if [ -z "$_local_recipes" ]; then
+    cp "$TMP/kit/common.just" "$PROJECT_ROOT/common.just"
+else
+    KIT_COMMON="$TMP/kit/common.just" \
+        DEST_COMMON="$PROJECT_ROOT/common.just" \
+        LOCAL_RECIPES="$_local_recipes" \
+        python3 <<'PY'
+import os, re, sys
+locals_set = set(os.environ['LOCAL_RECIPES'].split())
+src = open(os.environ['KIT_COMMON']).read()
+recipe_re = re.compile(
+    r'(?:^# [^\n]*\n)*^(?P<name>[a-zA-Z_][a-zA-Z0-9_-]*)[^:\n]*:[^\n]*\n(?:[ \t][^\n]*\n)*',
+    re.MULTILINE,
+)
+skipped = []
+def _filter(m):
+    if m.group('name') in locals_set:
+        skipped.append(m.group('name'))
+        return ''
+    return m.group(0)
+out = recipe_re.sub(_filter, src)
+out = re.sub(r'\n{3,}', '\n\n', out)
+open(os.environ['DEST_COMMON'], 'w').write(out)
+for n in skipped:
+    print(f"  \033[1;33m⚠  {n} already defined locally — skipping kit default\033[0m")
+PY
+fi
 
 # ── Scripts ───────────────────────────────────────────────────────────────────
 echo -e "${BLUE}📁 Syncing scripts...${NC}"
