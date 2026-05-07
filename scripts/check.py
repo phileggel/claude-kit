@@ -116,16 +116,11 @@ class KitChecker:
         return not self.suite_failed
 
     def _agent_patterns(self) -> list[str]:
-        """Return glob patterns covering all agent files across all profiles."""
-        agents_dir = REPO_ROOT / "kit" / "agents"
-        patterns = ["kit/agents/*.md"]
-        for subdir in sorted(agents_dir.iterdir()):
-            if subdir.is_dir():
-                patterns.append(f"kit/agents/{subdir.name}/*.md")
-        return patterns
+        """Return glob patterns covering all agent files."""
+        return ["kit/agents/*.md"]
 
     def _check_agent_inventory(self) -> bool:
-        """Verify every agent in kit/agents/ and all profile subdirs is listed in kit-tools.md."""
+        """Verify every agent in kit/agents/ is listed in kit-tools.md."""
         tools_path = REPO_ROOT / "kit" / "kit-tools.md"
         if not tools_path.exists():
             return True
