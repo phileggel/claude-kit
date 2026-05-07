@@ -58,14 +58,19 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 **Type**: {type}
 **Workflow**: A — Full Feature Workflow
 
-### Phase 1 — Spec & Contract & Plan
+### Phase 1 — Spec & Contract & Plan _(main agent: opus)_
 - [ ] `/spec-writer` → `docs/spec/{domain}.md`
 - [ ] `spec-reviewer` → validate spec quality [soft gate — hard if 🔴]
 - [ ] `/contract` → `docs/contracts/{domain}-contract.md` [human approves shape]
 - [ ] `contract-reviewer` → validate contract vs spec [soft gate — hard if 🔴]
 - [ ] `feature-planner` → `docs/plan/{feature}-plan.md`
+- [ ] `plan-reviewer` → validate plan vs spec + contract [soft gate — hard if 🔴]
 
-### Phase 2 — Backend
+> **🔀 Switch main agent to `sonnet`** once `plan-reviewer` returns green. Phases 2–3 are
+> mechanical execution against locked artifacts; sonnet is the right model for that. Switch back
+> to `opus` only if a reviewer surfaces a design-level finding that requires re-planning.
+
+### Phase 2 — Backend _(main agent: sonnet)_
 - [ ] `test-writer-backend` → Rust stubs from contract, confirm red
 - [ ] Implement backend (make tests green)
 - [ ] `just format`
@@ -74,7 +79,7 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 - [ ] `/smart-commit`: backend layer [HARD GATE]
 - [ ] `/create-pr` if the **PR Plan** section of `docs/plan/{feature}-plan.md` slices BE into its own PR; otherwise continue. After merge, branch the next phase off updated `main`.
 
-### Phase 3 — Frontend
+### Phase 3 — Frontend _(main agent: sonnet)_
 - [ ] `test-writer-frontend` → Vitest stubs from contract, confirm red
 - [ ] Implement frontend (make tests green)
 - [ ] `just format`
@@ -82,7 +87,7 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 - [ ] `/smart-commit`: frontend layer [HARD GATE]
 - [ ] `/create-pr` if the **PR Plan** slices FE into its own PR; otherwise continue. After merge, branch the next phase off updated `main`.
 
-### Phase 4 — Review & Closure
+### Phase 4 — Review & Closure _(main agent: sonnet — switch back to opus only if a reviewer surfaces a design-level finding)_
 - [ ] `test-writer-e2e` → E2E tests from contract, confirm green _(Tauri only — run `/setup-e2e` first if not done)_
 - [ ] `reviewer-frontend` _(Tauri only — reviews E2E test files)_
 - [ ] `/smart-commit`: E2E layer [HARD GATE] _(Tauri only)_

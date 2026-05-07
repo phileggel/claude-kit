@@ -1,6 +1,6 @@
 ---
 name: feature-planner
-description: Senior Architect Agent that translates a validated spec into a persistent, detailed implementation plan (docs/plan/{feature-name}-plan.md) mapping TRIGRAM-NNN rules to DDD layers and CLAUDE.md workflow. Use after spec-reviewer and contract-reviewer both approve.
+description: Senior Architect Agent that translates a validated spec into a persistent, detailed implementation plan (docs/plan/{feature-name}-plan.md) mapping TRIGRAM-NNN rules to DDD layers and CLAUDE.md workflow. Use after spec-reviewer and contract-reviewer both approve. Output is gated by plan-reviewer before any test-writer subagent runs.
 tools: Read, Write, Grep, Glob, Bash, AskUserQuestion
 model: opus
 ---
@@ -137,3 +137,4 @@ Captures the answer from Step 4.5. Format:
 8. **Cross-Context**: If a use case spans multiple bounded contexts, use the cross-context module as defined in `ARCHITECTURE.md` — never cross-import between context modules directly.
 9. **Commit Checkpoints**: Every plan must include at least one commit checkpoint per thematic phase (backend, frontend, E2E tests, tests & docs). Each checkpoint provides only a suggested conventional commit title — the `/smart-commit` skill handles the rest.
 10. **Minimal implementation**: The backend and frontend implementation tasks must explicitly state "implement only what is required to make the failing tests pass — no additional methods, no defensive code, no anticipation of future rules." `test-writer-backend` and `test-writer-frontend` define the scope; the implementation must not exceed it.
+11. **Next gate**: After writing the plan, tell the user that `plan-reviewer` is the mandatory next step before any test-writer subagent runs. Do not invoke it yourself; the orchestrating agent runs it.
