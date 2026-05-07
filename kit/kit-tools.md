@@ -35,14 +35,15 @@ Synced to `docs/` in downstream projects on first sync (copy-once — never over
 
 ## Spec & Planning Agents
 
-| Agent               | Trigger                                           | Description                                                                                                                                                                   |
-| ------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `spec-reviewer`     | After spec-writer, before /contract               | Quality gate on a spec doc: rule atomicity, scope, DDD alignment, UX completeness, contractability, conflicts                                                                 |
-| `contract-reviewer` | After /contract, before feature-planner           | Quality gate on a domain contract: coverage vs spec, traceability, error exhaustiveness, type correctness                                                                     |
-| `retro-spec`        | Onboarding an existing feature to the kit         | Infers TRIGRAM-NNN rules from existing code and writes a first-pass `docs/spec/{domain}.md` with `retro-inferred` annotations for human review                                |
-| `feature-planner`   | After spec-reviewer and contract-reviewer approve | Translates spec into `docs/plan/{feature}-plan.md` with DDD layer breakdown, rule-to-task mapping, Workflow TaskList                                                          |
-| `plan-reviewer`     | After feature-planner, before any test-writer     | Quality gate on the plan: rule coverage, contract coverage, layer routing, ADR adherence, schema completeness, TaskList integrity, PR Plan, minimal-implementation discipline |
-| `spec-checker`      | After implementation, before final commit         | Verifies every TRIGRAM-NNN rule is implemented and tested; checks all contract commands are covered in backend, frontend, and tests                                           |
+| Agent               | Trigger                                                                | Description                                                                                                                                                                   |
+| ------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `spec-reviewer`     | After spec-writer, before /contract                                    | Quality gate on a spec doc: rule atomicity, scope, DDD alignment, UX completeness, contractability, conflicts                                                                 |
+| `contract-reviewer` | After /contract, before feature-planner                                | Quality gate on a domain contract: coverage vs spec, traceability, error exhaustiveness, type correctness                                                                     |
+| `retro-spec`        | Onboarding an existing feature to the kit                              | Infers TRIGRAM-NNN rules from existing code and writes a first-pass `docs/spec/{domain}.md` with `retro-inferred` annotations for human review                                |
+| `feature-planner`   | After spec-reviewer and contract-reviewer approve                      | Translates spec into `docs/plan/{feature}-plan.md` with DDD layer breakdown, rule-to-task mapping, Workflow TaskList                                                          |
+| `plan-reviewer`     | After feature-planner, before any test-writer                          | Quality gate on the plan: rule coverage, contract coverage, layer routing, ADR adherence, schema completeness, TaskList integrity, PR Plan, minimal-implementation discipline |
+| `adr-reviewer`      | After /adr-writer creates or supersedes an ADR; before a release sweep | Quality gate on ADRs: structure, 3-criteria appropriateness, status & supersedes integrity, index integrity, content quality, cross-spec consistency                          |
+| `spec-checker`      | After implementation, before final commit                              | Verifies every TRIGRAM-NNN rule is implemented and tested; checks all contract commands are covered in backend, frontend, and tests                                           |
 
 > **Resuming after interruption or compaction:** The plan is always saved to `docs/plan/{feature}-plan.md`.
 > After any interruption, ground the agent explicitly:
@@ -82,7 +83,7 @@ Skills that directly drive or support the spec → contract → plan → test-fi
 | `start`        | `/start [scope]` | Select workflow A (full) or B (simple) for the current task; outputs actionable checklist. Optional scope: `fix`, `chore`, `test`, `feature`, `refactor`       |
 | `spec-writer`  | `/spec-writer`   | Interactive spec writer: interviews user, reads domain, produces `docs/spec/{feature}.md` with TRIGRAM-NNN rules                                               |
 | `contract`     | `/contract`      | Derives or updates `docs/contracts/{domain}-contract.md` from a validated spec; upsert-aware, human-approved                                                   |
-| `adr-manager`  | `/adr-manager`   | Create, update (supersede), or index Architecture Decision Records in `docs/adr/`                                                                              |
+| `adr-writer`   | `/adr-writer`    | Author Architecture Decision Records in `docs/adr/`: create, supersede, or index. Run `adr-reviewer` after to validate                                         |
 | `whats-next`   | `/whats-next`    | Triage pending work across TODOs, plans, specs, and in-flight git; returns value/effort table and one suggested next action                                    |
 | `smart-commit` | `/smart-commit`  | Conventional commit with sensitive-file check, linter run, suggested title with char count, and user confirmation                                              |
 | `create-pr`    | `/create-pr`     | Push the current feature branch and open a GitHub PR; drafts title + body from commits and plan doc; requires `gh` CLI                                         |

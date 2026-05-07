@@ -151,7 +151,7 @@ Every artifact added to this kit should map to a recognized role in the **spec â
 | Implementation layer | test-writer-\*, reviewer-backend, reviewer-frontend, reviewer-arch, reviewer-sql                   |
 | Delivery layer       | smart-commit, create-pr, reviewer-infra                                                            |
 | Maintenance & sanity | prune, dep-audit, whats-next, kit-discover, start                                                  |
-| Setup                | setup-e2e, adr-manager                                                                             |
+| Setup                | setup-e2e, adr-writer, adr-reviewer                                                                |
 
 **Drift signals â€” check each newly added agent or skill for:**
 
