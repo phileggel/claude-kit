@@ -45,7 +45,7 @@ Output the block below immediately after the branch check. This block is the mai
 
 ---
 
-Replace `{task}` with the user's description and `{type}` with the scope argument or "unspecified".
+Replace `{task}` with the user's description, `{type}` with the scope argument or "unspecified", and `{branch}` with the current branch name from `git branch --show-current`.
 
 ---
 
@@ -56,6 +56,7 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 
 **Task**: {task}
 **Type**: {type}
+**Branch**: {branch}
 **Workflow**: A — Full Feature Workflow
 
 ### Phase 1 — Spec & Contract & Plan _(main agent: opus)_
@@ -95,7 +96,7 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 - [ ] `test-writer-e2e` → E2E tests from contract, confirm green _(Tauri only — run `/setup-e2e` first if not done)_
 - [ ] `reviewer-frontend` _(Tauri only — reviews E2E test files)_
 - [ ] `/smart-commit`: E2E layer [HARD GATE] _(Tauri only)_
-- [ ] `reviewer-arch` (always) + `reviewer-sql` (if migrations) + `reviewer-infra` (if any config, script, hook, or workflow file changed)
+- [ ] `reviewer-arch` (always) + `reviewer-sql` (if migrations) + `reviewer-infra` (if any config, script, hook, or workflow file changed) + `reviewer-security` _(Tauri only — if Tauri command, capability, or security-sensitive file modified)_
 - [ ] Update `ARCHITECTURE.md` + `docs/todo.md`
 - [ ] `spec-checker` → all rules and contract commands covered
 - [ ] `/smart-commit`: tests & docs [HARD GATE]
@@ -113,16 +114,19 @@ Replace `{task}` with the user's description and `{type}` with the scope argumen
 
 **Task**: {task}
 **Type**: {type}
+**Branch**: {branch}
 **Workflow**: B — Simple Technical Workflow
 
 ### Steps
+- [ ] Track progress with `TaskCreate` / `TaskUpdate` as you go
 - [ ] Analyze: read relevant docs and code
 - [ ] Propose plan in chat → wait for user validation
-- [ ] Implement changes
+- [ ] Implement changes (write missing regression tests for any modified behavior)
 - [ ] `just check` (or `just check-full` if tests needed)
 - [ ] `reviewer-backend` → if any `.rs` modified
 - [ ] `reviewer-frontend` → if any `.ts`/`.tsx` modified
-- [ ] `reviewer-arch` (always) + `reviewer-sql` (if migrations) + `reviewer-infra` (if scripts, hooks, config, or workflow files changed)
+- [ ] `reviewer-arch` (always) + `reviewer-sql` (if migrations) + `reviewer-infra` (if scripts, hooks, config, or workflow files changed) + `reviewer-security` _(Tauri only — if Tauri command, capability, or security-sensitive file modified)_
+- [ ] Update `ARCHITECTURE.md` + `docs/todo.md` if behavior or module layout changed
 - [ ] Ask user if another task is needed
 - [ ] `/smart-commit` [HARD GATE]
 - [ ] `/create-pr` → push branch and open PR (or merge directly: `git checkout main && git merge --no-ff fix/{name}`)
