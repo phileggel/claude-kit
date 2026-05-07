@@ -39,28 +39,37 @@ class ReleaseManager:
             return "v0.0.0"
 
     def parse_commit(self, message: str) -> dict:
+        # message is "<subject>\n<body>" (body may be empty)
+        subject, _, body = message.partition("\n")
         match = re.match(
             r"^(feat|fix|docs|chore|refactor|test|ci)(\(.+\))?(!)?: (.+)$",
-            message,
+            subject,
         )
         if not match:
             return {
                 "type": "other",
-                "description": message,
+                "description": subject,
                 "breaking": False,
             }
 
         commit_type, _, bang, description = match.groups()
+        # Conventional Commits spec: breaking is signalled by either `!` in
+        # the title OR a `BREAKING CHANGE:` footer in the body.
+        breaking_footer = (
+            re.search(r"^BREAKING CHANGE:", body, re.MULTILINE) is not None
+        )
         return {
             "type": commit_type,
             "description": description,
-            "breaking": bang == "!",
+            "breaking": bang == "!" or breaking_footer,
         }
 
     def analyze_commits(self):
         tag_range = f"{self.current_version}..HEAD"
+        # %s = subject, %b = body. Null byte separates commits so we can
+        # split cleanly even when body contains newlines.
         log = subprocess.check_output(
-            ["git", "log", tag_range, "--pretty=format:%s%x00"],
+            ["git", "log", tag_range, "--pretty=format:%s%n%b%x00"],
             cwd=self.repo_root,
             text=True,
         )
@@ -71,7 +80,7 @@ class ReleaseManager:
             self.commits.append(commit)
             if commit["breaking"]:
                 self.breaking_changes += 1
-            elif commit["type"] == "feat":
+            if commit["type"] == "feat":
                 self.features += 1
             elif commit["type"] == "fix":
                 self.fixes += 1
@@ -95,17 +104,31 @@ class ReleaseManager:
 
         new_entry = f"## [{new_version}] - {today}\n"
 
+        breaking_commits = [c for c in self.commits if c["breaking"]]
+        if breaking_commits:
+            new_entry += "\n### Breaking Changes\n"
+            for commit in breaking_commits:
+                new_entry += f"- {commit['description']}\n"
+
         if self.features > 0:
             new_entry += "\n### Added\n"
             for commit in self.commits:
-                if commit["type"] == "feat":
+                if commit["type"] == "feat" and not commit["breaking"]:
                     new_entry += f"- {commit['description']}\n"
 
         if self.fixes > 0:
             new_entry += "\n### Fixed\n"
             for commit in self.commits:
-                if commit["type"] == "fix":
+                if commit["type"] == "fix" and not commit["breaking"]:
                     new_entry += f"- {commit['description']}\n"
+
+        refactors = [
+            c for c in self.commits if c["type"] == "refactor" and not c["breaking"]
+        ]
+        if refactors:
+            new_entry += "\n### Changed\n"
+            for commit in refactors:
+                new_entry += f"- {commit['description']}\n"
 
         new_entry += "\n"
 

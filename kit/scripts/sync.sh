@@ -68,13 +68,21 @@ echo -e "${BLUE}📁 Syncing scripts...${NC}"
 mkdir -p "$PROJECT_ROOT/scripts"
 for f in "$TMP/kit/scripts/"*.sh; do
     [ -f "$f" ] || continue
-    cp "$f" "$PROJECT_ROOT/scripts/"
-    chmod +x "$PROJECT_ROOT/scripts/$(basename "$f")"
+    base="$(basename "$f")"
+    # sync.sh is kit-internal — never copy it to downstream
+    [ "$base" = "sync.sh" ] && continue
+    cp "$f" "$PROJECT_ROOT/scripts/$base"
+    chmod +x "$PROJECT_ROOT/scripts/$base"
 done
 for f in "$TMP/kit/scripts/"*.py; do
     [ -f "$f" ] || continue
     cp "$f" "$PROJECT_ROOT/scripts/"
 done
+
+# Hint about the previous quirk where sync.sh was copied to downstream
+if [ -f "$PROJECT_ROOT/scripts/sync.sh" ]; then
+    echo -e "${YELLOW}ℹ  scripts/sync.sh is kit-internal (no longer copied). Safe to delete.${NC}"
+fi
 
 # ── Docs (overwrite if unchanged; prompt on local drift; -f to force) ─────────
 echo -e "${BLUE}📁 Syncing docs...${NC}"
