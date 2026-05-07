@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.0] - 2026-05-07
+
+### Added
+
+- add ai-reviewer for per-file agent/skill review
+- split adr-manager into writer + reviewer
+- add /techdebt skill for normalized entries
+
+### Fixed
+
+- restore per-recipe override detection on common.just
+
+### Changed
+
+- extract collection into scripts/whats-next.py
+
 ## [v4.0.0] - 2026-05-07
 
 ### Breaking Changes
