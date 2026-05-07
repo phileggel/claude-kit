@@ -151,6 +151,7 @@ Kit version: <…>
 4. **Separate sync gaps from CLAUDE.md gaps** — if `kit-tools.md` lists an item that isn't on disk, that's a sync problem (re-run `just sync-kit`), not a documentation problem. Surface it in its own section.
 5. **Quote, don't paraphrase** — when reporting drift, include the exact CLAUDE.md snippet and a concrete suggested replacement. Vague advice ("update this section") forces the user to redo the analysis.
 6. **Empty patch is a real result** — when nothing is wrong, say so. Don't manufacture findings.
+7. **Out-of-scope items are not findings** — only emit findings tied to catalog items from `kit-tools.md`. Do not commentate on Claude Code built-in slash commands (e.g. `/init`, `/review`, `/security-review`, `/help`, `/config`, `/clear`) when they appear in CLAUDE.md; they are not kit-managed and are outside this skill's reconciliation scope, even when their name overlaps a kit-shipped item (`/security-review` ≠ kit's `reviewer-security` agent).
 
 ---
 
