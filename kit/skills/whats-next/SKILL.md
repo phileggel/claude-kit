@@ -81,6 +81,8 @@ Surface uncommitted changes and unmerged branches as candidates ("finish branch 
 
 **f) Roadmap** — `docs/roadmap.md` or `roadmap.md` at the project root. Check both paths; read the first that exists (prefer `docs/roadmap.md`). Extract every section heading and any `[ ]` bullet as a candidate item. Skip silently if neither file exists.
 
+**g) Tech debt** — `docs/techdebt.md` (the conventional sink for `/techdebt`-formatted entries). Skip silently if absent. Each entry is a `## YYYY-MM-DD — title` block with `- Found by:`, `- Where:`, `- Observation:` lines. Treat tech-debt entries differently from items in (a)–(f): they are **observations, not commitments**, so do not feed them through the value/effort scoring in Step 4 or compete for the suggested-next-action in Step 5. Surface them in the dedicated `### Tech debt` output section instead, and check whether each entry's `Where:` path still exists on disk — entries pointing at deleted files are stale and should be flagged for cleanup.
+
 ### Step 3 — Verify each candidate isn't already done
 
 This step prevents stale TODOs from polluting the recommendation. For every candidate item, do a cheap existence/grep check:
@@ -142,6 +144,12 @@ If two items tie, prefer the one with explicit user signal (most recent edit, me
 - Uncommitted changes in: {N} files
 - Unmerged branches: {list}
 
+### Tech debt — observations pending triage
+- {date} — {title} ({found-by}, {where})
+- ⚠️ stale: {date} — {title} (path no longer exists)
+
+(Omit this section if `docs/techdebt.md` is absent or empty.)
+
 ### Suggested next action
 **#1 — {item title}**
 Why: {1–2 sentences explaining the value/effort win and any dependency context}
@@ -175,6 +183,9 @@ Pending items: N. Likely-done cleanup: N. In-flight: N.
 
 ### Cleanup candidates
 - {item} — {evidence}
+
+### Tech debt
+- {N} entries pending triage ({M} stale)
 ```
 
 Replace `{date}-{N}` with the values used in `REPORT_PATH`. Omit any section whose count is zero.

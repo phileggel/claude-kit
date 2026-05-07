@@ -97,6 +97,7 @@ Generic lifecycle tools. No direct SDD connection — included because they must
 | `dep-audit`    | `/dep-audit`    | Audit npm + Cargo dependencies for outdated versions and CVEs; run before every release                                                                                                           |
 | `prune`        | `/prune [path]` | Audit the project for dead code, pass-through methods, verbose patterns, and duplicate definitions; coverage report mandatory, read-only output                                                   |
 | `visual-proof` | `/visual-proof` | Capture and commit visual proof screenshots for any `.tsx`/`.css` change. Auto-discovers config on first run. Generates a complete preview for all component states and captures with Playwright. |
+| `techdebt`     | `/techdebt`     | Produces a normalized tech-debt entry (date + git context + observation) for the main agent to persist; convention is `docs/techdebt.md`; output-only, no writes                                  |
 
 ### Kit sync
 
