@@ -47,11 +47,11 @@ If `CLAUDE.md` is missing → reply: `No CLAUDE.md to reconcile — the project 
 
 Parse `.claude/kit-tools.md`. Extract from its tables:
 
-- **Agents** — `## Generic Agents` and `## <Profile> Profile Agents` sections; collect every backticked name in the first column
+- **Agents** — `## Spec & Planning Agents` and `## Code Review & Test Agents` sections; collect every backticked name in the first column
 - **Skills** — `## Skills (slash commands)` section; collect both the skill name and its slash command
-- **Scripts** — `## Generic Scripts` and `## Scripts (<profile>)` sections; collect script names and their commands
+- **Scripts** — `## Scripts` section (sub-sections: Shared helpers, Quality & release); collect script names and their commands
 - **Git hooks** — `## Git Hooks` section; collect hook names
-- **Justfile recipes** — `### Generic recipes` and `### <Profile> profile recipes` subsections; collect recipe names and `just …` commands
+- **Justfile recipes** — `## Justfile Recipes (\`common.just\`)`section; collect recipe names and`just …` commands
 
 Hold the result as a flat catalog of identifiers (names + commands) tagged by category.
 

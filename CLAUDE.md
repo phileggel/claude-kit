@@ -34,23 +34,17 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
   - ❌ Wrong: `tools: Read, Grep, Glob, Bash, Edit, Write` for a review agent.
   - _Why it's critical:_ Over-privileged agents are slower and pose a security risk.
 
-- **Kit-local tooling only:** When working on this repository, only use tools from `.claude/` (skills, agents) and `scripts/` (check.py, release-kit.py). Never invoke agents or skills from `kit/agents/` or `kit/agents/tauri/` directly — those are downstream artifacts, not kit tooling.
+- **Kit-local tooling only:** When working on this repository, only use tools from `.claude/` (skills, agents) and `scripts/` (check.py, release-kit.py). Never invoke agents or skills from `kit/agents/` directly — those are downstream artifacts, not kit tooling.
   - ✅ Correct: `/preflight`, `/smart-commit`, `python3 scripts/check.py`
   - ❌ Wrong: running `reviewer`, `spec-checker`, or any `kit/agents/**/*.md` agent on kit files
   - _Why it's critical:_ Kit agents are written for downstream project structure which does not exist in this repository.
 
 ```bash
-# Declare your profile (once, checked into the project)
-echo "tauri" > .claude/kit-profile
-
-# Sync latest tag (auto-detects .claude/kit-profile)
+# Sync latest tag
 ./scripts/sync-config.sh
 
 # Sync a specific tag
-./scripts/sync-config.sh v2.0.0
-
-# Override profile for one-off sync
-./scripts/sync-config.sh --profile tauri
+./scripts/sync-config.sh v4.0.0
 ```
 
 The script self-updates before syncing: if `sync-config.sh` itself changed in the kit, it re-executes the new version automatically. After syncing, review `git diff` before committing.
@@ -89,24 +83,18 @@ Valid commit types: `feat`, `fix`, `docs`, `test`, `chore`, `refactor`, `ci`
 ```
 kit/                        ← everything synced downstream
   sync-config.sh            → scripts/sync-config.sh (bootstrap, copied once)
-  agents/                   → .claude/agents/ (generic, always synced)
-  agents/tauri/             → .claude/agents/ (tauri profile overlay)
-  agents/web/               → .claude/agents/ (web profile overlay)
-  skills/                   → .claude/skills/ (always synced)
-  docs/tauri/               → docs/ (tauri profile, copy-once — never overwrites)
-  githooks/                 → .githooks/ (always synced)
-  justfile/
-    tauri.just              → appended to common.just (tauri profile)
-    web.just                → appended to common.just (web profile)
+  agents/                   → .claude/agents/
+  skills/                   → .claude/skills/
+  docs/                     → docs/ (copy-once — never overwrites)
+  githooks/                 → .githooks/
+  common.just               → common.just
   scripts/
     sync.sh                 ephemeral sync logic (runs from $TMP, never copied)
-    tauri/
-      check.py              → scripts/check.py (tauri profile)
-      release.py            → scripts/release.py (tauri profile)
-    web/
-      check.py              → scripts/check.py (web profile)
-      release.py            → scripts/release.py (web profile)
-  common.just               → common.just (generic recipes + guards)
+    branch-files.sh         → scripts/
+    changed-files.sh        → scripts/
+    report-path.sh          → scripts/
+    check.py                → scripts/check.py
+    release.py              → scripts/release.py
 scripts/                    ← kit-only tooling (not synced)
   check.py                kit quality checker
   release-kit.py            kit release manager

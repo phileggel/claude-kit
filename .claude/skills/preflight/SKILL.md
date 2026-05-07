@@ -44,18 +44,17 @@ Filter the combined (deduplicated) list to keep only downstream artifacts — fi
 
 **IA artifacts** (synced to `.claude/`, `.claude/agents/`, and `.claude/skills/`):
 
-- `kit/agents/*.md` — generic agents
-- `kit/agents/*/*.md` — profile agent overlays (e.g. `kit/agents/tauri/`)
+- `kit/agents/*.md` — agents
 - `kit/skills/*/*.md` — skills
 - `kit/kit-tools.md`, `kit/kit-readme.md` — discovery files synced to `.claude/`
 
 **Script artifacts** (synced to `scripts/`, `.githooks/`, project root):
 
 - `kit/scripts/sync.sh` — sync logic
-- `kit/scripts/*/*.py` — profile-specific scripts (e.g. `kit/scripts/tauri/check.py`)
+- `kit/scripts/*.sh` — shared script helpers
+- `kit/scripts/check.py`, `kit/scripts/release.py` — quality and release scripts
 - `kit/githooks/*`
-- `kit/common.just` — generic justfile recipes
-- `kit/justfile/*.just` — profile-specific justfile recipes (appended to `common.just` downstream)
+- `kit/common.just` — justfile recipes
 
 If no modified files match — output `ℹ️ No modified kit artifacts — nothing to validate.` and stop.
 
@@ -106,7 +105,7 @@ These constructs cause a permission prompt on every invocation, breaking the no-
 
 ### 3. Validate script quality
 
-For each file in `kit/scripts/` (including profile subdirs like `kit/scripts/tauri/`) and `kit/githooks/`:
+For each file in `kit/scripts/` and `kit/githooks/`:
 
 #### Bash scripts / git hooks
 
@@ -135,7 +134,7 @@ Cross-references are checked against the **full kit** (not just modified files) 
 > is enforced by `check.py` (Step 0). Focus here on:
 
 - 🔴 Agent references a script that won't be synced downstream
-- 🔴 Agent A references agent B that isn't in `kit/agents/` or `kit/agents/<profile>/`
+- 🔴 Agent A references agent B that isn't in `kit/agents/`
 - 🟡 `kit/kit-tools.md` trigger or description diverges from agent frontmatter
 
 ---
@@ -156,7 +155,7 @@ Every artifact added to this kit should map to a recognized role in the **spec �
 
 **Drift signals — check each newly added agent or skill for:**
 
-- 🟡 **Convention doc added to `kit/docs/`** — verify the file belongs under `kit/docs/{profile}/` (synced copy-once to downstream `docs/`) and is listed in `kit/kit-tools.md` under the Convention Docs section. Flag if placed outside a profile subdirectory or missing from kit-tools.md.
+- 🟡 **Convention doc added to `kit/docs/`** — verify the file is synced copy-once to downstream `docs/` and is listed in `kit/kit-tools.md` under the Convention Docs section. Flag if missing from kit-tools.md.
 - 🔴 **Convention baked into agent** — agent encodes rules (naming patterns, file layout, UI conventions) that should live in an optional `docs/{name}-rules.md` readable from downstream projects. The agent should read the doc if it exists and skip silently if absent.
 - 🟡 **No clear SDD role** — a new agent or skill whose description does not map to any of the categories above. Requires explicit user validation before release. State which category it _might_ fit and why it's ambiguous.
 - 🟡 **Maintenance tool without coverage gate or scope limit** — a new maintenance/sanity tool that can modify files (not read-only). Flag: maintenance tools should be read-only or require explicit user confirmation before applying changes.
