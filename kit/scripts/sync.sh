@@ -99,7 +99,7 @@ for doc in "$TMP/kit/docs/"*.md; do
     elif [ "$KIT_SYNC_FORCE" = "true" ]; then
         cp "$doc" "$dest"
         echo -e "  ↑ docs/$doc_name (overwritten — local differed from kit)"
-    else
+    elif [ -e /dev/tty ] && [ -r /dev/tty ]; then
         printf "  ⚠  docs/%s differs from kit. Overwrite? [y/N] " "$doc_name"
         read -r _answer </dev/tty || _answer="n"
         if [[ "$_answer" =~ ^[Yy] ]]; then
@@ -108,6 +108,8 @@ for doc in "$TMP/kit/docs/"*.md; do
         else
             echo -e "  ↩ docs/$doc_name (skipped — local copy kept)"
         fi
+    else
+        echo -e "  ↩ docs/$doc_name (skipped — non-interactive; pass -f to overwrite)"
     fi
 done
 
