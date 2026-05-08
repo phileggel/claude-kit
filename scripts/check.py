@@ -113,6 +113,7 @@ class KitChecker:
         self._check_no_settings_json_in_scripts()
         self._check_start_template_references()
         self._check_skill_conventions()
+        self._check_workflow_gate_drift()
 
         self._print_artifact_metrics()
 
@@ -354,6 +355,105 @@ class KitChecker:
             return False
 
         self.results["No settings.json in scripts"] = True
+        return True
+
+    def _check_workflow_gate_drift(self) -> bool:
+        """Verify workflow gates stay in sync between start and feature-planner.
+
+        Both `start`'s Workflow A template and `feature-planner`'s emitted
+        Workflow TaskList list the gates (agents and slash commands) the main
+        agent must execute during implementation. If they drift, the main
+        agent runs different sequences depending on which artifact it follows.
+
+        Compares Phase 2/3/4 of start's Workflow A (after plan-reviewer
+        green-lights) against feature-planner's Workflow TaskList. Phase 1
+        gates are excluded — they run before the plan is written and are
+        irrelevant to the post-plan implementation TaskList.
+        """
+        start_path = REPO_ROOT / "kit" / "skills" / "start" / "SKILL.md"
+        planner_path = REPO_ROOT / "kit" / "agents" / "feature-planner.md"
+        if not start_path.exists() or not planner_path.exists():
+            return True
+
+        slash_pat = re.compile(r"`/([a-z][a-z0-9-]*)`")
+        agent_pat = re.compile(r"`([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`")
+
+        def extract_gates(lines: list[str]) -> set[str]:
+            gates: set[str] = set()
+            for line in lines:
+                for m in slash_pat.finditer(line):
+                    gates.add(f"/{m.group(1)}")
+                for m in agent_pat.finditer(line):
+                    name = m.group(1)
+                    if "/" in name or "." in name:
+                        continue
+                    gates.add(name)
+            return gates
+
+        start_lines = start_path.read_text(encoding="utf-8").splitlines()
+        in_workflow_a = False
+        in_fence = False
+        in_phase_2plus = False
+        start_gate_lines: list[str] = []
+        for line in start_lines:
+            if line.strip() == "### If Workflow A:":
+                in_workflow_a = True
+                continue
+            if not in_workflow_a:
+                continue
+            if line.lstrip().startswith("```"):
+                if in_fence:
+                    break
+                in_fence = True
+                continue
+            if not in_fence:
+                continue
+            if (
+                line.startswith("### Phase 2")
+                or line.startswith("### Phase 3")
+                or line.startswith("### Phase 4")
+            ):
+                in_phase_2plus = True
+                continue
+            if in_phase_2plus:
+                start_gate_lines.append(line)
+
+        start_gates = extract_gates(start_gate_lines)
+
+        planner_lines = planner_path.read_text(encoding="utf-8").splitlines()
+        in_tasklist = False
+        planner_gate_lines: list[str] = []
+        for line in planner_lines:
+            if line.startswith("### 1. Workflow TaskList"):
+                in_tasklist = True
+                continue
+            if in_tasklist and line.startswith("### "):
+                in_tasklist = False
+                continue
+            if in_tasklist:
+                planner_gate_lines.append(line)
+
+        planner_gates = extract_gates(planner_gate_lines)
+
+        failures: list[str] = []
+        for gate in sorted(start_gates - planner_gates):
+            failures.append(
+                f"start's Workflow A Phase 2/3/4 mentions `{gate}` but feature-planner's TaskList doesn't"
+            )
+        for gate in sorted(planner_gates - start_gates):
+            failures.append(
+                f"feature-planner's TaskList mentions `{gate}` but start's Workflow A Phase 2/3/4 doesn't"
+            )
+
+        if failures:
+            print("  Workflow gate drift...")
+            for f in failures:
+                print(f"    ✗ {f}")
+            self.suite_failed = True
+            self.results["Workflow gate drift"] = False
+            return False
+
+        self.results["Workflow gate drift"] = True
         return True
 
     def _print_artifact_metrics(self) -> None:

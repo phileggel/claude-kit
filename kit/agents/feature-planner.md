@@ -120,20 +120,23 @@ A synthetic checklist for mandatory quality and process steps:
 - [ ] 🔗 Type Synchronization (`just generate-types`) — if backend rules present
 - [ ] 🔧 Compilation fixup (TypeScript errors from new bindings only — no UI work) — if backend rules present
 - [ ] ✅ `just check` — TypeScript clean
-- [ ] 💾 Commit: backend layer (suggested title from plan)
-- [ ] ✍️ Frontend test stubs (`test-writer-frontend` — all stubs written, red confirmed; pass `modified_functions` list if any `[unit-test-needed]` rules were identified in Step 4) — if frontend rules present
+- [ ] 💾 Commit: backend layer via `/smart-commit` (suggested title from plan)
+- [ ] 🔀 `/create-pr` — if the PR Plan slices BE into its own PR; otherwise continue. After merge, branch the next phase off updated `main`.
+- [ ] ✍️ Frontend test stubs (`test-writer-frontend` — all stubs written, red confirmed; pass `modified_functions` list if any `[unit-test-needed]` rules are present) — if frontend rules present
 - [ ] 💻 Frontend Implementation (minimal — make failing tests pass, green confirmed)
 - [ ] 🧹 `just format`
 - [ ] 📸 Visual proof (`/visual-proof` — capture final state; stage screenshots before commit) — if frontend rules present
 - [ ] 🔍 Frontend Review (`reviewer-frontend` → fix issues) — if .ts/.tsx modified
-- [ ] 💾 Commit: frontend layer (suggested title from plan)
+- [ ] 💾 Commit: frontend layer via `/smart-commit` (suggested title from plan)
+- [ ] 🔀 `/create-pr` — if the PR Plan slices FE into its own PR; otherwise continue. After merge, branch the next phase off updated `main`.
 - [ ] ✍️ E2E tests (`test-writer-e2e` — run `/setup-e2e` first if not done; green confirmed) — if frontend rules present
 - [ ] 🔍 Frontend Review (`reviewer-frontend` → fix issues in E2E test files) — if frontend rules present
-- [ ] 💾 Commit: E2E tests (suggested title from plan)
-- [ ] 🔍 Cross-cutting Review (`reviewer-arch` always + `reviewer-sql` if migrations + `reviewer-infra` if any config, script, hook, or workflow file changed)
+- [ ] 💾 Commit: E2E tests via `/smart-commit` (suggested title from plan)
+- [ ] 🔍 Cross-cutting Review (`reviewer-arch` always + `reviewer-sql` if migrations + `reviewer-infra` if any config, script, hook, or workflow file changed + `reviewer-security` if Tauri command, capability, or security-sensitive file modified)
 - [ ] 📚 Documentation Update (`ARCHITECTURE.md` + `docs/todo.md` — entries in English)
 - [ ] ✅ Spec check (`spec-checker`)
-- [ ] 💾 Commit: tests & docs (suggested title from plan)
+- [ ] 💾 Commit: tests & docs via `/smart-commit` (suggested title from plan)
+- [ ] 🔀 `/create-pr` — final PR per the PR Plan (or merge directly: `git checkout main && git merge --no-ff feat/{name}`)
 
 ### 2. Detailed Implementation Plan
 
