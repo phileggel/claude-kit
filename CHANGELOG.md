@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.2.0] - 2026-05-08
+
+### Added
+
+- surface density signals on agents and skills
+- clarify purpose, align conventions, add drift check
+- add convention sections and template drift check
+
+### Fixed
+
+- silence noisy stderr when no stale branches
+
+### Changed
+
+- align with conventions, add drift check
+- align with conventions, trim rules
+- align with conventions, cover invariants
+- align with conventions, cover deferred checks
+- align with conventions, defer to spec-reviewer
+
 ## [v4.1.0] - 2026-05-07
 
 ### Added
