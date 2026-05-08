@@ -90,7 +90,7 @@ Pick the template matching the chosen workflow. Replace `{task}` with the user's
 **Workflow**: A — Full Feature Workflow
 
 ### Phase 1 — Spec & Contract & Plan _(main agent: opus)_
-- [ ] `/spec-writer` → `docs/spec/{domain}.md`
+- [ ] `/spec-writer` → `docs/spec/{feature}.md`
 - [ ] `spec-reviewer` → validate spec quality [soft gate — hard if 🔴]
 - [ ] `/contract` → `docs/contracts/{domain}-contract.md` [human approves shape]
 - [ ] `contract-reviewer` → validate contract vs spec [soft gate — hard if 🔴]

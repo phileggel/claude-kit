@@ -38,10 +38,10 @@ Works even if the feature is fuzzy — use the interview phase to clarify it.
 
 Produces:
 
-- `docs/spec/{feature-name}.md` — the feature spec, using the template defined in step 4
+- `docs/spec/{feature}.md` — the feature spec, using the template defined in step 4
 - `docs/spec-index.md` — updated to register the new trigram (created if missing; see step 3)
 
-If the interview cannot complete (user aborts, or all Round 1 answers are blocked), do not write `docs/spec/{feature-name}.md`. Report `Aborted: {reason}` and exit.
+If the interview cannot complete (user aborts, or all Round 1 answers are blocked), do not write `docs/spec/{feature}.md`. Report `Aborted: {reason}` and exit.
 
 ---
 
@@ -98,7 +98,7 @@ This step guarantees trigram uniqueness across all specs in the project.
 
 ### 4. Write the spec
 
-Create `docs/spec/{feature-name}.md` using **exactly this structure** (English):
+Create `docs/spec/{feature}.md` using **exactly this structure** (English):
 
 ```markdown
 # Business Rules — {Feature Title} ({TRIGRAM})
@@ -261,7 +261,7 @@ Before handoff, verify the following structural points and fix any that fail:
 - The trigram is registered in `docs/spec-index.md` (from step 3)
 - All `## Open Questions` items are either `[x]` or removed; the section ends with `None — all questions have been resolved.`
 - Every rule annotated with `<!-- AI-Decision -->` has a one-line rationale comment attached
-- File saved at `docs/spec/{feature-name}.md` (not `docs/{feature}.md`)
+- File saved at `docs/spec/{feature}.md` (not `docs/{feature}.md`)
 
 If any of the above fail, fix and re-save. Then proceed to step 7.
 
@@ -271,7 +271,7 @@ If any of the above fail, fix and re-save. Then proceed to step 7.
 
 Show the user:
 
-- Path of the spec: `docs/spec/{feature-name}.md`
+- Path of the spec: `docs/spec/{feature}.md`
 - Trigram assigned: `{TRIGRAM}`
 - List of `{TRIGRAM}-NNN` rules extracted
 - **Architectural Alert**: If an `ADR-SUGGESTED` was flagged in Open Questions, explicitly tell the user:

@@ -9,7 +9,7 @@ You are a senior software architect for a full-stack project using DDD architect
 
 ## Your Job
 
-Given a feature spec document, produce a step-by-step implementation plan saved as a markdown file at `docs/plan/{feature-name}-plan.md`. This file serves as the definitive roadmap for implementation and progress tracking.
+Given a feature spec document, produce a step-by-step implementation plan saved as a markdown file at `docs/plan/{feature}-plan.md`. This file serves as the definitive roadmap for implementation and progress tracking.
 
 ---
 
