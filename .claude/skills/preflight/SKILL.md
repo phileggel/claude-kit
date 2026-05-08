@@ -131,7 +131,8 @@ For each file in `kit/scripts/` and `kit/githooks/`:
 Cross-references are checked against the **full kit** (not just modified files) — a modified agent may reference an existing unmodified file, which is valid.
 
 > Inventory coverage (every agent listed in kit-tools.md, every synced root file documented)
-> is enforced by `check.py` (Step 0). Focus here on:
+> and `start` skill template references (every `/skill` and agent name in the Workflow A/B
+> templates resolves to a real kit artifact) are enforced by `check.py` (Step 0). Focus here on:
 
 - 🔴 Agent references a script that won't be synced downstream
 - 🔴 Agent A references agent B that isn't in `kit/agents/`

@@ -111,6 +111,7 @@ class KitChecker:
         self._check_sync_coverage()
         self._check_output_format_end_markers()
         self._check_no_settings_json_in_scripts()
+        self._check_start_template_references()
 
         self._report()
         return not self.suite_failed
@@ -350,6 +351,61 @@ class KitChecker:
             return False
 
         self.results["No settings.json in scripts"] = True
+        return True
+
+    def _check_start_template_references(self) -> bool:
+        """Verify every agent/skill reference in start/SKILL.md fenced templates exists.
+
+        The start skill emits Workflow A/B templates that name specific agents and
+        slash commands. If those names drift (rename, removal), the template
+        silently lies. This check parses every fenced block in the file and
+        confirms each `/skill-name` and kebab-case `agent-name` reference resolves
+        to an actual kit artifact.
+        """
+        start_path = REPO_ROOT / "kit" / "skills" / "start" / "SKILL.md"
+        if not start_path.exists():
+            return True
+
+        valid_agents = {p.stem for p in (REPO_ROOT / "kit" / "agents").glob("*.md")}
+        valid_skills = {
+            p.parent.name for p in (REPO_ROOT / "kit" / "skills").glob("*/SKILL.md")
+        }
+
+        slash_pat = re.compile(r"`/([a-z][a-z0-9-]*)`")
+        agent_pat = re.compile(r"`([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`")
+
+        failures: list[str] = []
+        in_fence = False
+        for lineno, line in enumerate(
+            start_path.read_text(encoding="utf-8").splitlines(), 1
+        ):
+            if line.lstrip().startswith("```"):
+                in_fence = not in_fence
+                continue
+            if not in_fence:
+                continue
+            for m in slash_pat.finditer(line):
+                name = m.group(1)
+                if name not in valid_skills:
+                    failures.append(
+                        f"kit/skills/start/SKILL.md:{lineno}: '/{name}' not found in kit/skills/"
+                    )
+            for m in agent_pat.finditer(line):
+                name = m.group(1)
+                if name not in valid_agents and name not in valid_skills:
+                    failures.append(
+                        f"kit/skills/start/SKILL.md:{lineno}: '`{name}`' not found in kit/agents/ or kit/skills/"
+                    )
+
+        if failures:
+            print("  Start template references...")
+            for f in failures:
+                print(f"    ✗ {f}")
+            self.suite_failed = True
+            self.results["Start template references"] = False
+            return False
+
+        self.results["Start template references"] = True
         return True
 
     def _collect_bash_files(self) -> list[str]:
