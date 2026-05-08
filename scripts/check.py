@@ -112,6 +112,7 @@ class KitChecker:
         self._check_output_format_end_markers()
         self._check_no_settings_json_in_scripts()
         self._check_start_template_references()
+        self._check_skill_conventions()
 
         self._report()
         return not self.suite_failed
@@ -351,6 +352,53 @@ class KitChecker:
             return False
 
         self.results["No settings.json in scripts"] = True
+        return True
+
+    def _check_skill_conventions(self) -> bool:
+        """Verify every kit/skills/*/SKILL.md has the required convention sections.
+
+        Required sections: `## When to use` and `## Output format`. These document
+        the trigger and the produced output, and are load-bearing for downstream
+        routing and consumption.
+
+        Skills in `GRANDFATHER` are exempted as a known TODO — the kit
+        standardised on the skill-section triplet during the v4.2 cycle, and
+        these older skills predate it. Do NOT add new entries to the
+        grandfather list — fix the skill instead. The list should shrink to
+        empty over time as skills are brought up to convention.
+        """
+        GRANDFATHER = {
+            "adr-writer",
+            "create-pr",
+            "dep-audit",
+            "setup-e2e",
+            "smart-commit",
+            "techdebt",
+            "visual-proof",
+        }
+        REQUIRED_SECTIONS = ["## When to use", "## Output format"]
+
+        failures: list[str] = []
+        for skill_path in sorted((REPO_ROOT / "kit" / "skills").glob("*/SKILL.md")):
+            skill_name = skill_path.parent.name
+            if skill_name in GRANDFATHER:
+                continue
+            content = skill_path.read_text(encoding="utf-8")
+            rel = str(skill_path.relative_to(REPO_ROOT))
+            for section in REQUIRED_SECTIONS:
+                pattern = rf"^{re.escape(section)}\s*$"
+                if not re.search(pattern, content, re.MULTILINE):
+                    failures.append(f"{rel}: missing '{section}' section")
+
+        if failures:
+            print("  Skill conventions...")
+            for f in failures:
+                print(f"    ✗ {f}")
+            self.suite_failed = True
+            self.results["Skill conventions"] = False
+            return False
+
+        self.results["Skill conventions"] = True
         return True
 
     def _check_start_template_references(self) -> bool:
