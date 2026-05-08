@@ -114,6 +114,8 @@ class KitChecker:
         self._check_start_template_references()
         self._check_skill_conventions()
 
+        self._print_artifact_metrics()
+
         self._report()
         return not self.suite_failed
 
@@ -353,6 +355,79 @@ class KitChecker:
 
         self.results["No settings.json in scripts"] = True
         return True
+
+    def _print_artifact_metrics(self) -> None:
+        """Surface size/density metrics for agents and skills (informational only).
+
+        Bloat in agent/skill files costs model context, dilutes attention on
+        long instructions, and lets quiet inconsistencies accumulate. Lists
+        artifacts that exceed soft thresholds on three mechanical signals:
+        file length, longest section, Critical Rules entry count. Does not
+        fail the suite; `ai-reviewer` interprets whether a flagged artifact
+        is genuinely bloated or appropriately complex.
+        """
+        LINE_THRESHOLD = 300
+        SECTION_THRESHOLD = 60
+        RULES_THRESHOLD = 12
+
+        targets: list[Path] = []
+        targets.extend(sorted((REPO_ROOT / "kit" / "agents").glob("*.md")))
+        targets.extend(sorted((REPO_ROOT / "kit" / "skills").glob("*/SKILL.md")))
+
+        rules_item_pat = re.compile(r"^\d+\.\s")
+        flagged: list[str] = []
+
+        for path in targets:
+            rel = str(path.relative_to(REPO_ROOT))
+            lines = path.read_text(encoding="utf-8").splitlines()
+            line_count = len(lines)
+
+            sections: list[tuple[str, int]] = []
+            rules_count = 0
+            in_fence = False
+            in_rules = False
+            for i, line in enumerate(lines):
+                if line.lstrip().startswith("```"):
+                    in_fence = not in_fence
+                    continue
+                if in_fence:
+                    continue
+                if line.startswith("## "):
+                    heading = line[3:].strip()
+                    sections.append((heading, i))
+                    in_rules = heading == "Critical Rules"
+                    continue
+                if in_rules and rules_item_pat.match(line):
+                    rules_count += 1
+
+            longest_len = 0
+            longest_heading = ""
+            for idx, (heading, start) in enumerate(sections):
+                end = sections[idx + 1][1] if idx + 1 < len(sections) else len(lines)
+                length = end - start
+                if length > longest_len:
+                    longest_len = length
+                    longest_heading = heading
+
+            flags: list[str] = []
+            if line_count >= LINE_THRESHOLD:
+                flags.append(f"{line_count} lines")
+            if longest_len >= SECTION_THRESHOLD:
+                flags.append(
+                    f"longest section '{longest_heading}' is {longest_len} lines"
+                )
+            if rules_count >= RULES_THRESHOLD:
+                flags.append(f"{rules_count} critical rules")
+
+            if flags:
+                flagged.append(f"  {rel}: {'; '.join(flags)}")
+
+        if flagged:
+            print(
+                f"\n{YELLOW}ℹ Density signals (ai-reviewer territory; not blocking):{NC}"
+            )
+            for entry in flagged:
+                print(f"{YELLOW}{entry}{NC}")
 
     def _check_skill_conventions(self) -> bool:
         """Verify every kit/skills/*/SKILL.md has the required convention sections.

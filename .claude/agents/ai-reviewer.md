@@ -133,7 +133,11 @@ The output of an agent or skill is consumed by another AI (the main agent, a dow
 - 🔴 Tool grant violates minimality (e.g. read-only reviewer with `Edit` or `Write`) — v2.1.98+ classifiers actively flag this; security risk plus invocation drag
 - 🟡 Artifact authored as the wrong shape — apply the [Anthropic decision rule](https://claude.com/blog/skills-explained): _"If the work is small and stays in front of you, that is a skill. If the work is big and runs in a side process, that is a subagent."_ A multi-step quality gate that other agents call ⇒ subagent. A user-invoked formatter or workflow primer ⇒ skill
 - 🟡 Agent or skill duplicates work the harness already does (instructs the main agent to do something Claude Code's built-in tooling handles automatically — permission checks, session management, context compaction)
-- 🟡 Skill instructs the model to perform deterministic data collection inline when a script could do it once and emit structured output (skill should be judgment-only; deterministic collection belongs in `scripts/`)
+- 🟡 **Mechanical file collection** — step describes "walk all files in X, for each one extract Y" — script candidate; the model does it slowly and inconsistently, a script does it once and the skill consumes structured output (kit example: `scripts/whats-next.py`)
+- 🟡 **Regex extraction or aggregation across files** — step describes "search for pattern Z, tally by category, build a table" — script candidate (kit example: `_check_start_template_references` in `scripts/check.py`)
+- 🟡 **Deterministic counting, summarization, or transformation** — step describes "count rules per spec, find longest section, parse table X, emit JSON" — script candidate (kit example: `_print_artifact_metrics` in `scripts/check.py`)
+- 🟡 **Format compliance check producing yes/no** — step describes "does file X have section Y? does field Z match pattern W?" — script candidate (kit example: `_check_skill_conventions` in `scripts/check.py`)
+- 🟡 Bridging the deterministic/judgment split — when flagging the above, name the inputs the script needs and the structured output shape the skill should consume; "extract this to a script" without a contract is half a finding
 - 🟡 Bash blocks in skills use compound operators (`&&`, `||`, `;`), shell loops, or non-trivial pipelines — these trigger permission prompts on every invocation and break the no-friction intent. Split into separate Bash calls or replace with `Glob` / `Read` / `Grep`
 - 🔵 No "Notes" section explaining _why_ the artifact is shaped this way — modern design favours an author-side note for future maintainers
 
@@ -144,6 +148,16 @@ Applies only when the agent dispatches subagents, reads untrusted external input
 - 🔴 Untrusted input (third-party files, user-submitted data, external API responses) flows through workers that hold write or MCP tool access — security risk; reader workers handling outsider content should have no write tools
 - 🟡 Multi-agent orchestrator does not document which subagent role can write vs which is read-only — without this, the trust layout is opaque to maintainers and reviewers
 - 🔵 No "Guardrails" / "Trust boundaries" section when the agent has any of: subagent dispatch, untrusted external reads, asymmetric tool grants across workers. Anthropic's [gl-reconciler](https://github.com/anthropics/financial-services/blob/main/plugins/agent-plugins/gl-reconciler/agents/gl-reconciler.md) is the reference shape: `"The orchestrator never writes. Only the resolver subagent holds Write, and it never sees raw outsider content."`
+
+#### J — Density and size
+
+The file is consumed primarily by the LLM running the artifact, but humans must also audit it (security, debugging, onboarding). Bloat costs both: model attention dilutes on long instructions and quiet inconsistencies accumulate (the kit hit this — a Critical Rule containing a self-contradiction lived undetected because no one re-read the whole rules block). `scripts/check.py` surfaces mechanical signals (line count, longest section, Critical Rules count) on every commit; this category is where you interpret whether a flagged artifact is genuinely bloated or appropriately complex.
+
+- 🟡 File ≥ 300 lines without a clear reason — investigate whether the artifact is doing more than one thing; an embedded reference template may justify the size, accreted process probably doesn't justify it
+- 🟡 Single section (under one `##` heading) ≥ 60 lines and not dominated by a code block — almost certainly bundling concerns; suggest splitting
+- 🟡 "Critical Rules" block ≥ 12 entries — past 12, scannability collapses; trim, group under sub-headings, or accept that some entries are notes not rules
+- 🔵 Same load-bearing idea expressed in 3+ places (description + lead paragraph + Critical Rule + step body) — pick a canonical location and reference from the others; this is where inconsistencies creep in across edits
+- 🔵 File reads as accreted rather than authored — fractional step numbers (`Step 2.5`), patches in different voices, sections that don't link back to the lead — sign the file needs a refactor pass, not just edits
 
 ### Step 3 — Output
 
@@ -187,6 +201,9 @@ Group findings by category, then by severity. Lead with a one-line headline verd
 
 ### I — Trust Boundaries
 ✅ Not applicable.
+
+### J — Density & Size
+✅ None.
 ```
 
 If a section has no issues, write `✅ None.`
