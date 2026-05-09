@@ -11,6 +11,7 @@ CHECK_SCRIPT="$PROJECT_ROOT/scripts/check.py"
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
+BLUE='\033[0;34m'
 NC='\033[0m'
 
 # Block direct commits to main
@@ -22,7 +23,7 @@ if [ "$CURRENT_BRANCH" = "main" ]; then
     exit 1
 fi
 
-echo -e "${YELLOW}🔍 Pre-commit checks running (Fast Mode)...${NC}"
+echo -e "${BLUE}🔍 Pre-commit checks running (Fast Mode)...${NC}"
 
 if [ ! -f "$CHECK_SCRIPT" ]; then
     echo -e "${YELLOW}⚠  $CHECK_SCRIPT not found. Skipping full validation.${NC}"
