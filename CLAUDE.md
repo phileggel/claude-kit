@@ -93,6 +93,8 @@ kit/                        ← everything synced downstream
     branch-files.sh         → scripts/
     changed-files.sh        → scripts/
     report-path.sh          → scripts/
+    validate-sync.sh        → scripts/
+    whats-next.py           → scripts/
     check.py                → scripts/check.py
     release.py              → scripts/release.py
 scripts/                    ← kit-only tooling (not synced)

@@ -25,19 +25,31 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+MANIFEST="$PROJECT_ROOT/.claude/kit-manifest.txt"
+
+# Manifest of every file the sync writes — consumed by `bash scripts/validate-sync.sh`
+# (invoked by the /kit-discover skill).
+# Paths are relative to PROJECT_ROOT, one per line, sorted at end.
+mkdir -p "$PROJECT_ROOT/.claude"
+: >"$MANIFEST"
+
+_record() { printf '%s\n' "$1" >>"$MANIFEST"; }
 
 # ── Kit index & readme ────────────────────────────────────────────────────────
 echo -e "${BLUE}📁 Syncing kit index and readme...${NC}"
-mkdir -p "$PROJECT_ROOT/.claude"
 cp "$TMP/kit/kit-tools.md" "$PROJECT_ROOT/.claude/"
+_record ".claude/kit-tools.md"
 cp "$TMP/kit/kit-readme.md" "$PROJECT_ROOT/.claude/"
+_record ".claude/kit-readme.md"
 
 # ── Agents ────────────────────────────────────────────────────────────────────
 echo -e "${BLUE}📁 Syncing agents...${NC}"
 mkdir -p "$PROJECT_ROOT/.claude/agents"
 for agent in "$TMP/kit/agents/"*.md; do
     [ -f "$agent" ] || continue
+    name=$(basename "$agent")
     cp "$agent" "$PROJECT_ROOT/.claude/agents/"
+    _record ".claude/agents/$name"
 done
 
 # ── Skills ────────────────────────────────────────────────────────────────────
@@ -48,16 +60,16 @@ for skill_dir in "$TMP/kit/skills/"/*/; do
     skill_name=$(basename "$skill_dir")
     mkdir -p "$PROJECT_ROOT/.claude/skills/$skill_name"
     cp "$skill_dir/SKILL.md" "$PROJECT_ROOT/.claude/skills/$skill_name/"
+    _record ".claude/skills/$skill_name/SKILL.md"
 done
 
 # ── Git hooks ─────────────────────────────────────────────────────────────────
 echo -e "${BLUE}📁 Syncing .githooks...${NC}"
 mkdir -p "$PROJECT_ROOT/.githooks"
-cp "$TMP/kit/githooks/commit-msg" "$PROJECT_ROOT/.githooks/"
-cp "$TMP/kit/githooks/pre-commit" "$PROJECT_ROOT/.githooks/"
-cp "$TMP/kit/githooks/pre-merge-commit" "$PROJECT_ROOT/.githooks/"
-cp "$TMP/kit/githooks/pre-push" "$PROJECT_ROOT/.githooks/"
-cp "$TMP/kit/githooks/README.md" "$PROJECT_ROOT/.githooks/"
+for hook in commit-msg pre-commit pre-merge-commit pre-push README.md; do
+    cp "$TMP/kit/githooks/$hook" "$PROJECT_ROOT/.githooks/"
+    _record ".githooks/$hook"
+done
 
 # ── common.just (per-recipe override detection) ──────────────────────────────
 echo -e "${BLUE}📁 Syncing common justfile...${NC}"
@@ -73,6 +85,7 @@ for _f in "$PROJECT_ROOT"/*.just "$PROJECT_ROOT"/justfile; do
 done
 _local_recipes=$(printf '%s' "$_local_recipes" | sort -u | sed '/^$/d')
 
+_record "common.just"
 if [ -z "$_local_recipes" ]; then
     cp "$TMP/kit/common.just" "$PROJECT_ROOT/common.just"
 else
@@ -111,10 +124,13 @@ for f in "$TMP/kit/scripts/"*.sh; do
     [ "$base" = "sync.sh" ] && continue
     cp "$f" "$PROJECT_ROOT/scripts/$base"
     chmod +x "$PROJECT_ROOT/scripts/$base"
+    _record "scripts/$base"
 done
 for f in "$TMP/kit/scripts/"*.py; do
     [ -f "$f" ] || continue
+    base="$(basename "$f")"
     cp "$f" "$PROJECT_ROOT/scripts/"
+    _record "scripts/$base"
 done
 
 # Hint about the previous quirk where sync.sh was copied to downstream
@@ -216,6 +232,10 @@ claude-kit **${VERSION}** — synced ${TODAY}
 
 ${DELTA_BODY}
 EOF
+_record ".claude/kit-version.md"
+
+# Sort manifest for deterministic diffs
+sort -u -o "$MANIFEST" "$MANIFEST"
 
 # Remove legacy version file — superseded by .claude/kit-version.md
 rm -f "$PROJECT_ROOT/.claude-kit-version"

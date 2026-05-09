@@ -55,16 +55,17 @@ Parse `.claude/kit-tools.md`. Extract from its tables:
 
 Hold the result as a flat catalog of identifiers (names + commands) tagged by category.
 
-### Step 3 — Inventory what the project actually contains
+### Step 3 — Verify the sync is complete
 
-Verify the catalog against the filesystem — `kit-tools.md` describes what _should_ be present, but a partial sync may leave gaps:
+Run the post-sync validator — it reads `.claude/kit-manifest.txt` (written by `sync.sh` on every sync) and reports any kit-owned file that did not land:
 
 ```bash
-ls .claude/agents/ 2>/dev/null
-ls .claude/skills/ 2>/dev/null
-ls scripts/ 2>/dev/null
-ls .githooks/ 2>/dev/null
+bash scripts/validate-sync.sh
 ```
+
+Capture the output. Any `✗` lines become `Sync gaps` findings in Step 5 — the kit-tools.md catalog is irrelevant for these because the manifest is the authoritative record of what `sync.sh` copied.
+
+If the script exits 2 (manifest missing), the project's last sync predates the manifest feature; reply: ``Run `just sync-kit` to refresh the manifest, then re-run /kit-discover.`` and stop.
 
 For justfile recipes, list recipe names from the local justfiles:
 
@@ -77,8 +78,6 @@ If the above returns no output (i.e. `just` is not installed or no justfile is p
 ```bash
 grep -hE '^[a-zA-Z_][a-zA-Z0-9_-]*:' justfile common.just *.just 2>/dev/null
 ```
-
-Flag any catalog item not actually present on disk as `missing — kit-tools.md lists it but it isn't synced`. This is a sync problem, not a CLAUDE.md problem — surface it separately and continue.
 
 ### Step 4 — Cross-reference against CLAUDE.md
 
@@ -107,8 +106,8 @@ If no findings → reply with the empty-patch confirmation under `## Output form
 Kit version: <from .claude/kit-version.md>
 Scanned: .claude/kit-tools.md, CLAUDE.md, scripts/, .githooks/, justfiles
 
-### Sync gaps (catalog item missing on disk)
-- <item> — listed in kit-tools.md but not present at <expected path>
+### Sync gaps (manifest entry missing on disk)
+- <path> — recorded in .claude/kit-manifest.txt but not present in the project
 (omit section if none — these are sync issues, not CLAUDE.md issues)
 
 ### Drift — CLAUDE.md describes outdated workflow
