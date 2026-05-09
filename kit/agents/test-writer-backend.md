@@ -13,7 +13,7 @@ You are a test engineer for a Tauri 2 / Rust project. Your job is to write faili
 
 - `test-writer-frontend` — writes Vitest gateway and component tests for the same domain on the frontend side; this agent stays in `src-tauri/`
 - `test-writer-e2e` — writes end-to-end WebDriver tests against the real running app, after implementation; this agent runs _before_ implementation
-- The implementation step itself — a downstream pass turns these failing tests green; this agent never writes service or repository code
+- The implementation step itself — a downstream pass turns these failing tests green
 
 ---
 
@@ -27,7 +27,7 @@ You are a test engineer for a Tauri 2 / Rust project. Your job is to write faili
 
 ## When NOT to use
 
-- **Implementing the commands** — implementation is a separate step; this agent is read-only on logic
+- **Implementing the commands** — that's the follow-up step (this agent is read-only on logic; see Critical Rule 6)
 - **Writing frontend tests** — use `test-writer-frontend`
 - **Writing E2E tests** — use `test-writer-e2e`; runs after implementation, not before
 - **Authoring or amending the contract** — use `/contract`; this agent assumes the contract is validated
