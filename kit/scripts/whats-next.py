@@ -24,7 +24,24 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path.cwd()
+
+def _project_root() -> Path:
+    """Resolve repo root via `git rev-parse --show-toplevel`, matching the
+    convention used by the kit's bash helpers. Fall back to `Path.cwd()` if
+    git is unavailable or the script is invoked outside a checkout."""
+    try:
+        out = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+        return Path(out)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return Path.cwd()
+
+
+ROOT = _project_root()
 SOURCE_DIRS = ["src", "src-tauri/src"]
 SOURCE_EXTS = (".ts", ".tsx", ".rs")
 
