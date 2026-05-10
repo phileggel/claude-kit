@@ -70,6 +70,20 @@ feature/
 
 **F16** — MUST use i18n translation (`useTranslation`) for all user-visible text. No hardcoded strings.
 
+**F24** — Accessibility labels MUST flow through i18n. Hard-coded a11y strings are silent translation holes — they pass visual review and TypeScript checks, but ship untranslated to non-default-locale users. The rule covers any string passed to: `aria-label`, `aria-labelledby`, `aria-describedby`, `title`, and `placeholder` props.
+
+```tsx
+// ✅ correct
+<button aria-label={t("account.delete")} onClick={onDelete} />
+<input placeholder={t("search.placeholder")} />
+
+// ❌ wrong — literal strings won't translate
+<button aria-label="Delete account" onClick={onDelete} />
+<input placeholder="Search..." />
+```
+
+The reviewer-frontend lane flags any literal string passed to those props.
+
 ## Error Handling
 
 **F17** — SHOULD handle errors appropriately:
