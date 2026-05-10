@@ -16,14 +16,20 @@ set -euo pipefail
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 MANIFEST="$PROJECT_ROOT/.claude/kit-manifest.txt"
 
-YELLOW='\033[1;33m'
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-NC='\033[0m'
+# Colors (respect NO_COLOR=1)
+if [ -n "${NO_COLOR:-}" ]; then
+    YELLOW='' GREEN='' RED='' BLUE='' NC=''
+else
+    YELLOW='\033[1;33m'
+    GREEN='\033[0;32m'
+    RED='\033[0;31m'
+    BLUE='\033[0;34m'
+    NC='\033[0m'
+fi
 
 if [ ! -f "$MANIFEST" ]; then
     echo -e "${RED}❌ .claude/kit-manifest.txt not found${NC}" >&2
-    echo -e "${YELLOW}→ Run \`just sync-kit\` first.${NC}" >&2
+    echo -e "${BLUE}→ Run \`just sync-kit\` first.${NC}" >&2
     exit 2
 fi
 
@@ -46,5 +52,5 @@ echo -e "${RED}❌ Sync incomplete: ${#missing[@]} of ${total} manifest entries 
 for m in "${missing[@]}"; do
     echo -e "  ${RED}✗${NC} $m" >&2
 done
-echo -e "${YELLOW}→ Re-run \`just sync-kit\` (or \`just sync-kit -f\` to overwrite drifted docs).${NC}" >&2
+echo -e "${BLUE}→ Re-run \`just sync-kit\` (or \`just sync-kit -f\` to overwrite drifted docs).${NC}" >&2
 exit 1

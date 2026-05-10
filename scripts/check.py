@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Kit quality checker — validates Python, Bash, and Markdown files in this repo."""
 
+import os
 import re
 import shutil
 import subprocess
@@ -8,11 +9,14 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-BLUE = "\033[0;34m"
-GREEN = "\033[0;32m"
-RED = "\033[0;31m"
-YELLOW = "\033[1;33m"
-NC = "\033[0m"
+if os.environ.get("NO_COLOR"):
+    BLUE = GREEN = RED = YELLOW = NC = ""
+else:
+    BLUE = "\033[0;34m"
+    GREEN = "\033[0;32m"
+    RED = "\033[0;31m"
+    YELLOW = "\033[1;33m"
+    NC = "\033[0m"
 
 REPO_ROOT = Path(__file__).parent.parent
 
@@ -74,13 +78,13 @@ class KitChecker:
         if bash_files:
             self._step("shfmt", ["shfmt", "-d", "-i", "4"] + bash_files)
         else:
-            self._vprint(f"{YELLOW}⚠ shfmt: no Bash files found, skipping.{NC}")
+            self._vprint(f"{BLUE}ℹ shfmt: no Bash files found, skipping.{NC}")
 
         if self._tool_exists("shellcheck"):
             if bash_files:
                 self._step("shellcheck", ["shellcheck"] + bash_files)
         else:
-            self._vprint(f"{YELLOW}ℹ shellcheck not installed, skipping.{NC}")
+            self._vprint(f"{BLUE}ℹ shellcheck not installed, skipping.{NC}")
 
         if not self.fast_mode:
             if self._tool_exists("npx"):
@@ -103,7 +107,7 @@ class KitChecker:
                 self.results["Prettier (markdown)"] = False
                 self.suite_failed = True
             else:
-                self._vprint(f"{YELLOW}ℹ npx not installed, skipping Prettier.{NC}")
+                self._vprint(f"{BLUE}ℹ npx not installed, skipping Prettier.{NC}")
 
         self._check_agent_inventory()
         self._check_tool_minimality()
@@ -524,10 +528,10 @@ class KitChecker:
 
         if flagged:
             print(
-                f"\n{YELLOW}ℹ Density signals (ai-reviewer territory; not blocking):{NC}"
+                f"\n{BLUE}ℹ Density signals (ai-reviewer territory; not blocking):{NC}"
             )
             for entry in flagged:
-                print(f"{YELLOW}{entry}{NC}")
+                print(f"{BLUE}{entry}{NC}")
 
     def _check_skill_conventions(self) -> bool:
         """Verify every kit/skills/*/SKILL.md has the required convention sections.

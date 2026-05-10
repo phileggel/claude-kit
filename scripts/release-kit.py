@@ -6,17 +6,21 @@ Release script for claude-kit.
 - Commits and pushes to origin
 """
 
+import os
 import subprocess
 import re
 from datetime import datetime
 from pathlib import Path
 
-# ANSI colors
-GREEN = "\033[0;32m"
-YELLOW = "\033[1;33m"
-RED = "\033[0;31m"
-BLUE = "\033[0;34m"
-NC = "\033[0m"
+# ANSI colors (respect NO_COLOR=1)
+if os.environ.get("NO_COLOR"):
+    GREEN = YELLOW = RED = BLUE = NC = ""
+else:
+    GREEN = "\033[0;32m"
+    YELLOW = "\033[1;33m"
+    RED = "\033[0;31m"
+    BLUE = "\033[0;34m"
+    NC = "\033[0m"
 
 
 class ReleaseManager:
@@ -198,7 +202,7 @@ class ReleaseManager:
 
         print(f"{BLUE}Current: {self.current_version} | Suggested: {new_version}{NC}")
         if not yes:
-            confirm = input(f"{YELLOW}Release {new_version}? (y/n): {NC}")
+            confirm = input(f"{BLUE}Release {new_version}? (y/n): {NC}")
             if confirm.lower() != "y":
                 print("Release aborted.")
                 return

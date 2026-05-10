@@ -14,9 +14,14 @@ set -euo pipefail
 #   ./scripts/sync-config.sh -f         # overwrite drifted docs without prompting
 
 REPO="https://github.com/phileggel/claude-kit"
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+# Colors (respect NO_COLOR=1)
+if [ -n "${NO_COLOR:-}" ]; then
+    BLUE='' YELLOW='' NC=''
+else
+    BLUE='\033[0;34m'
+    YELLOW='\033[1;33m'
+    NC='\033[0m'
+fi
 
 # Capture original args before parsing so we can re-exec with them after self-update
 ORIG_ARGS=("$@")
