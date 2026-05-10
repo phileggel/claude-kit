@@ -165,6 +165,23 @@ Infrastructure types (`sqlx::Pool`, concrete repos) must never appear in Applica
 
 Test for classification: _would a domain expert recognize this concept?_ If yes → domain. If it's about running the use case → application. If it's plumbing → infrastructure.
 
+### Rejection-layer rule
+
+The classification test above can be ambiguous for variants like `NotFound` or uniqueness checks — they're raised by the service before any aggregate is loaded, so the "would a domain expert recognize this?" question is easy to answer either way. The rejection-layer rule resolves it:
+
+> An error is a **domain** error if and only if it is raised by an aggregate method (or value-object constructor) enforcing an invariant on its own loaded state or input.
+>
+> Anything raised by the service or use-case layer — `NotFound`, uniqueness checks, cross-BC preconditions, infrastructure failures — is **application** (or **infrastructure** for opaque catch-alls).
+
+Concretely:
+
+- **Aggregate-method rejection** → domain. `Asset::ensure_user_managed(&self) -> Result<(), AssetDomainError>` is enforcing an invariant on loaded state. Domain.
+- **Service-level pre-check** → application. `if repo.find(id).is_none() { return Err(AssetNotFound) }` runs before any aggregate is loaded. Application.
+- **Use-case orchestrator rejection** (cross-BC preconditions) → application. The orchestrator coordinates BCs; it doesn't own any single aggregate's invariants.
+- **Translated infrastructure failure** → application (e.g. `RepoError::NotFound` → `AssetNotFound`) or opaque `Infrastructure(hint)` catch-all.
+
+The rule has a useful side-effect: if a service-level pre-check could be moved into the aggregate, the rejection-layer rule says it _should_ be — see the anemic-domain rule in `backend-rules.md`.
+
 ### Scoping rule
 
 Domain errors should be scoped per aggregate or operation (`OrderError`, `PaymentError`), not collected into a single mega-enum for the whole bounded context. This keeps the language tight and the variants meaningful.
