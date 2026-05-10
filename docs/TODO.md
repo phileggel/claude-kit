@@ -2,8 +2,6 @@
 
 ## v4.4 candidates
 
-- **`frontend-rules.md`: a11y labels must be translateable.** Add a rule requiring `aria-label`, `aria-labelledby`, `aria-describedby`, `title`, and `placeholder` strings to flow through the i18n layer (e.g. `t("…")`), not be hard-coded. Hard-coded a11y strings are silent i18n holes — they pass visual review and TypeScript checks, but ship untranslated to non-default-locale users. Reviewer rule should flag any literal string passed to those props. Cross-link to `reviewer-frontend` so the audit lane catches it on PRs.
-
 - **`frontend-rules.md`: components must define stable `id` attributes.** Add a rule requiring components (or at least their primary interactive elements — buttons, inputs, dialogs, list items) to render a stable `id` prop. Two motivations: (a) RTL/screen-reader navigation benefits from stable anchors and `aria-labelledby` references, (b) E2E tests (WebdriverIO / Playwright) become brittle when keyed off class names or text content — stable ids make selectors deterministic across refactors. Open design call: id-naming convention (e.g. `{feature}-{component}-{role}` like `account-list-item-edit`?), and whether to mandate at the leaf-component level or only at page/dialog roots. Likely pairs with a `reviewer-frontend` lane addition.
 
 - **Rust DDD project-structure layout + Shared Kernel guidance (issues #18 + #19).** Bundle — #19's text references `shared/domain/` so the layout decision must land first.
