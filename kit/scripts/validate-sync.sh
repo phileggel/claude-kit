@@ -20,7 +20,7 @@ MANIFEST="$PROJECT_ROOT/.claude/kit-manifest.txt"
 if [ -n "${NO_COLOR:-}" ]; then
     YELLOW='' GREEN='' RED='' BLUE='' NC=''
 else
-    YELLOW='\033[1;33m'
+    YELLOW='\033[0;33m'
     GREEN='\033[0;32m'
     RED='\033[0;31m'
     BLUE='\033[0;34m'

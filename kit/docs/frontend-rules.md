@@ -1,7 +1,8 @@
 # Frontend Rules
 
 ⚠️ **AI AGENT MUST NEVER UPDATE THIS DOCUMENT**
-**Rules numbering are indicative and not stable from version to version**
+
+> Rule numbers (F1, F2, …) are stable IDs — once assigned, they never change. New rules are appended; deprecated rules keep their number with a note.
 
 ## Feature Structure
 

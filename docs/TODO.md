@@ -1,7 +1,5 @@
 # List of TODOs
 
-## v4.4 candidates
-
 ## v4.5 candidates
 
 - **`mirror-local.sh`: also mirror `*.py` from `kit/scripts/`.** Currently only `*.sh` is mirrored, so `kit/scripts/whats-next.py` (and `release.py`) are not available at `scripts/whats-next.py` during kit development — `/whats-next` and similar skills fail in this repo even though they work downstream. Fix by extending the loop in `scripts/mirror-local.sh:43-51` to also copy `*.py`, but **explicitly exclude `check.py` and `release.py`** because kit-internal versions of those already exist in `scripts/` and must not be clobbered. Safest approach: explicit allowlist (`whats-next.py` for now), not a glob.

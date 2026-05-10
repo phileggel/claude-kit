@@ -19,7 +19,7 @@ if [ -n "${NO_COLOR:-}" ]; then
     BLUE='' YELLOW='' NC=''
 else
     BLUE='\033[0;34m'
-    YELLOW='\033[1;33m'
+    YELLOW='\033[0;33m'
     NC='\033[0m'
 fi
 

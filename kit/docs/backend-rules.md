@@ -3,56 +3,16 @@
 > For DDD concept definitions, see [docs/ddd-reference.md](ddd-reference.md).
 
 **AI AGENT SHOULD NEVER UPDATE THIS DOCUMENT**
-**Rules numbering are indicative and not stable from version to version**
+
+> Rule numbers (B0, B1, …) are stable IDs — once assigned, they never change. New rules are appended; deprecated rules keep their number with a note.
 
 ## Folder Structure
 
-**B0** — The backend source tree MUST follow this layout:
+**B0** — The backend source tree MUST follow this layout. Three layer-named folders (`application/`, `domain/`, `infrastructure/`) appear symmetrically inside `shared/` and every `context/{bc}/` — the DDD canonical trio is visible everywhere DDD layering applies.
 
 ```
 src-tauri/src/
-├── core/             # Shared infrastructure (db, logger, event_bus, specta)
-│   ├── db.rs
-│   ├── logger.rs
-│   ├── specta_types.rs
-│   ├── specta_builder.rs
-│   ├── uow.rs            # TransactionManager trait + SqlxTransactionManager
-│   └── event_bus/
-│       ├── bus.rs
-│       ├── event.rs
-│       └── mod.rs
-├── context/          # DDD bounded contexts — no cross-context imports
-│   └── {domain}/
-│       ├── {aggregate}/  # One sub-folder per aggregate root in the BC
-│       │   ├── domain.rs     # Entity, value objects, repository trait
-│       │   ├── repository.rs # SQLite implementation of the repository trait
-│       │   └── service.rs    # BC Application Service — optional (see B21)
-│       ├── api.rs        # Single Tauri adapter for the whole BC (thin — no business logic)
-│       └── mod.rs        # Public re-exports only — the only import surface for the BC
-├── use_cases/        # Cross-context orchestrators (if needed)
-│   └── {name}/
-│       ├── api.rs          # Tauri adapter — same framework boundary role as BC api.rs
-│       ├── mod.rs          # Public re-exports
-│       ├── orchestrator.rs # Main entry point — coordination logic only, no domain rules
-│       └── uow.rs          # AppUnitOfWork super-trait for this use case (if cross-aggregate)
-└── lib.rs            # App wiring: state construction + Tauri setup
-```
-
-**B1** — `core/` MUST only contain infrastructure utilities with no domain knowledge.
-
-**B2** — `context/{domain}/{aggregate}/repository.rs` MUST only contain the database implementation of the trait declared in the same aggregate's `domain.rs`. No business logic.
-
-**B3** — `core/specta_builder.rs` is the ONLY place where Tauri commands are registered.
-
-**B4** — A bounded context MAY contain multiple aggregate roots. Each aggregate MUST have its own sub-folder. Aggregates within the same BC reference each other by ID only — never by direct object reference.
-
-## Project Structure (Rust) — gold layout
-
-The B0 layout above is the legacy minimum. New BCs SHOULD follow the gold layout below — three layer-named folders (`application/`, `domain/`, `infrastructure/`) symmetric across `shared/` and every `context/{bc}/`. The DDD trio is visible everywhere DDD layering applies.
-
-```
-src-tauri/src/
-├── shared/                                 ← cross-cutting (was: core/)
+├── shared/                                 ← cross-cutting (was: core/ pre-v4.4)
 │   ├── application/                        ← shared application types
 │   │   └── error.rs                        ← shared InfrastructureError
 │   ├── domain/                             ← shared kernel (cross-BC domain — see ddd-reference.md § Shared Kernel)
@@ -73,7 +33,7 @@ src-tauri/src/
 │   │   ├── {aggregate_root}.rs
 │   │   ├── {entity_or_vo}.rs
 │   │   └── error.rs                        ← *DomainError, *OperationError
-│   └── infrastructure/                     ← Infrastructure layer (was: repository/)
+│   └── infrastructure/                     ← Infrastructure layer (was: repository/ pre-v4.4)
 │       └── {aggregate}.rs                  ← repo impls today; future external/cache adapters as siblings
 │
 └── use_cases/{flow}/                       ← cross-BC orchestrators
@@ -81,6 +41,14 @@ src-tauri/src/
     ├── orchestrator.rs
     └── error.rs                            ← *UseCaseError (if introduces own variants)
 ```
+
+**B1** — `shared/` MUST only contain cross-cutting code (infrastructure utilities, shared application types, shared kernel domain) with no BC-specific knowledge.
+
+**B2** — `context/{bc}/infrastructure/{aggregate}.rs` MUST only contain the database implementation of the repository trait declared in the same BC's `domain/{aggregate_root}.rs`. No business logic.
+
+**B3** — `shared/infrastructure/specta_builder.rs` is the ONLY place where Tauri commands are registered.
+
+**B4** — A bounded context MAY contain multiple aggregate roots. Each aggregate root lives as a file in `context/{bc}/domain/{aggregate_root}.rs`. Aggregates within the same BC reference each other by ID only — never by direct object reference.
 
 **B38** — Layer folders symmetric. The three layer-named folders (`application/`, `domain/`, `infrastructure/`) MUST appear everywhere DDD layering applies — both inside each BC and inside `shared/`. The DDD canonical trio is visible at every level.
 
