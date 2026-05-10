@@ -45,7 +45,7 @@ python3 scripts/whats-next.py
 
 The script emits a single JSON document covering nine sources: `todo_file`, `inline_todos`, `planning_docs`, `feature_plans`, `spec_open_questions`, `in_flight`, `roadmap`, `techdebt`, `gh_issues`. Sections whose source is absent are emitted as `null` or empty arrays — skip those silently.
 
-`gh_issues` is empty (`[]`) when `gh` is not on PATH or the repo has no GitHub remote — the kit stays portable to non-GitHub projects, so this source skips silently rather than failing. When populated, each entry has `number`, `title`, `url`, `updatedAt`.
+`gh_issues` is empty (`[]`) when `gh` is not on PATH or the repo has no GitHub remote — skip silently. When populated, each entry has `number`, `title`, `url`, `updatedAt`.
 
 Parse the JSON and translate every entry into a **candidate item** with `(type, source, text)` for scoring in Step 4. **Tech-debt entries are candidates too** — surface them in the same Pending items table, but always label the source as `docs/techdebt.md` (with the entry date) so the user can tell observations from explicit todos. **GitHub issues are also candidates** — label the source as `gh#NNN` (e.g. `gh#42`) so the user sees the issue number at a glance.
 
@@ -58,6 +58,7 @@ This step prevents stale TODOs from polluting the recommendation. For every cand
 - TODO mentions a file/script/skill name → `Glob` to check it exists
 - TODO mentions a feature keyword → `git log --oneline --grep "{keyword}"` to find shipping commits
 - Feature-plan task references a function/module → `Grep` for it
+- GitHub issue (`gh#NNN`) — open issues frequently have a fix shipped without the issue closing. Run `git log --oneline --grep "#NNN"` to find a closing or referencing commit; if found, mark the candidate as `⚠️ likely done` and surface as a cleanup candidate suggesting the issue be closed.
 
 Mark items as `🟢 pending`, `⚠️ likely done` (evidence of shipping), or `❓ unclear`. Items marked `⚠️ likely done` are reported as cleanup candidates, not work candidates.
 
@@ -115,6 +116,7 @@ If two items tie, prefer the one with explicit user signal (most recent edit, me
 
 ### Likely already done (cleanup candidates)
 - {item} — evidence: commit {sha} / file {path} exists
+- gh#42 — likely closed by commit abc123 (suggest closing the issue)
 
 ### In-flight git work
 - Uncommitted changes in: {N} files
@@ -169,6 +171,7 @@ Replace `{date}-{N}` with the values used in `REPORT_PATH`. Omit any section who
 4. **Tech debt and GitHub issues are work with provenance** — entries from `docs/techdebt.md` and open `gh_issues` are scored like any other candidate, but their source must be labelled (`docs/techdebt.md (DATE)` or `gh#NNN`) so the user can distinguish observations, explicit todos, and tracked issues. Don't hide them in separate buckets.
 5. **Save the report even when nothing is pending** — "no work" is itself a useful signal worth keeping for trend analysis.
 6. **Trust the script for collection, not for judgment** — `scripts/whats-next.py` only describes what's there. The skill decides what's worth doing.
+7. **Escape external content in tables** — GitHub issue titles are author-controlled and may contain pipe characters or backticks that break Markdown table rendering. When emitting a `gh#NNN` row in the Pending items table, replace `|` with `\|` and trim the title to the first 80 characters.
 
 ---
 
