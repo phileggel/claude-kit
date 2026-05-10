@@ -2,8 +2,6 @@
 
 ## v4.4 candidates
 
-- **`frontend-rules.md`: components must define stable `id` attributes.** Add a rule requiring components (or at least their primary interactive elements — buttons, inputs, dialogs, list items) to render a stable `id` prop. Two motivations: (a) RTL/screen-reader navigation benefits from stable anchors and `aria-labelledby` references, (b) E2E tests (WebdriverIO / Playwright) become brittle when keyed off class names or text content — stable ids make selectors deterministic across refactors. Open design call: id-naming convention (e.g. `{feature}-{component}-{role}` like `account-list-item-edit`?), and whether to mandate at the leaf-component level or only at page/dialog roots. Likely pairs with a `reviewer-frontend` lane addition.
-
 - **Rust DDD project-structure layout + Shared Kernel guidance (issues #18 + #19).** Bundle — #19's text references `shared/domain/` so the layout decision must land first.
   - **Design call required before implementation.** Issue #18 asks 5 explicit questions (top-level naming `shared/` vs `core/` vs `platform/`; `infrastructure/` vs `infra/`; mandate flat-first inside infra or leave to project; shared-kernel folder name; edge cases). Pick answers before writing the kit PR.
   - **#18 — new "Project structure (Rust)" section in `backend-rules.md`** with the gold layout (`shared/{application,domain,infrastructure}/` + `context/{bc}/{api.rs, application/, domain/, infrastructure/}` + `use_cases/{flow}/`) and 6 conventions: three layer-named folders symmetric across BCs and `shared/`; `api.rs` single file at boundary; `infrastructure/` not `repository/`; flat-first inside `infrastructure/`; `shared/` not `core/`; keep layer folders even when small.
