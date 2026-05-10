@@ -92,6 +92,15 @@ Never add a new direct field mutation to an aggregate from outside its own type.
 Existing direct mutations are tracked in `docs/ubiquitous-language.md` as code discrepancies
 and MUST be refactored incrementally.
 
+**B37** — Aggregates own their state-dependent invariants. Before adding a `if loaded.state == X { return Err(...) }` check inside an application service, ask: "could this be enforced inside the aggregate or value-object that owns the state?" If yes, move it.
+
+Service-layer state-dependent pre-checks are an "anemic domain" anti-pattern: the service ends up encoding rules about the aggregate's lifecycle, leaving the aggregate as a pure data carrier. Concrete forms that respect this rule:
+
+- **State-mutating actions:** `aggregate.action_from(self, ...) -> Result<Self, *DomainError>` consuming `self`, returning the new state for the caller to persist. The aggregate enforces its own invariants in the constructor of the result.
+- **Pre-conditions for non-constructive ops** (e.g. delete): `aggregate.ensure_<predicate>(&self) -> Result<(), *DomainError>`. The service calls it just before invoking the destructive action.
+
+Service-layer checks are appropriate ONLY for cross-aggregate invariants (uniqueness across the BC) or application-layer concerns (`NotFound`, cross-BC preconditions). See the rejection-layer rule in `ddd-reference.md` § Errors for the disambiguation.
+
 ## Bounded Context (`/context`)
 
 **B13** — MUST never import from another context.
