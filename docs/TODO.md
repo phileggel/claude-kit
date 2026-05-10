@@ -2,12 +2,6 @@
 
 ## v4.4 candidates
 
-- **Rust DDD project-structure layout + Shared Kernel guidance (issues #18 + #19).** Bundle — #19's text references `shared/domain/` so the layout decision must land first.
-  - **Design call required before implementation.** Issue #18 asks 5 explicit questions (top-level naming `shared/` vs `core/` vs `platform/`; `infrastructure/` vs `infra/`; mandate flat-first inside infra or leave to project; shared-kernel folder name; edge cases). Pick answers before writing the kit PR.
-  - **#18 — new "Project structure (Rust)" section in `backend-rules.md`** with the gold layout (`shared/{application,domain,infrastructure}/` + `context/{bc}/{api.rs, application/, domain/, infrastructure/}` + `use_cases/{flow}/`) and 6 conventions: three layer-named folders symmetric across BCs and `shared/`; `api.rs` single file at boundary; `infrastructure/` not `repository/`; flat-first inside `infrastructure/`; `shared/` not `core/`; keep layer folders even when small.
-  - **#19 — new "Shared Kernel" sub-section in `ddd-reference.md`** explaining what it is, what lives there, what doesn't, where in the layout (`shared/domain/` per #18), and the discipline (every change requires agreement from every consuming BC; keep small; default to use cases / domain events instead). Also softens the existing "BCs ... never through shared domain objects" line into a documented exception.
-  - **Cross-link** `ddd-reference.md` § Application Layer → `backend-rules.md` § Project Structure.
-
 ## v4.5 candidates
 
 - **`mirror-local.sh`: also mirror `*.py` from `kit/scripts/`.** Currently only `*.sh` is mirrored, so `kit/scripts/whats-next.py` (and `release.py`) are not available at `scripts/whats-next.py` during kit development — `/whats-next` and similar skills fail in this repo even though they work downstream. Fix by extending the loop in `scripts/mirror-local.sh:43-51` to also copy `*.py`, but **explicitly exclude `check.py` and `release.py`** because kit-internal versions of those already exist in `scripts/` and must not be clobbered. Safest approach: explicit allowlist (`whats-next.py` for now), not a glob.

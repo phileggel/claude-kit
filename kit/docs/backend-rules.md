@@ -46,6 +46,54 @@ src-tauri/src/
 
 **B4** — A bounded context MAY contain multiple aggregate roots. Each aggregate MUST have its own sub-folder. Aggregates within the same BC reference each other by ID only — never by direct object reference.
 
+## Project Structure (Rust) — gold layout
+
+The B0 layout above is the legacy minimum. New BCs SHOULD follow the gold layout below — three layer-named folders (`application/`, `domain/`, `infrastructure/`) symmetric across `shared/` and every `context/{bc}/`. The DDD trio is visible everywhere DDD layering applies.
+
+```
+src-tauri/src/
+├── shared/                                 ← cross-cutting (was: core/)
+│   ├── application/                        ← shared application types
+│   │   └── error.rs                        ← shared InfrastructureError
+│   ├── domain/                             ← shared kernel (cross-BC domain — see ddd-reference.md § Shared Kernel)
+│   │   └── *.rs                            ← cross-BC constants, IDs, value objects
+│   └── infrastructure/                     ← shared concrete infra
+│       ├── db.rs
+│       ├── event_bus/
+│       ├── logger.rs
+│       ├── specta_builder.rs
+│       └── uow.rs
+│
+├── context/{bc}/                           ← bounded contexts
+│   ├── api.rs                              ← boundary (Tauri commands, single-BC scope)
+│   ├── application/                        ← Application layer
+│   │   ├── error.rs                        ← *ApplicationError, *ServiceError composites
+│   │   └── service.rs                      ← *Service (orchestrates aggregate)
+│   ├── domain/                             ← Domain layer (pure, no infra deps)
+│   │   ├── {aggregate_root}.rs
+│   │   ├── {entity_or_vo}.rs
+│   │   └── error.rs                        ← *DomainError, *OperationError
+│   └── infrastructure/                     ← Infrastructure layer (was: repository/)
+│       └── {aggregate}.rs                  ← repo impls today; future external/cache adapters as siblings
+│
+└── use_cases/{flow}/                       ← cross-BC orchestrators
+    ├── api.rs                              ← cross-BC Tauri commands
+    ├── orchestrator.rs
+    └── error.rs                            ← *UseCaseError (if introduces own variants)
+```
+
+**B38** — Layer folders symmetric. The three layer-named folders (`application/`, `domain/`, `infrastructure/`) MUST appear everywhere DDD layering applies — both inside each BC and inside `shared/`. The DDD canonical trio is visible at every level.
+
+**B39** — `api.rs` MUST be a single file at the boundary (BC root, use-case root). Don't fold into a `presentation/` folder — the boundary surface (Tauri commands + DTOs + error mapping) is small enough that one file at the root is more discoverable than a folder.
+
+**B40** — Infrastructure folder MUST be named `infrastructure/`, not `repository/`. `repository/` overpromises — it names one _type_ of infrastructure (repo impls) and forces awkward sibling folders the day a BC adds an external API client, cache adapter, or message-queue subscriber. `infrastructure/` is the layer name and accommodates all of those as flat siblings.
+
+**B41** — Flat-first inside `infrastructure/`. Until a BC's infrastructure has 5+ files of distinct concerns, all files MUST sit flat at the root of `infrastructure/` (e.g. `infrastructure/{aggregate}.rs` for repo impls, `infrastructure/openfigi_client.rs` for an external client). Don't pre-create a `repository/` sub-folder for one repo impl. Nest only when the count grows.
+
+**B42** — Top-level cross-cutting folder MUST be named `shared/`, not `core/`. `core/` overpromises (it implies "central business logic" but BCs ARE the business). `shared/` is direct, accurate, and DDD-agnostic for newcomers.
+
+**B43** — Keep layer folders even when small. `shared/application/` may have only one file today (the shared `InfrastructureError`); keep the folder anyway. It documents the layering and reserves the spot for growth — the alternative is a deceptively flat `shared/` that hides the layer structure.
+
 ## Ubiquitous Language
 
 **B5** — Domain vocabulary (entity names, aggregate method names, event names, domain concepts)
