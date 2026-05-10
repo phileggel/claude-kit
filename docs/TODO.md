@@ -2,20 +2,6 @@
 
 ## v4.4 candidates
 
-- **Theme-neutral colors sweep.** Replace YELLOW-for-info with BLUE across kit scripts and hooks; reserve YELLOW for actual warnings. Bright YELLOW (`\033[1;33m`) is unreadable on light terminals. v4.3 fixed only one line (`kit/githooks/pre-commit`'s "checks running" line, commit `379843d`); the rest is unstarted. Confirmed offenders:
-  - `scripts/check.py:77` — `⚠ shfmt: no Bash files found, skipping` (kit-internal)
-  - `scripts/check.py:83` — `ℹ shellcheck not installed, skipping` (kit-internal)
-  - `scripts/check.py:106` — `ℹ npx not installed, skipping Prettier` (kit-internal)
-  - `scripts/check.py:527, 530` — `ℹ Density signals (...; not blocking)` (kit-internal)
-  - `kit/scripts/check.py:96` — `ℹ SQLx directory not found, skipping` (downstream)
-  - `kit/scripts/check.py:152` — `⏩ Fast mode: skipping tests and build` (downstream)
-  - `kit/scripts/check.py:207` — `⏩ Skipped` status (downstream)
-  - `kit/scripts/release.py` — many YELLOW info lines (prompts, dry-run banners, current-version display, cancellation notices); audit each and keep YELLOW only on genuine warnings (e.g. "no commits since last tag")
-  - `kit/scripts/validate-sync.sh:26, 49` — action hints after errors; likely BLUE
-    Rule: BLUE for info, GREEN for success, RED for errors, YELLOW only for warnings.
-
-- **`NO_COLOR=1` support (optional, bundle with sweep).** Universal convention — set RED/YELLOW/GREEN/BLUE/NC to empty strings in the color block when `$NO_COLOR` is non-empty. Cheap belt-and-braces for hostile terminals. Applies to all Python and Bash files that define the color constants.
-
 - **`whats-next`: add GitHub issues as a 9th source.** `kit/scripts/whats-next.py` currently surveys 8 sources (todo_file, inline_todos, planning_docs, feature_plans, spec_open_questions, in_flight, roadmap, techdebt) but does not query open GitHub issues, which is a real gap for projects that track work there. Implementation notes: shell out to `gh issue list --state open --json number,title,url,updatedAt --limit 20`; gracefully skip if `gh` is not on PATH or the repo has no GitHub remote (kit must stay portable to non-GitHub downstream projects); surface results as `🟢 pending` candidates in the standard scoring path. Update `kit/skills/whats-next/SKILL.md` to document the new source and the skip conditions.
 
 - **DDD doc rules: rejection-layer + anemic-domain (issues #16 + #17).** Bundle two backend-doc additions — same author, related domain, same review pass.

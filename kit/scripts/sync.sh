@@ -19,10 +19,15 @@ _sha1() { python3 -c "import hashlib,sys; print(hashlib.sha1(open(sys.argv[1],'r
 
 trap 'rm -rf "$TMP"' EXIT
 
-YELLOW='\033[1;33m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+# Colors (respect NO_COLOR=1)
+if [ -n "${NO_COLOR:-}" ]; then
+    YELLOW='' GREEN='' BLUE='' NC=''
+else
+    YELLOW='\033[1;33m'
+    GREEN='\033[0;32m'
+    BLUE='\033[0;34m'
+    NC='\033[0m'
+fi
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 MANIFEST="$PROJECT_ROOT/.claude/kit-manifest.txt"
@@ -135,7 +140,7 @@ done
 
 # Hint about the previous quirk where sync.sh was copied to downstream
 if [ -f "$PROJECT_ROOT/scripts/sync.sh" ]; then
-    echo -e "${YELLOW}ℹ  scripts/sync.sh is kit-internal (no longer copied). Safe to delete.${NC}"
+    echo -e "${BLUE}ℹ scripts/sync.sh is kit-internal (no longer copied). Safe to delete.${NC}"
 fi
 
 # ── Docs (overwrite if unchanged; prompt on local drift; -f to force) ─────────
@@ -169,7 +174,7 @@ done
 
 # ── Vestigial profile file warning ────────────────────────────────────────────
 if [ -f "$PROJECT_ROOT/.claude/kit-profile" ]; then
-    echo -e "${YELLOW}ℹ  .claude/kit-profile is vestigial (kit is now Tauri-only). Safe to delete.${NC}"
+    echo -e "${BLUE}ℹ .claude/kit-profile is vestigial (kit is now Tauri-only). Safe to delete.${NC}"
 fi
 
 # ── Version stamp & changelog delta ───────────────────────────────────────────
@@ -241,7 +246,7 @@ sort -u -o "$MANIFEST" "$MANIFEST"
 rm -f "$PROJECT_ROOT/.claude-kit-version"
 
 echo -e "${GREEN}✅ Synced claude-kit@${VERSION}${NC}"
-echo -e "${YELLOW}→ Review changes before committing (git diff).${NC}"
+echo -e "${BLUE}→ Review changes before committing (git diff).${NC}"
 if [ -n "$PREV_VERSION" ] && [ "$PREV_VERSION" != "$VERSION" ]; then
-    echo -e "${YELLOW}→ Run /kit-discover to reconcile CLAUDE.md with the new kit surface.${NC}"
+    echo -e "${BLUE}→ Run /kit-discover to reconcile CLAUDE.md with the new kit surface.${NC}"
 fi
