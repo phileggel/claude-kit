@@ -86,7 +86,10 @@ _local_recipes=""
 for _f in "$PROJECT_ROOT"/*.just "$PROJECT_ROOT"/justfile; do
     [ -f "$_f" ] || continue
     [ "$(basename "$_f")" = "common.just" ] && continue
-    _local_recipes+=$(grep -hE '^[a-zA-Z_][a-zA-Z0-9_-]*[^:]*:' "$_f" 2>/dev/null | sed -E 's/[ *:].*//')$'\n'
+    # `grep` exits 1 when no recipe headers match (e.g. an import-only justfile).
+    # With `set -o pipefail` (line 2) that would abort the whole sync, so wrap
+    # in a group with `|| true` to keep the pipe's exit status at 0.
+    _local_recipes+=$({ grep -hE '^[a-zA-Z_][a-zA-Z0-9_-]*[^:]*:' "$_f" 2>/dev/null || true; } | sed -E 's/[ *:].*//')$'\n'
 done
 _local_recipes=$(printf '%s' "$_local_recipes" | sort -u | sed '/^$/d')
 
