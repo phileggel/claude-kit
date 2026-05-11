@@ -160,12 +160,20 @@ useEffect(() => {
 
 ## Navigation
 
-**F23** — Inter-feature navigation MUST go through the router.
+**F23** — Inter-feature navigation MUST go through the router. Cross-feature navigation is handled exclusively via `useNavigate` / route paths — never by rendering another feature's page-level component directly from a sibling feature.
 
-Features are bounded contexts: a feature MUST NOT import components, hooks, or utilities directly from another
-feature. Cross-feature navigation is handled exclusively via useNavigate / route paths.
+The only authorised cross-feature navigation wiring points are:
 
-The only authorised cross-feature imports are:
+- `router.tsx` — registers page-level components (single wiring point)
+- Shell features (`shell/`) — may import modal components they own and host
 
-- router.tsx — registers page-level components (single wiring point)
-- Shell features (shell/) — may import modal components they own and host
+> Frontend "features" are UI surfaces organised for co-location of code edited together — they are NOT bounded contexts in the DDD sense. The structural BC enforcement lives server-side (Rust); on the FE, all features share `bindings.ts` and read/write through the same Tauri layer. See **F26** for the cross-feature import rule that replaces the old "feature = BC" framing.
+
+## Cross-feature imports
+
+**F26** — Cross-feature imports are evaluated by what is imported, not by the fact of crossing:
+
+- **Primitive imports are fine.** Types, pure functions, and presentational components MAY be imported across feature boundaries. They are not behaviour coupling — they are shared primitives. Example: `features/account_details/.../X.tsx` importing `TransactionFormData` (type), `validateTransactionForm` (pure), or `RecordPriceCheckbox` (presentational) from `features/transactions/shared/` is acceptable.
+- **Behaviour imports are a code smell.** A hook or store imported from another feature couples the two features behaviourally and typically signals one of: wrong feature boundary, missing shared layer, or a piece of behaviour that should be promoted to `ui/hooks/` or `shell/`. Treat the import as SHOULD-NOT and prefer promotion when it appears twice.
+
+Promotion destinations (see F28 once available): generic UI hooks → `ui/hooks/`; app-wide stores → `shell/`; cross-cutting platform adapters → `infra/`.
