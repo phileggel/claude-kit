@@ -31,7 +31,7 @@ Each bucket's mandate:
 
 The diagnostic value is the rejection half. When a file lands in the wrong bucket, the exclusion rule of the destination bucket is what flags it.
 
-**Framework-resource exception.** Static resources owned by the framework (not by application code) sit outside the 4-bucket discipline because the industry-standard React/Vite convention is well-established and tools (build, bundler, dev server) expect those paths:
+**Framework-resource exception.** Static resources owned by the framework (not by application code) sit outside the 4-bucket discipline because the industry-standard Vite convention is well-established and tools (build, bundler, dev server) expect those paths:
 
 - `src/assets/` — images, fonts, SVGs imported by application code
 - `src/styles/` — global CSS, theme tokens, CSS variables
