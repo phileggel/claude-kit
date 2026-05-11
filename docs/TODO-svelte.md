@@ -6,8 +6,6 @@ This file lives only on `svelte-main` and its feature branches. It must never be
 
 ## svelte-v0.1 candidates — agent and rule forks
 
-- **`kit/agents/test-writer-frontend-svelte.md`** — fork `kit/agents/test-writer-frontend.md`. Switch from `@testing-library/react` + `renderHook` to `@testing-library/svelte`. Step 5 example tests a `.svelte.ts` reactive module factory with `flushSync()`.
-
 - **`kit/docs/frontend-rules-svelte.md`** — fork `kit/docs/frontend-rules.md`. Translate F1, F2, F6–F10, F15, F19, F20, F25 (partially) to Svelte 5 idioms. F19 marked DEPRECATED with pointer. F28 layout uses `ui/modules/` for `.svelte.ts` reactive modules.
 
 - **`kit/docs/test_convention-svelte.md`** — fork `kit/docs/test_convention.md`. Backend section duplicated as-is; frontend section rewritten for Vitest + `@testing-library/svelte` + `flushSync()` patterns, no `renderHook` equivalent.
