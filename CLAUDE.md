@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository, which is an opinionated Claude-assisted factory for Tauri 2 + Axum/React 19 projects, built around Spec Driven Development. It ships the full stack: SDD workflow agents, quality reviewers, convention docs, scripts, hooks, and justfile recipes.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository, which is an opinionated Claude-assisted factory for Tauri 2 + Axum/Svelte 5 projects, built around Spec Driven Development. (Svelte branch — `main` carries the React 19 lineage.) It ships the full stack: SDD workflow agents, quality reviewers, convention docs, scripts, hooks, and justfile recipes.
 
 ## Simple Technical Workflow
 

@@ -1,6 +1,6 @@
 # claude-kit
 
-Opinionated Claude-assisted factory for Tauri 2 + React 19 + Rust projects, built around Spec Driven Development.
+Opinionated Claude-assisted factory for Tauri 2 + Svelte 5 + Rust projects, built around Spec Driven Development. (Svelte branch — for the React 19 lineage, see `main`.)
 
 Provides the agents, skills, scripts, and git hooks that drive the **spec → contract → plan → test-first → verify** workflow. Stack-specific conventions (architecture rules, testing patterns, UI rules) are bundled directly in this repo under `kit/docs/` and synced copy-once to downstream projects.
 

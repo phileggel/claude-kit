@@ -1,6 +1,6 @@
 # Kit Tools Reference
 
-Thematic index of all agents, skills, convention docs, scripts, git hooks, and justfile recipes provided by **claude-kit** — an opinionated Claude-assisted factory for Tauri 2 + React 19 + Rust projects, built around the **spec → contract → plan → test-first → verify** workflow. Use this file to discover what is available without reading each agent definition individually.
+Thematic index of all agents, skills, convention docs, scripts, git hooks, and justfile recipes provided by **claude-kit** — an opinionated Claude-assisted factory for Tauri 2 + Svelte 5 + Rust projects, built around the **spec → contract → plan → test-first → verify** workflow. Use this file to discover what is available without reading each agent definition individually. (Svelte branch — React 19 lineage on `main`.)
 
 ---
 

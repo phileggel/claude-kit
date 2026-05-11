@@ -1,6 +1,6 @@
 # Claude-Assisted Factory — Reference Guide
 
-Onboarding guide for claude-kit: an opinionated Claude-assisted factory for Tauri 2 + React 19 + Rust projects. Ships the full SDD stack — convention docs, agents, skills, scripts, hooks, and justfile recipes — driving the **spec → contract → plan → test-first → verify** workflow. For the full inventory, see `.claude/kit-tools.md`.
+Onboarding guide for claude-kit: an opinionated Claude-assisted factory for Tauri 2 + Svelte 5 + Rust projects. Ships the full SDD stack — convention docs, agents, skills, scripts, hooks, and justfile recipes — driving the **spec → contract → plan → test-first → verify** workflow. For the full inventory, see `.claude/kit-tools.md`. (Svelte branch — React 19 lineage on `main`.)
 
 **Location**: `.claude/kit-readme.md` (read-only reference)
 

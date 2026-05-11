@@ -2,12 +2,12 @@
 
 ## Overview
 
-| Tier                    | What                                  | Location                                                     | Mocks?                        |
-| ----------------------- | ------------------------------------- | ------------------------------------------------------------ | ----------------------------- |
+| Tier                    | What                                   | Location                                                     | Mocks?                        |
+| ----------------------- | -------------------------------------- | ------------------------------------------------------------ | ----------------------------- |
 | Frontend                | Component and reactive-module behavior | colocated `*.test.ts` next to the file                       | Gateway mocked                |
-| BE Tier 1 — Unit        | Service / orchestrator logic | inline `#[cfg(test)] mod tests` in the same `.rs` file       | All deps mocked (mockall)     |
-| BE Tier 2 — Repository  | SQL queries and persistence  | inline `#[cfg(test)] mod tests` in the repository `.rs` file | None — real in-memory SQLite  |
-| BE Tier 3 — Integration | Spec-driven end-to-end flows | `src-tauri/tests/` (separate binary)                         | None — real services + SQLite |
+| BE Tier 1 — Unit        | Service / orchestrator logic           | inline `#[cfg(test)] mod tests` in the same `.rs` file       | All deps mocked (mockall)     |
+| BE Tier 2 — Repository  | SQL queries and persistence            | inline `#[cfg(test)] mod tests` in the repository `.rs` file | None — real in-memory SQLite  |
+| BE Tier 3 — Integration | Spec-driven end-to-end flows           | `src-tauri/tests/` (separate binary)                         | None — real services + SQLite |
 
 Run checks before committing:
 

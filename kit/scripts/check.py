@@ -152,9 +152,12 @@ class QualityChecker:
 
         if not self.fast_mode:
             if not self._maybe_skip_for_stack(
-                "react_tests", "React Tests", self.package_json, "package.json absent"
+                "react_tests",
+                "Frontend Tests",
+                self.package_json,
+                "package.json absent",
             ):
-                if self.run_step("React Tests", ["npm", "test", "--", "--run"]):
+                if self.run_step("Frontend Tests", ["npm", "test", "--", "--run"]):
                     self.metrics["react_tests"] = "Pass"
 
             if not self._maybe_skip_for_stack(
