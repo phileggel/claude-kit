@@ -25,7 +25,7 @@ The kit syncs 7 convention docs into `docs/` on first sync (copy-once — never 
 | Doc                        | What it governs                          |
 | -------------------------- | ---------------------------------------- |
 | `backend-rules.md`         | Rust DDD structure and patterns          |
-| `frontend-rules.md`        | React feature layout, gateway pattern    |
+| `frontend-rules.md`        | Svelte feature layout, gateway pattern   |
 | `e2e-rules.md`             | WebdriverIO testability conventions      |
 | `test_convention.md`       | Testing strategy across all tiers        |
 | `ddd-reference.md`         | DDD concept glossary                     |
