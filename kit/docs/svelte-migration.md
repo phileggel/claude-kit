@@ -63,13 +63,18 @@ This is a one-off operation for projects with a real Svelte rewrite in progress 
 mkdir -p .claude
 echo '{ "framework": "svelte" }' > .claude/kit.config.json
 
-# 2. Re-run sync from a Svelte tag.
-./scripts/sync-config.sh svelte-v0.1.0+4.5.1
+# 2. Re-run sync from a Svelte tag, with -f to refresh convention docs.
+./scripts/sync-config.sh svelte-v0.1.1+4.5.2 -f
 ```
 
-The sync will replace `reviewer-frontend.md` (React version) with the Svelte version under the same filename, and similarly for the other forked artifacts. Existing project files (your components, your contracts, your tests) are untouched.
+**Why `-f` matters here.** `.claude/agents/` and `.claude/skills/` are always overwritten by the sync (the kit owns them). `docs/` is copy-once: on a regular sync the kit only writes a doc when the destination is missing, identical, or you explicitly approve a y/N prompt. On a framework switch, the React versions of `frontend-rules.md`, `test_convention.md`, `e2e-rules.md`, and `frontend-visual-proof.md` already exist on disk from your previous React sync — and they differ from the Svelte versions the kit now ships. Without `-f`:
 
-After the kit swap, do the application migration in your own branch — that work is project-specific and not framed by the kit.
+- With a TTY: you get a y/N prompt for each drifted doc — workable but tedious.
+- Without a TTY (some `just`-wrappers, multiplexers, CI): the prompts are silently skipped and your `docs/` stays React-flavored. The agents will then audit Svelte code against React conventions, producing confusing reports.
+
+`-f` skips both prompt and skip path: the sync overwrites every drifted doc unconditionally. Use it exactly once, at framework-switch time. Subsequent syncs in the same framework return to the safe copy-once default.
+
+After the sync, existing project files (your components, your contracts, your tests) are untouched — only kit-owned files change. Review `git diff` before committing. The application migration (Svelte components, dependencies, build config) is project-specific and not framed by the kit.
 
 ---
 
