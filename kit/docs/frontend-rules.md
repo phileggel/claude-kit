@@ -4,6 +4,37 @@
 
 > Rule numbers (F1, F2, …) are stable IDs — once assigned, they never change. New rules are appended; deprecated rules keep their number with a note.
 
+## Top-level `src/` structure
+
+**F28** — The frontend source tree MUST follow this top-level layout. Each bucket has both an inclusion rule (what lives there) AND an exclusion rule (what does NOT) — a folder with only an inclusion rule grows weeds, and the catch-all framing actively hides mislocated code.
+
+```
+src/
+├── features/   # UI surfaces, may own a gateway
+├── shell/      # router + global layout (one instance, not reusable)
+├── ui/         # reusable UI: widgets, formatters, hooks, widget runtime state
+│   ├── components/   # widgets (button, field, modal, snackbar, …)
+│   │                  # widget runtime state colocates with the widget
+│   ├── format/       # cross-feature formatters (currency, date, percent, …)
+│   └── hooks/        # generic UI hooks (useFuzzySearch, …)
+├── infra/      # platform adapters ONLY (logger, storage, i18n runtime, …)
+├── bindings.ts # generated — DO NOT EDIT
+└── main.tsx
+```
+
+Each bucket's mandate:
+
+- **`features/`** — User-facing surfaces, organised per F1. A feature MAY own a gateway. **REJECTS:** anything reusable across features (promote to `ui/`) or any cross-cutting platform adapter (promote to `infra/`). A feature folder appearing anywhere else in the tree (e.g. inside `infra/` or `ui/`) is a misclassification.
+- **`shell/`** — Router, global layout, header/sidebar — single instance per app, not reusable. **REJECTS:** anything reusable (`ui/`), anything feature-scoped (`features/`).
+- **`ui/`** — Reusable UI primitives: widgets in `ui/components/`, cross-feature formatters in `ui/format/`, generic React hooks in `ui/hooks/`. Widget runtime state colocates with the widget (e.g. `ui/components/snackbar/snackbarStore.ts`). **REJECTS:** any domain term, any Tauri call (no `commands.*` from `ui/`), any platform adapter (`infra/`).
+- **`infra/`** — Platform adapters ONLY: code that talks to a runtime outside our control (logger sink, browser storage, i18n runtime, native bridges). **REJECTS:** pure helpers and formatters (promote to `ui/format/`), generic UI hooks (promote to `ui/hooks/`), stateful UI runtime (colocate with the widget in `ui/components/`), anything feature-scoped (`features/`).
+
+The diagnostic value is the rejection half. When a file lands in the wrong bucket, the exclusion rule of the destination bucket is what flags it.
+
+> **Rename note:** projects pre-v4.5 used `src/lib/` as a catch-all. `lib/` is a JS tradition with no semantic content; `infra/` carries a clear meaning (_talks to a platform we depend on_) that lets a reader decide at a glance whether a file belongs. Migration is a one-time rename per project — sort the existing `lib/` contents into the four buckets above, then delete `lib/`. The kit ships forward with `infra/`.
+
+This is the FE counterpart to the backend `B0` gold layout, adapted for FE realities: there is no per-feature `application/domain/infrastructure` layering and no Shared Kernel, because FE features are UI surfaces, not bounded contexts (see F23, F26).
+
 ## Feature Structure
 
 **F1** — SHOULD follow the gold layout:
