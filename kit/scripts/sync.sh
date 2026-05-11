@@ -90,19 +90,22 @@ mkdir -p "$PROJECT_ROOT/.claude/agents"
 for agent in "$TMP/kit/agents/"*.md; do
     [ -f "$agent" ] || continue
     name=$(basename "$agent")
-    base="${name%-svelte.md}"
     case "$KIT_FRAMEWORK" in
     svelte)
-        # If a base file has a `-svelte` variant, skip the base — the variant
-        # will overwrite it (with the suffix stripped). Otherwise copy as-is.
-        if [[ "$name" != *-svelte.md ]] && [ -f "$TMP/kit/agents/${base}-svelte.md" ]; then
-            continue
-        fi
         if [[ "$name" == *-svelte.md ]]; then
-            dest_name="${base}.md"
+            # Svelte variant: strip the `-svelte` suffix from destination filename
+            # so it lands as the canonical name (and the frontmatter `name:` is
+            # rewritten by `_strip_svelte_name` to match).
+            dest_name="${name%-svelte.md}.md"
             _strip_svelte_name "$agent" "$PROJECT_ROOT/.claude/agents/$dest_name"
             _record ".claude/agents/$dest_name"
         else
+            # Plain (React) variant: skip if a `-svelte` variant exists for the
+            # same stem — the Svelte loop iteration above will write the canonical
+            # destination. Without this skip, both files would write to the same
+            # path and both would land in the manifest (duplicate entry).
+            svelte_variant="${name%.md}-svelte.md"
+            [ -f "$TMP/kit/agents/$svelte_variant" ] && continue
             cp "$agent" "$PROJECT_ROOT/.claude/agents/$name"
             _record ".claude/agents/$name"
         fi
@@ -217,16 +220,17 @@ mkdir -p "$PROJECT_ROOT/docs"
 for doc in "$TMP/kit/docs/"*.md; do
     [ -f "$doc" ] || continue
     doc_name=$(basename "$doc")
-    doc_base="${doc_name%-svelte.md}"
     # Framework-aware filter (mirrors the agents loop). Docs have no
     # `name:` frontmatter, so we only rename the destination filename.
     case "$KIT_FRAMEWORK" in
     svelte)
-        if [[ "$doc_name" != *-svelte.md ]] && [ -f "$TMP/kit/docs/${doc_base}-svelte.md" ]; then
-            continue
-        fi
         if [[ "$doc_name" == *-svelte.md ]]; then
-            doc_name="${doc_base}.md"
+            doc_name="${doc_name%-svelte.md}.md"
+        else
+            # Skip the React variant if a `-svelte` variant exists for the same
+            # stem — the Svelte iteration writes the canonical destination.
+            svelte_variant="${doc_name%.md}-svelte.md"
+            [ -f "$TMP/kit/docs/$svelte_variant" ] && continue
         fi
         ;;
     *)
