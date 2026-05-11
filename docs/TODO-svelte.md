@@ -6,10 +6,6 @@ This file lives only on `svelte-main` and its feature branches. It must never be
 
 ## svelte-v0.1 candidates — agent and rule forks
 
-- **`kit/docs/e2e-rules-svelte.md`** — fork `kit/docs/e2e-rules.md`. E6 becomes a positive rule (`setValue()` works directly, no workaround). E7 uses `bind:value`. E1–E5, E8–E10 transfer unchanged.
-
-- **`kit/agents/test-writer-e2e-svelte.md`** — fork `kit/agents/test-writer-e2e.md`. Drop the `setReactInputValue` helper. Templates use `$("#id").setValue(...)` directly. Glob `*.svelte` instead of `*.tsx`.
-
 - **`kit/agents/reviewer-frontend-svelte.md`** — fork `kit/agents/reviewer-frontend.md`. Pivot from React hooks (`useCallback`/`useMemo`) to Svelte 5 runes correctness (`$state` placement, uncleaned `$effect`, `$state` mutated from `$derived`). UX/M3/E2E sections transfer unchanged.
 
 - **`kit/agents/test-writer-frontend-svelte.md`** — fork `kit/agents/test-writer-frontend.md`. Switch from `@testing-library/react` + `renderHook` to `@testing-library/svelte`. Step 5 example tests a `.svelte.ts` reactive module factory with `flushSync()`.
