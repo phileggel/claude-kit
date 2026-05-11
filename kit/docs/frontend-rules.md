@@ -108,6 +108,53 @@ The reviewer-frontend lane flags any literal string passed to those props.
 - Display inline validation errors in forms
 - Distinguish between user errors (validation) and system errors
 
+**F27** — Typed backend errors MUST flow through a 4-layer pipeline. Each layer has one job; silently dropping the error branch is forbidden at every layer. This is the FE consuming side of the backend rejection-layer rule (`ddd-reference.md` § Errors).
+
+1. **Gateway** returns `Result<T, *CommandError>` unchanged — no translation, no swallow. (Already enforced by Specta-generated bindings.)
+2. **Hook** branches on `result.status`. For `error`, it MUST either (a) return the typed error as state for the component to render, OR (b) dispatch to a snackbar/toast store. Silently dropping the error branch — or coercing it to a stringified message — is forbidden.
+3. **Presenter** owns translation. The presenter (`shared/presenter.ts`) maps `error.code` to an i18n key — pure, testable, free of React/i18n runtime concerns. Components never inspect `error.code` directly.
+4. **Component** renders the i18n key via `useTranslation`, surfaced inline (form context) or via snackbar (action context). The component knows nothing about the error's domain shape.
+
+```ts
+// 1. Gateway — Specta-generated, unchanged
+commands.recordPrice(input); // Result<RecordPriceOk, RecordPriceError>
+
+// 2. Hook — branches, returns typed error as state
+function useRecordPrice() {
+  const [error, setError] = useState<RecordPriceError | null>(null);
+  const submit = async (input: RecordPriceInput) => {
+    const result = await gateway.recordPrice(input);
+    if (result.status === "error") {
+      setError(result.error); // typed, NOT stringified
+      return;
+    }
+    setError(null);
+    // ...
+  };
+  return { submit, error };
+}
+
+// 3. Presenter — pure mapping, lives in shared/presenter.ts
+export function presentRecordPriceError(e: RecordPriceError): string {
+  switch (e.code) {
+    case "DUPLICATE_DATE":
+      return "record_price.error.duplicate_date";
+    case "AMOUNT_NOT_POSITIVE":
+      return "record_price.error.amount_not_positive";
+  }
+}
+
+// 4. Component — renders the i18n key, knows nothing about error shape
+const { submit, error } = useRecordPrice();
+return (
+  <form onSubmit={submit}>
+    {error && <p role="alert">{t(presentRecordPriceError(error))}</p>}
+  </form>
+);
+```
+
+Client-side validation (no backend round-trip) follows the same pipeline: validation produces typed errors with `code` fields, presenter maps to i18n keys, component renders. The snackbar store interface is left to projects — F27 prescribes only the layering.
+
 ## Tests
 
 **F18** — MUST have tests for non-trivial logic worth protecting:
