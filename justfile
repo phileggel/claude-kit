@@ -30,3 +30,14 @@ merge:
     git merge --ff-only "$branch"
     git branch -d "$branch"
     echo "✅ $branch fast-forwarded into main and deleted."
+
+# Fast-forward current branch into svelte-main, then delete the branch
+merge-svelte:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    branch=$(git rev-parse --abbrev-ref HEAD)
+    if [ "$branch" = "svelte-main" ]; then echo "❌ Already on svelte-main — nothing to merge."; exit 1; fi
+    git checkout svelte-main
+    git merge --ff-only "$branch"
+    git branch -d "$branch"
+    echo "✅ $branch fast-forwarded into svelte-main and deleted."
