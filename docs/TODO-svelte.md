@@ -6,8 +6,6 @@ This file lives only on `svelte-main` and its feature branches. It must never be
 
 ## svelte-v0.1 candidates — agent and rule forks
 
-- **`kit/agents/reviewer-security-svelte.md`** — fork `kit/agents/reviewer-security.md`. Scan `.svelte` files instead of `.tsx`. Frontend security advice adapted to Svelte's auto-escaping (`{expr}` HTML-escaped, `{@html ...}` is the danger surface).
-
 ## svelte-v0.1 candidates — branch-side polish (not forks)
 
 - **Top-level docs on svelte-main** — `CLAUDE.md`, `README.md`, `kit/kit-readme.md`, `kit/kit-tools.md` declare Svelte target (these describe the branch itself, no fork needed).
