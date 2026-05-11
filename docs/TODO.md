@@ -2,11 +2,9 @@
 
 ## v4.5 candidates
 
-- **SDD Phase 3 walk: align frontend agents/skills with v4.3+ conventions.** Phases 1 (spec/plan/ADR) and 2 (backend) walked in v4.3. Phase 3 (frontend) is now. **v4.5 scope: first 3 files** — `kit/agents/test-writer-frontend.md`, `kit/agents/reviewer-frontend.md`, `kit/skills/visual-proof/SKILL.md`. (Optional 4th file `kit/skills/setup-e2e/SKILL.md` deferred.) For each: run the `ai-reviewer` agent on the file, apply the surfaced fixes (frontmatter discoverability, structural completeness, tool-grant minimality, density trimming, voice consistency), then `/preflight` to confirm cross-component coherence. Fold the new v4.4+v4.5 FE rules (F24, F25, F26, F27, F28) into the reviewer/test-writer lanes so they actually catch violations. Density signals from `check.py` flag `test-writer-frontend.md` (379 lines, longest section 321 lines, 16 critical rules) as the heaviest in the kit — likely the most work of the three.
+_All v4.5 candidates resolved — see commit history. Remaining work is in v4.6._
 
 ## v4.6 candidates
-
-- **Kit-internal `script-reviewer` agent (mirror of `ai-reviewer` for Python/Bash).** `ai-reviewer` audits agent and skill markdown files. There is no equivalent for the kit's Python/Bash scripts in `kit/scripts/` and `kit/githooks/`. Today script quality is covered only by `scripts/check.py` (ruff/shfmt/shellcheck — mechanical lint) and `/preflight` Step 3 (safety surface — shebang, `set -euo pipefail`, `subprocess.run(check=True)`, quoted bash vars). Neither addresses semantic quality: API ergonomics, error-handling completeness, NO_COLOR adherence, exit-code contract, subprocess safety beyond `check=True`, idempotency, integration with existing kit patterns. Add a kit-internal `script-reviewer` agent with the same shape as `ai-reviewer` (single-file audit, severity-tagged findings, no auto-fix). Target ~100–150 lines. Triggered on demand when authoring or refactoring `kit/scripts/*.py`, `kit/scripts/*.sh`, `kit/githooks/*`. Scope: kit-upstream files only; downstream scripts get the synced version of `check.py` plus the project's own review process.
 
 - **SDD Phase 4 walk: align review & closure agents with v4.3+ conventions.** Phases 1, 2, 3 walked in earlier releases (1 pre-v4.2, 2 in v4.3, 3 in v4.5). Phase 4 is the last remaining SDD phase. Targets:
   - `kit/agents/test-writer-e2e.md` — heaviest unwalked file (302 lines, 246-line longest section, 17 critical rules). Natural fold-in of v4.5's E4 (stable `id` selectors) change.

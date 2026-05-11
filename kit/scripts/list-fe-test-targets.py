@@ -56,6 +56,15 @@ _COMPONENT_RE = re.compile(
 )
 
 
+def _imports_module(imports: list[str], name: str) -> bool:
+    """True iff `imports` includes a relative reference to a module named `name`
+    inside the same feature (e.g. `./gateway`, `../shared/presenter`). Cross-
+    feature imports are intentionally excluded — they are an F26 smell, not a
+    same-feature dependency."""
+    pattern = re.compile(rf"\.{{1,2}}/(?:[^/]+/)*{re.escape(name)}(?:\.ts)?$")
+    return any(pattern.match(i) for i in imports)
+
+
 def _classify(path: Path) -> dict | None:
     """Return target metadata, or None for files that aren't test candidates
     (e.g. index files, type-only modules, test files themselves)."""
@@ -65,19 +74,13 @@ def _classify(path: Path) -> dict | None:
         return None
     try:
         text = path.read_text(encoding="utf-8", errors="replace")
-    except OSError:
+    except OSError as exc:
+        print(f"{RED}warn: could not read {path}: {exc}{NC}", file=sys.stderr)
         return None
 
     imports = _IMPORT_RE.findall(text)
-    imports_gateway = any(
-        re.match(r"\.{1,2}/(?:[^/]+/)*gateway(?:\.ts)?$", i) or i.endswith("/gateway")
-        for i in imports
-    )
-    imports_presenter = any(
-        re.search(r"(?:\.{1,2}/|/)shared/presenter(?:\.ts)?$", i)
-        or i.endswith("/presenter")
-        for i in imports
-    )
+    imports_gateway = _imports_module(imports, "gateway")
+    imports_presenter = _imports_module(imports, "presenter")
 
     components = _COMPONENT_RE.findall(text)
     component = components[0] if components else path.stem

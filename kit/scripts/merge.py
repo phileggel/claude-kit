@@ -63,7 +63,11 @@ def main() -> int:
         == 0
     )
     if has_origin_main:
-        git("fetch", "--quiet", "origin", "main")
+        if git("fetch", "--quiet", "origin", "main", check=False).returncode != 0:
+            fail(
+                "Could not fetch origin/main (offline or unreachable).",
+                "Check your network, then re-run `just merge`.",
+            )
         local_main = git("rev-parse", "main").stdout.strip()
         remote_main = git("rev-parse", "origin/main").stdout.strip()
         if local_main != remote_main:
@@ -94,7 +98,9 @@ def main() -> int:
     git("checkout", "main")
     git("merge", "--ff-only", branch)
     git("branch", "-d", branch)
-    print(f"{GREEN}✅ {branch} fast-forwarded into main and deleted.{NC}")
+    print(
+        f"{GREEN}✅ {branch} fast-forwarded into main and deleted.{NC}", file=sys.stderr
+    )
     return 0
 
 
