@@ -36,8 +36,10 @@ cat > .claude/kit.config.json <<'JSON'
 { "framework": "svelte" }
 JSON
 
-# 2. Bootstrap the kit from a Svelte tag (omit the version to default to the
-#    latest reachable tag, but pinning is recommended).
+# 2. Bootstrap the kit from a Svelte tag.
+#    The first sync MUST pass the tag explicitly because the local
+#    sync-config.sh is not yet framework-aware. After this run, the bootstrap
+#    self-updates and subsequent syncs can omit the version.
 curl -fsSL https://raw.githubusercontent.com/phileggel/claude-kit/svelte-main/sync-config.sh \
   | bash -s -- svelte-v0.1.0+4.5.1
 ```
@@ -73,7 +75,15 @@ After the kit swap, do the application migration in your own branch — that wor
 
 ## 4. Recurring sync workflow for established Svelte projects
 
-When the kit maintainer publishes a new Svelte release (e.g. `svelte-v0.2.0+4.6.0`), downstream Svelte projects pull it like any other sync:
+Once a project has `.claude/kit.config.json` set to `{"framework":"svelte"}` and has been synced at least once from a Svelte tag, the bootstrap auto-selects the latest matching tag. **Subsequent syncs need no version argument**:
+
+```bash
+./scripts/sync-config.sh
+```
+
+The bootstrap reads the framework flag and filters `git ls-remote --tags` to `svelte-v*` only — React tags are never selected for a Svelte project, and vice versa.
+
+To pin a specific Svelte version (e.g. for reproducible builds or rollback), pass it explicitly:
 
 ```bash
 ./scripts/sync-config.sh svelte-v0.2.0+4.6.0
