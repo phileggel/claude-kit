@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Enumerate FE test targets for a feature domain.
+"""Enumerate FE test targets for a feature domain (Svelte 5).
 
-Scans `src/features/{domain}/` (and sub-features per F3) for `.tsx` files and
-emits JSON describing each candidate: file path, component name, whether it
-imports from `gateway`, whether it imports from `./presenter` or `./shared/presenter`.
+Scans `src/features/{domain}/` (and sub-features per F3) for `.svelte` files
+and emits JSON describing each candidate: file path, component name, whether
+it imports from `gateway`, whether it imports from `./presenter` or
+`./shared/presenter`.
 
 Consumed by the `test-writer-frontend` agent at Step 1 to drive Step 4's
 component-test decisions. Mechanical scan only — the agent applies the
-4-row state-decision table itself.
+state-decision table itself.
 
 Usage:
     python3 scripts/list-fe-test-targets.py <domain>
@@ -46,13 +47,11 @@ def _project_root() -> Path:
         return Path.cwd()
 
 
+# Capture both ES-style imports (`import X from './gateway'`) and Svelte
+# `<script>` block imports. The path-string capture is the only part we use.
 _IMPORT_RE = re.compile(
     r'import\s+(?:[^"\']+\s+from\s+)?["\']([^"\']+)["\']',
     re.MULTILINE,
-)
-
-_COMPONENT_RE = re.compile(
-    r"export\s+(?:default\s+)?(?:const|function)\s+([A-Z]\w*)",
 )
 
 
@@ -60,17 +59,21 @@ def _imports_module(imports: list[str], name: str) -> bool:
     """True iff `imports` includes a relative reference to a module named `name`
     inside the same feature (e.g. `./gateway`, `../shared/presenter`). Cross-
     feature imports are intentionally excluded — they are an F26 smell, not a
-    same-feature dependency."""
-    pattern = re.compile(rf"\.{{1,2}}/(?:[^/]+/)*{re.escape(name)}(?:\.ts)?$")
+    same-feature dependency. Matches `.ts`, `.svelte.ts`, and bare extensions."""
+    pattern = re.compile(
+        rf"\.{{1,2}}/(?:[^/]+/)*{re.escape(name)}(?:\.svelte\.ts|\.ts)?$"
+    )
     return any(pattern.match(i) for i in imports)
 
 
 def _classify(path: Path) -> dict | None:
     """Return target metadata, or None for files that aren't test candidates
-    (e.g. index files, type-only modules, test files themselves)."""
-    if path.name.endswith(".test.tsx") or path.name.endswith(".test.ts"):
+    (e.g. index files, test files themselves). Svelte components are 1:1 with
+    files — the component name is the filename stem (PascalCase by convention),
+    no `export` declaration to parse."""
+    if path.name.endswith(".test.svelte") or path.name.endswith(".test.ts"):
         return None
-    if path.name in ("index.tsx", "index.ts"):
+    if path.stem.lower() == "index":
         return None
     try:
         text = path.read_text(encoding="utf-8", errors="replace")
@@ -82,12 +85,9 @@ def _classify(path: Path) -> dict | None:
     imports_gateway = _imports_module(imports, "gateway")
     imports_presenter = _imports_module(imports, "presenter")
 
-    components = _COMPONENT_RE.findall(text)
-    component = components[0] if components else path.stem
-
     return {
         "file": str(path),
-        "component": component,
+        "component": path.stem,
         "imports_gateway": imports_gateway,
         "imports_presenter": imports_presenter,
     }
@@ -123,11 +123,10 @@ def main() -> int:
         return 0
 
     targets: list[dict] = []
-    for path in sorted(feature_dir.rglob("*.tsx")):
+    for path in sorted(feature_dir.rglob("*.svelte")):
         entry = _classify(path)
         if entry is None:
             continue
-        # Make path relative to project root for readability
         try:
             entry["file"] = str(Path(entry["file"]).relative_to(root))
         except ValueError:
