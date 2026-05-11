@@ -41,7 +41,7 @@ JSON
 #    sync-config.sh is not yet framework-aware. After this run, the bootstrap
 #    self-updates and subsequent syncs can omit the version.
 curl -fsSL https://raw.githubusercontent.com/phileggel/claude-kit/svelte-main/sync-config.sh \
-  | bash -s -- svelte-v0.1.0+4.5.1
+  | bash -s -- svelte-v0.1.1+4.5.2
 ```
 
 After the sync:
