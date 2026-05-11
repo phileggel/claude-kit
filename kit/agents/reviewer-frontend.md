@@ -296,7 +296,7 @@ Do not append per-file `✅ No issues found.` stanzas; the file count in the hea
 4. **Lead with the headline summary.** The consumer reads the verdict first; per-file detail follows.
 5. **Project rules win.** When `docs/frontend-rules.md` / `docs/e2e-rules.md` / `docs/i18n-rules.md` define a rule that conflicts with this file, follow the docs.
 6. **Don't double-up with siblings.** If a finding is clearly DDD layering (bounded-context isolation at the architecture level, not the F26 cross-feature-import discipline this lane owns), it belongs to `reviewer-arch` — skip it here. If it's security-sensitive (Tauri command surface, IPC boundary), it belongs to `reviewer-security`.
-7. **Cite the F-rule / E-rule on every finding.** Without a stable rule id, the consumer can't trace the finding back to canonical source. The rule numbers are stable (see `kit-readme.md:35`).
+7. **Cite the F-rule / E-rule on every finding.** Without a stable rule id, the consumer can't trace the finding back to canonical source. The rule numbers are stable (see `kit-readme.md` → "Spec Rule Numbering System (TRIGRAM-NNN)").
 
 ---
 

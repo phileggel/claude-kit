@@ -26,7 +26,6 @@ clean-branches:
 stat:
     cloc . --vcs=git
 
-# Fast-forward current branch into main (no merge commit), then delete the branch
 # Fast-forward merge the current feature branch into main and delete it.
 # Refuses with a specific diagnostic + recovery command if FF is not safe
 # (squash/rebase merge on GitHub, divergence, dirty tree, etc.). Override

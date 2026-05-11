@@ -51,7 +51,7 @@ Optionally, the user may pass a `modified_functions` list — entries of the for
 3. Read `docs/frontend-rules.md` — for F3 (gateway), F5 (presenter), F24 (a11y i18n), F25 (stable ids), F27 (typed error pipeline), F28 (top-level `src/` buckets).
 4. Read `docs/test_convention.md` — for the gateway-mocking template in component tests (§ Mocking gateway modules) and `renderHook` discipline.
 5. Locate `src/features/{domain}/gateway.ts` via Glob; also check `src/features/{domain}/**/gateway.ts` for sub-feature gateways (per F3).
-6. Run `python3 scripts/list-fe-test-targets.py {domain}` to enumerate component candidates and their gateway-import status. The agent consumes this JSON in Step 4 instead of scanning `.tsx` files by hand.
+6. Run `python3 scripts/list-fe-test-targets.py {domain}` to enumerate component candidates and their gateway-import status. The agent consumes this JSON in Step 4 instead of scanning `.tsx` files by hand. Output shape: list of `{file, component, imports_gateway, imports_presenter}` entries.
 
 ### Step 2 — Verify contract completeness
 
@@ -236,11 +236,11 @@ it("recomputes unit_price from total_cost and quantity for OpeningBalance", () =
   const { result } = renderHook(() =>
     useEditTransactionModal({
       transaction_kind: "OpeningBalance",
-      total_cost: 3000000,
+      total_cost: 3_000_000, // micro-units (illustrative; adapt to your domain)
       quantity: 3,
     }),
   );
-  expect(result.current.unit_price).toBe(1000000000000);
+  expect(result.current.unit_price).toBe(1_000_000_000_000); // micro-units × 10^6 precision
 });
 ```
 

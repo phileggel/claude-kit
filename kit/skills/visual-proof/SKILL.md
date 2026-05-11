@@ -115,6 +115,7 @@ Read the component file in full. Read `src/bindings.ts` for generated TypeScript
 - For each requested state, render the component with **hardcoded, realistic mock data** derived from the contract and bindings — no invented types.
 - Wrap each state in `<div id="state-{name}" style={{ padding: 24 }}>` for Playwright targeting (the `id` selector strategy here matches F25 / E4 — see Critical Rules).
 - **No `invoke()` calls** — all data is hardcoded props or mocked Zustand stores.
+- **If the component imports `react-router` hooks (`useNavigate`, `useLocation`) or other context hooks**, wrap each state in the required provider with mock values. Otherwise the component throws at render time and Playwright captures a blank `#state-{name}` — silent failure mode.
 
 Example (adapt to the real component interface):
 
@@ -192,11 +193,13 @@ Run the capture (pass mask selectors via `VP_MASK` if the user provided any, com
 VP_PORT={vite_preview_port} VP_HOST={vite_preview_host} VP_NAME={ComponentName} VP_STATES={state1,state2,...} node scripts/visual-proof-capture.mjs
 ```
 
-Stop Vite (the `lsof | xargs kill` pipeline is the canonical port-kill idiom — splitting loses the PID context):
+Stop Vite — **always run this, even if the capture step failed**, otherwise Vite leaks. The `lsof | xargs kill` pipeline is the canonical port-kill idiom; splitting loses the PID context:
 
 ```bash
 lsof -ti tcp:{vite_preview_port} | xargs kill 2>/dev/null
 ```
+
+If the capture exited non-zero, surface the error in the Step 6 report instead of staging screenshots.
 
 ---
 
