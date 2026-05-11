@@ -137,6 +137,12 @@ for f in "$TMP/kit/scripts/"*.py; do
     cp "$f" "$PROJECT_ROOT/scripts/"
     _record "scripts/$base"
 done
+for f in "$TMP/kit/scripts/"*.mjs; do
+    [ -f "$f" ] || continue
+    base="$(basename "$f")"
+    cp "$f" "$PROJECT_ROOT/scripts/"
+    _record "scripts/$base"
+done
 
 # Hint about the previous quirk where sync.sh was copied to downstream
 if [ -f "$PROJECT_ROOT/scripts/sync.sh" ]; then
