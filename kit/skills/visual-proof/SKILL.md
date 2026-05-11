@@ -28,7 +28,7 @@ Read `.claude/visual-proof.json`.
    for WSL2/VM if needed).
 3. `global_css_import` → Glob `src/index.css`, `src/main.css`, `src/styles/global.css`.
    Use the single match. If multiple candidates: ask via `AskUserQuestion`.
-4. `i18n_import` → Glob `src/i18n/i18n.ts`, `src/i18n/index.ts`, `src/lib/i18n.ts`.
+4. `i18n_import` → Glob `src/infra/i18n.ts`, `src/i18n/i18n.ts`, `src/i18n/index.ts`, `src/lib/i18n.ts` (last two for pre-v4.5 projects).
    Use the single match. If multiple candidates: ask.
 
 Write `.claude/visual-proof.json`:

@@ -31,6 +31,14 @@ Each bucket's mandate:
 
 The diagnostic value is the rejection half. When a file lands in the wrong bucket, the exclusion rule of the destination bucket is what flags it.
 
+**Framework-resource exception.** Static resources owned by the framework (not by application code) sit outside the 4-bucket discipline because the industry-standard React/Vite convention is well-established and tools (build, bundler, dev server) expect those paths:
+
+- `src/assets/` — images, fonts, SVGs imported by application code
+- `src/styles/` — global CSS, theme tokens, CSS variables
+- `public/` — static files served verbatim (favicon, robots.txt)
+
+These directories MAY exist alongside the 4 buckets and are not subject to the reject-each-other rules. They contain resources, not code.
+
 > **Rename note:** projects pre-v4.5 used `src/lib/` as a catch-all. `lib/` is a JS tradition with no semantic content; `infra/` carries a clear meaning (_talks to a platform we depend on_) that lets a reader decide at a glance whether a file belongs. Migration is a one-time rename per project — sort the existing `lib/` contents into the four buckets above, then delete `lib/`. The kit ships forward with `infra/`.
 
 This is the FE counterpart to the backend `B0` gold layout, adapted for FE realities: there is no per-feature `application/domain/infrastructure` layering and no Shared Kernel, because FE features are UI surfaces, not bounded contexts (see F23, F26).
@@ -110,7 +118,7 @@ The reviewer-frontend lane flags primary interactive elements without an `id` pr
 
 **F14** — MUST log `error` when a critical error happens (not a validation — a real, specific frontend error).
 
-**F15** — MUST NOT use `console.log`. Always use `logger` from `@/lib/logger`.
+**F15** — MUST NOT use `console.log`. Always use `logger` from `@/infra/logger` (per F28's `infra/` bucket — the logger sink talks to a platform we depend on).
 
 ## i18n
 
@@ -143,8 +151,10 @@ The reviewer-frontend lane flags any literal string passed to those props.
 
 1. **Gateway** returns `Result<T, *CommandError>` unchanged — no translation, no swallow. (Already enforced by Specta-generated bindings.)
 2. **Hook** branches on `result.status`. For `error`, it MUST either (a) return the typed error as state for the component to render, OR (b) dispatch to a snackbar/toast store. Silently dropping the error branch — or coercing it to a stringified message — is forbidden.
-3. **Presenter** owns translation. The presenter (`shared/presenter.ts`) maps `error.code` to an i18n key — pure, testable, free of React/i18n runtime concerns. Components never inspect `error.code` directly.
-4. **Component** renders the i18n key via `useTranslation`, surfaced inline (form context) or via snackbar (action context). The component knows nothing about the error's domain shape.
+3. **Presenter** owns the typed-error → i18n-key mapping. The presenter (`shared/presenter.ts`) is a pure function that returns a key string (e.g. `"record_price.error.duplicate_date"`) — no `useTranslation`, no React, no runtime concerns. Trivially unit-testable. Components never inspect `error.code` directly.
+4. **Component** owns the runtime translation. It calls `t(key)` via `useTranslation` to render the string, surfaced inline (form context) or via snackbar (action context). The component knows nothing about the error's domain shape.
+
+The presenter / component split mirrors the selector / view split in modern React: selectors return data, views handle runtime presentation. Mixing the two would couple the presenter to React's runtime and force tests to mock `useTranslation`.
 
 ```ts
 // 1. Gateway — Specta-generated, unchanged
@@ -254,4 +264,4 @@ The only authorised cross-feature navigation wiring points are:
 - **Primitive imports are fine.** Types, pure functions, and presentational components MAY be imported across feature boundaries. They are not behaviour coupling — they are shared primitives. Example: `features/account_details/.../X.tsx` importing `TransactionFormData` (type), `validateTransactionForm` (pure), or `RecordPriceCheckbox` (presentational) from `features/transactions/shared/` is acceptable.
 - **Behaviour imports are a code smell.** A hook or store imported from another feature couples the two features behaviourally and typically signals one of: wrong feature boundary, missing shared layer, or a piece of behaviour that should be promoted to `ui/hooks/` or `shell/`. Treat the import as SHOULD-NOT and prefer promotion when it appears twice.
 
-Promotion destinations (see F28 once available): generic UI hooks → `ui/hooks/`; app-wide stores → `shell/`; cross-cutting platform adapters → `infra/`.
+Promotion destinations (see F28): generic UI hooks → `ui/hooks/`; app-wide stores → `shell/`; cross-cutting platform adapters → `infra/`.
