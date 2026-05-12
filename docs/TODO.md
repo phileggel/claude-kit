@@ -1,22 +1,30 @@
 # List of TODOs
 
-## v4.5 candidates
-
-_All v4.5 candidates resolved — see commit history. Remaining work is in v4.6._
-
 ## v4.6 candidates
 
-- **SDD Phase 4 walk: align review & closure agents with v4.3+ conventions.** Phases 1, 2, 3 walked in earlier releases (1 pre-v4.2, 2 in v4.3, 3 in v4.5). Phase 4 is the last remaining SDD phase. Targets:
-  - `kit/agents/test-writer-e2e.md` — heaviest unwalked file (302 lines, 246-line longest section, 17 critical rules). Natural fold-in of v4.5's E4 (stable `id` selectors) change.
-  - `kit/agents/reviewer-infra.md` — 342 lines; needs convention alignment.
-  - `kit/agents/reviewer-security.md` — convention alignment.
-  - `kit/skills/setup-e2e/SKILL.md` — deferred from v4.5 Phase 3 (frontend-adjacent). 368 lines, 162-line longest section.
+_All v4.6 candidates resolved — see commit history. Remaining work is in v4.7._
 
-  Per file: run `ai-reviewer` to surface findings, apply fixes (frontmatter discoverability, structural completeness, tool-grant minimality, density trimming, voice consistency), then `/preflight`. Fold the v4.4+v4.5 FE rules (E4, F24, F25, F28) where they apply (especially in `test-writer-e2e` and `setup-e2e`).
+## v4.7 candidates
 
-  Closes the SDD walk story; maintenance/sanity skills (prune, dep-audit, kit-discover, etc.) stay ad-hoc — not a formal walk batch.
+- **SDD Workflow A walk — remaining reviewers.** v4.6 walked `test-writer-e2e` and extracted `reviewer-e2e` from `reviewer-frontend`. Workflow A Phase 4 still has four un-walked reviewers:
+  - `kit/agents/reviewer-arch.md` — always runs in Phase 4 of A; also in Workflow B
+  - `kit/agents/reviewer-sql.md` — if migrations modified
+  - `kit/agents/reviewer-infra.md` — 342 lines; needs convention alignment
+  - `kit/agents/reviewer-security.md` — convention alignment
 
-- **Partial-stack audit + `--strict` toggle generalization (no-DB Tauri, etc.).** Generalizes the work shipped in v4.5 for issue #15 (graceful skip on absent stack). v4.5 added marker-file detection (`package.json`, `src-tauri/Cargo.toml`, `src-tauri/.sqlx/`) and per-checker skip-with-summary; this v4.6 candidate completes the partial-stack story across the rest of the kit and adds release-time strictness.
+  Per file: run `ai-reviewer`, apply structural and density findings, align with sibling pattern (`## Not to be confused with`, `## When to use` / `When NOT to use`, `## Output format`, `## Notes`), `/preflight`. Fold v4.4+v4.5 rule references where they apply.
+
+- **`reviewer-arch` trigger scoping** (post-`reviewer-e2e` split). After v4.6's `reviewer-frontend` → `reviewer-frontend` + `reviewer-e2e` split, `reviewer-arch`'s frontmatter trigger still says "Any `.rs`, `.ts`, or `.tsx` modified" — which includes `e2e/**/*.test.ts`. Decide: should `reviewer-arch` exclude E2E test files? Reasonable answer is yes (E2E scenarios aren't DDD-architecture surfaces), but verify before changing. Small follow-up; fold into the `reviewer-arch` walk above.
+
+- **SDD Workflow B walk — verify reviewer dual-use.** Reviewer agents (`reviewer-arch`, `reviewer-backend`, `reviewer-frontend`, `reviewer-e2e`, `reviewer-sql`, `reviewer-infra`, `reviewer-security`) are used by both Workflow A (Phase 4) and Workflow B (step 5). Workflow B has no `docs/plan/{feature}-plan.md`, no `docs/contracts/{domain}-contract.md`, no `docs/spec/{domain}.md`. Verify each reviewer handles the no-plan / no-contract context gracefully (no hard reads, no halts on absent files). Likely surface mostly verification with small graceful-skip patches.
+
+- **Tools walk.** One-shot setup helpers and maintenance skills — different lens than workflow agents ("is this easy to invoke and complete?"). Targets:
+  - `kit/skills/setup-e2e/SKILL.md` — 368 lines, 162-line longest section. Deferred from v4.5 Phase 3.
+  - `kit/skills/prune/SKILL.md`, `kit/skills/dep-audit/SKILL.md`, `kit/skills/kit-discover/SKILL.md`, `kit/skills/whats-next/SKILL.md`, `kit/skills/techdebt/SKILL.md`, `kit/skills/visual-proof/SKILL.md`, `kit/skills/start/SKILL.md`, `kit/agents/retro-spec.md`
+
+- **`merge.py` post-merge cleanup of stale remote branch.** v4.6's `merge.py` rewrite deletes the local branch after merge but does not delete the remote tracking branch. When the local branch is "ahead of" its upstream (e.g. later commits never pushed to the feature branch), `git branch -d` refuses. Surface bug hit during v4.6's own release. Fix: before `git branch -d`, run `git push --delete origin <branch>` if the remote branch exists. Restores the "single atomic shortcut" property.
+
+- **Partial-stack audit + `--strict` toggle generalization (no-DB Tauri, etc.).** Generalizes the work shipped in v4.5 for issue #15 (graceful skip on absent stack). v4.5 added marker-file detection (`package.json`, `src-tauri/Cargo.toml`, `src-tauri/.sqlx/`) and per-checker skip-with-summary; this candidate completes the partial-stack story across the rest of the kit and adds release-time strictness.
 
   Three axes to audit (output is a concrete fix list, not the fixes themselves):
   1. **Scripts beyond `check.py`** — sweep all `kit/scripts/*` and any DB-touching agent helper scripts to confirm they all skip-not-fail when `.sqlx/`, `migrations/`, or DB env vars are absent. Catch partial-stack edge cases (`migrations/` exists but `.sqlx/` doesn't, or the reverse).
@@ -28,8 +36,6 @@ _All v4.5 candidates resolved — see commit history. Remaining work is in v4.6.
   - Option B: `--strict` distinguishes core stack (`package.json` + `Cargo.toml` required) from optional stack (`.sqlx/` optional). Allows no-DB releases while still gating "you forgot to scaffold React".
   - Option C: project-level config flag declares which markers are expected. Most flexible, more moving parts.
 
-  v4.5 already left a `TODO(v4.6)` marker in `kit/scripts/check.py` at the stack-markers block. The audit decision lands the policy; implementation is downstream of the decision.
-
-  Categorisation per fix item: graceful-skip / doc-gate / sync-time-exclude / accept-as-noise / strict-required.
+  Closes GH #15 + #27 as side-effects. Categorisation per fix item: graceful-skip / doc-gate / sync-time-exclude / accept-as-noise / strict-required.
 
 ## Experimental
