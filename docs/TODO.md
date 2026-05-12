@@ -16,8 +16,6 @@ _All v4.5 candidates resolved — see commit history. Remaining work is in v4.6.
 
   Closes the SDD walk story; maintenance/sanity skills (prune, dep-audit, kit-discover, etc.) stay ad-hoc — not a formal walk batch.
 
-- **`mirror-local.sh`: also mirror `*.py` from `kit/scripts/`.** Currently only `*.sh` is mirrored, so `kit/scripts/whats-next.py` (and `release.py`) are not available at `scripts/whats-next.py` during kit development — `/whats-next` and similar skills fail in this repo even though they work downstream. Fix by extending the loop in `scripts/mirror-local.sh:43-51` to also copy `*.py`, but **explicitly exclude `check.py` and `release.py`** because kit-internal versions of those already exist in `scripts/` and must not be clobbered. Safest approach: explicit allowlist (`whats-next.py` for now), not a glob.
-
 - **Partial-stack audit + `--strict` toggle generalization (no-DB Tauri, etc.).** Generalizes the work shipped in v4.5 for issue #15 (graceful skip on absent stack). v4.5 added marker-file detection (`package.json`, `src-tauri/Cargo.toml`, `src-tauri/.sqlx/`) and per-checker skip-with-summary; this v4.6 candidate completes the partial-stack story across the rest of the kit and adds release-time strictness.
 
   Three axes to audit (output is a concrete fix list, not the fixes themselves):
