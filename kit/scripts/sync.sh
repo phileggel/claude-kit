@@ -42,15 +42,28 @@ _record() { printf '%s\n' "$1" >>"$MANIFEST"; }
 
 # ── Framework detection ───────────────────────────────────────────────────────
 # Downstream projects declare their target framework in .claude/kit.config.json
-# ({"framework": "react"|"svelte"}). Defaults to "react" when the file is absent
-# (legacy installs). When "svelte" is selected, the sync prefers `*-svelte.md`
-# variants over their base files and strips the `-svelte` suffix from both
-# filename and frontmatter `name:` field at copy time.
+# ({"framework": "react"|"svelte"}). The file is auto-created with the React
+# default on first sync if absent — making the choice discoverable in the tree.
+# Once present, the file is never overwritten; the user can edit it to switch
+# framework before the next sync. When "svelte" is selected, the sync prefers
+# `*-svelte.md` variants over their base files and strips the `-svelte` suffix
+# from filename and frontmatter `name:` at copy time. On main, `-svelte`
+# variants don't ship — so the flag is functionally inert for React projects
+# tagged off main, but the bootstrap layer is identical to svelte-main, making
+# cross-branch cherry-picks of sync logic frictionless.
 KIT_FRAMEWORK="react"
 _KIT_CONFIG="$PROJECT_ROOT/.claude/kit.config.json"
-if [ -f "$_KIT_CONFIG" ]; then
-    KIT_FRAMEWORK=$(
-        python3 - "$_KIT_CONFIG" <<'PY'
+if [ ! -f "$_KIT_CONFIG" ]; then
+    cat >"$_KIT_CONFIG" <<'JSON'
+{
+  "framework": "react"
+}
+JSON
+    echo -e "${BLUE}ℹ Created .claude/kit.config.json (default: framework=react)${NC}"
+fi
+_record ".claude/kit.config.json"
+KIT_FRAMEWORK=$(
+    python3 - "$_KIT_CONFIG" <<'PY'
 import json, sys
 try:
     data = json.load(open(sys.argv[1]))
@@ -59,8 +72,7 @@ try:
 except Exception:
     print("react")
 PY
-    )
-fi
+)
 echo -e "${BLUE}🎯 Framework: ${KIT_FRAMEWORK}${NC}"
 
 # Strip `-svelte` from a file's `name:` frontmatter and write to destination.
