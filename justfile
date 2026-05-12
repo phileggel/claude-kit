@@ -20,24 +20,11 @@ check:
 mirror-local:
     bash scripts/mirror-local.sh
 
-# Fast-forward current branch into main (no merge commit), then delete the branch
+# Auto-rebase + FF-merge current branch into main, push, then delete the branch.
+# Soft failure on conflict: aborts the rebase and leaves the branch unchanged.
 merge:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    branch=$(git rev-parse --abbrev-ref HEAD)
-    if [ "$branch" = "main" ]; then echo "❌ Already on main — nothing to merge."; exit 1; fi
-    git checkout main
-    git merge --ff-only "$branch"
-    git branch -d "$branch"
-    echo "✅ $branch fast-forwarded into main and deleted."
+    python3 kit/scripts/merge.py
 
-# Fast-forward current branch into svelte-main, then delete the branch
+# Auto-rebase + FF-merge current branch into svelte-main, push, then delete the branch.
 merge-svelte:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    branch=$(git rev-parse --abbrev-ref HEAD)
-    if [ "$branch" = "svelte-main" ]; then echo "❌ Already on svelte-main — nothing to merge."; exit 1; fi
-    git checkout svelte-main
-    git merge --ff-only "$branch"
-    git branch -d "$branch"
-    echo "✅ $branch fast-forwarded into svelte-main and deleted."
+    python3 kit/scripts/merge.py --target svelte-main

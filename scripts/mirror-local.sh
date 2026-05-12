@@ -12,7 +12,9 @@ set -euo pipefail
 #   kit/scripts/sync.sh       — ephemeral kit infra, runs only from $TMP
 #   kit/scripts/check.py      — kit-internal scripts/check.py is different (would clobber)
 #   kit/scripts/release.py    — kit-internal scripts/release-kit.py is different
-#   kit/scripts/list-fe-test-targets.py, kit/scripts/merge.py — no kit-internal trigger
+#   kit/scripts/list-fe-test-targets.py — no kit-internal trigger
+#   kit/scripts/merge.py — invoked by /justfile via `python3 kit/scripts/merge.py`
+#     directly from source, no mirror needed
 #   kit/githooks/README.md    — documentation, not a hook
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
