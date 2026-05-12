@@ -40,6 +40,55 @@ mkdir -p "$PROJECT_ROOT/.claude"
 
 _record() { printf '%s\n' "$1" >>"$MANIFEST"; }
 
+# ── Framework detection ───────────────────────────────────────────────────────
+# Downstream projects declare their target framework in .claude/kit.config.json
+# ({"framework": "react"|"svelte"}). The file is auto-created with the React
+# default on first sync if absent — making the choice discoverable in the tree.
+# Once present, the file is never overwritten; the user can edit it to switch
+# framework before the next sync. When "svelte" is selected, the sync prefers
+# `*-svelte.md` variants over their base files and strips the `-svelte` suffix
+# from filename and frontmatter `name:` at copy time. On main, `-svelte`
+# variants don't ship — so the flag is functionally inert for React projects
+# tagged off main, but the bootstrap layer is identical to svelte-main, making
+# cross-branch cherry-picks of sync logic frictionless.
+KIT_FRAMEWORK="react"
+_KIT_CONFIG="$PROJECT_ROOT/.claude/kit.config.json"
+if [ ! -f "$_KIT_CONFIG" ]; then
+    cat >"$_KIT_CONFIG" <<'JSON'
+{
+  "framework": "react"
+}
+JSON
+    echo -e "${BLUE}ℹ Created .claude/kit.config.json (default: framework=react)${NC}"
+fi
+_record ".claude/kit.config.json"
+KIT_FRAMEWORK=$(
+    python3 - "$_KIT_CONFIG" <<'PY'
+import json, sys
+try:
+    data = json.load(open(sys.argv[1]))
+    fw = str(data.get("framework", "react")).lower()
+    print(fw if fw in ("react", "svelte") else "react")
+except Exception:
+    print("react")
+PY
+)
+echo -e "${BLUE}🎯 Framework: ${KIT_FRAMEWORK}${NC}"
+
+# Strip `-svelte` from a file's `name:` frontmatter and write to destination.
+# Args: $1=source file, $2=destination file
+_strip_svelte_name() {
+    awk '
+    BEGIN { in_fm = 0; fm_seen = 0 }
+    /^---$/ {
+        if (!fm_seen) { in_fm = 1; fm_seen = 1; print; next }
+        if (in_fm)    { in_fm = 0;             print; next }
+    }
+    in_fm && /^name: .*-svelte$/ { sub(/-svelte$/, "", $0) }
+    { print }
+    ' "$1" >"$2"
+}
+
 # ── Kit index & readme ────────────────────────────────────────────────────────
 echo -e "${BLUE}📁 Syncing kit index and readme...${NC}"
 cp "$TMP/kit/kit-tools.md" "$PROJECT_ROOT/.claude/"
@@ -53,8 +102,33 @@ mkdir -p "$PROJECT_ROOT/.claude/agents"
 for agent in "$TMP/kit/agents/"*.md; do
     [ -f "$agent" ] || continue
     name=$(basename "$agent")
-    cp "$agent" "$PROJECT_ROOT/.claude/agents/"
-    _record ".claude/agents/$name"
+    case "$KIT_FRAMEWORK" in
+    svelte)
+        if [[ "$name" == *-svelte.md ]]; then
+            # Svelte variant: strip the `-svelte` suffix from destination filename
+            # so it lands as the canonical name (and the frontmatter `name:` is
+            # rewritten by `_strip_svelte_name` to match).
+            dest_name="${name%-svelte.md}.md"
+            _strip_svelte_name "$agent" "$PROJECT_ROOT/.claude/agents/$dest_name"
+            _record ".claude/agents/$dest_name"
+        else
+            # Plain (React) variant: skip if a `-svelte` variant exists for the
+            # same stem — the Svelte loop iteration above will write the canonical
+            # destination. Without this skip, both files would write to the same
+            # path and both would land in the manifest (duplicate entry).
+            svelte_variant="${name%.md}-svelte.md"
+            [ -f "$TMP/kit/agents/$svelte_variant" ] && continue
+            cp "$agent" "$PROJECT_ROOT/.claude/agents/$name"
+            _record ".claude/agents/$name"
+        fi
+        ;;
+    *)
+        # React (default): never copy `-svelte` variants downstream.
+        [[ "$name" == *-svelte.md ]] && continue
+        cp "$agent" "$PROJECT_ROOT/.claude/agents/$name"
+        _record ".claude/agents/$name"
+        ;;
+    esac
 done
 
 # ── Skills ────────────────────────────────────────────────────────────────────
@@ -158,6 +232,23 @@ mkdir -p "$PROJECT_ROOT/docs"
 for doc in "$TMP/kit/docs/"*.md; do
     [ -f "$doc" ] || continue
     doc_name=$(basename "$doc")
+    # Framework-aware filter (mirrors the agents loop). Docs have no
+    # `name:` frontmatter, so we only rename the destination filename.
+    case "$KIT_FRAMEWORK" in
+    svelte)
+        if [[ "$doc_name" == *-svelte.md ]]; then
+            doc_name="${doc_name%-svelte.md}.md"
+        else
+            # Skip the React variant if a `-svelte` variant exists for the same
+            # stem — the Svelte iteration writes the canonical destination.
+            svelte_variant="${doc_name%.md}-svelte.md"
+            [ -f "$TMP/kit/docs/$svelte_variant" ] && continue
+        fi
+        ;;
+    *)
+        [[ "$doc_name" == *-svelte.md ]] && continue
+        ;;
+    esac
     dest="$PROJECT_ROOT/docs/$doc_name"
     if [ ! -f "$dest" ]; then
         cp "$doc" "$dest"
