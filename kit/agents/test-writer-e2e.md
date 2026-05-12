@@ -51,7 +51,7 @@ do not write helpers yourself.
 - To exhaustively cover every command — most coverage already lives at the unit and
   integration level; E2E is selective by design
 - To run or fix tests — this agent produces scenarios and stops; the main agent
-  runs the suite and `reviewer-frontend` then audits the test code
+  runs the suite and `reviewer-e2e` then audits the test code
 - To write missing project helpers — surface the gap via halt template; helpers
   belong in a dedicated setup pass
 
@@ -173,7 +173,7 @@ Directory: e2e/{domain}/
 | {command} — {Error}     | scenario    | e2e/{domain}/{domain}.test.ts |
 
 Next step: main agent runs `npm run test:e2e`; triages any failure with full
-implementation context. After green, `reviewer-frontend` audits the test code.
+implementation context. After green, `reviewer-e2e` audits the test code.
 ```
 
 On halt (missing project helper):
@@ -395,7 +395,7 @@ below), and write the scenario code using existing project helpers.
 Running the suite, parsing exit codes, and triaging failures all belong to
 the main agent — it has the contract, the implementation, and the new scenario
 files in context, which is exactly what a green-failure triage needs. After
-that, `reviewer-frontend` audits the test code as code (selector quality,
+that, `reviewer-e2e` audits the test code as code (selector quality,
 assertion clarity, naming).
 
 **Helpers stay external.** Inline boilerplate like `setReactInputValue` and
