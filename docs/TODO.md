@@ -6,6 +6,8 @@ _All v4.5 candidates resolved — see commit history. Remaining work is in v4.6.
 
 ## v4.6 candidates
 
+- **Framework-aware sync convergence onto `main`.** Port the framework-aware strip-suffix logic from `svelte-main`'s `sync.sh` (+~80 lines) and the framework tag-filter from `sync-config.sh` (+~25 lines) back to `main`. Lossless for React downstream: `.claude/kit.config.json` defaults to `framework: react`, behaviour is unchanged when the flag is absent. Eliminates the highest-friction cherry-pick targets between main and svelte-main. Per memory `project_svelte_script_divergence`: explicitly designated for "the next genuine v4.6.0 feature release, not as a standalone patch". After this lands, the script-divergence table shrinks from 5 to 3 entries.
+
 - **SDD Phase 4 walk: align review & closure agents with v4.3+ conventions.** Phases 1, 2, 3 walked in earlier releases (1 pre-v4.2, 2 in v4.3, 3 in v4.5). Phase 4 is the last remaining SDD phase. Targets:
   - `kit/agents/test-writer-e2e.md` — heaviest unwalked file (302 lines, 246-line longest section, 17 critical rules). Natural fold-in of v4.5's E4 (stable `id` selectors) change.
   - `kit/agents/reviewer-infra.md` — 342 lines; needs convention alignment.
