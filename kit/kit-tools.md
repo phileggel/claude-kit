@@ -141,11 +141,16 @@ Synced to downstream `scripts/` on every sync.
 
 ### Quality & release
 
-| Script            | Command                           | Description                                                     |
-| ----------------- | --------------------------------- | --------------------------------------------------------------- |
-| `check.py`        | `python3 scripts/check.py`        | Full quality check: lint, format, tests, build                  |
-| `check.py --fast` | `python3 scripts/check.py --fast` | Fast check: lint + format only (used by pre-commit hook)        |
-| `release.py`      | `python3 scripts/release.py`      | Interactive release manager: bumps version, tags, and publishes |
+| Script                  | Command                                 | Description                                                                                                                                                  |
+| ----------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `check.py`              | `python3 scripts/check.py`              | Full quality check: lint, format, tests, build. Frontend & backend groups run in parallel (~2× faster on warm cache); add `--sequential` to force serial run |
+| `check.py --fast`       | `python3 scripts/check.py --fast`       | Fast check: lint + format only (used by pre-commit hook)                                                                                                     |
+| `check.py --skip-tests` | `python3 scripts/check.py --skip-tests` | Skip only test execution (vitest, cargo test); build + lint + format still run. For CI that computes coverage separately and would otherwise run tests twice |
+| `check.py --frontend`   | `python3 scripts/check.py --frontend`   | Frontend group only: vitest, build, oxlint, biome, tsc                                                                                                       |
+| `check.py --backend`    | `python3 scripts/check.py --backend`    | Backend group only: cargo test, sqlx, clippy, cargo fmt                                                                                                      |
+| `check.py --format`     | `python3 scripts/check.py --format`     | Sub-second lint+format pre-flight: oxlint + biome + cargo fmt --check                                                                                        |
+| `release.py`            | `python3 scripts/release.py`            | Interactive release manager: bumps version, tags, and publishes                                                                                              |
+| `release.py --preview`  | `python3 scripts/release.py --preview`  | Read-only preview: shows next version without editing files, committing, or tagging                                                                          |
 
 ---
 
