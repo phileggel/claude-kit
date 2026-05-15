@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-import subprocess
-import sys
+import argparse
 import os
 import re
+import subprocess
+import sys
 import threading
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
@@ -19,6 +20,16 @@ else:
     FAILURE = "\033[0;31m"  # red    — fail
     WARNING = "\033[0;33m"  # orange — soft fail (errors counted, stale, etc.)
     RESET = "\033[0m"
+
+# Metric status constants. Keep these explicit so call sites can't typo a
+# state and silently miscategorise the result in the report.
+STATUS_PASS = "Pass"
+STATUS_SKIPPED = "SKIPPED"
+STATUS_PENDING = "Pending"  # never-ran sentinel — rendered as Fail
+STATUS_STALE = "Stale"
+STATUS_UNCOMMITTED = "Uncommitted"
+# Variable-detail warning values use the suffix " errors" / " warnings"
+# (e.g. "3 errors") — recognised by `_format_status`.
 
 
 class QualityChecker:
@@ -52,16 +63,16 @@ class QualityChecker:
         self.skip_tests = skip_tests
         self._lock = threading.Lock()
         self.metrics = {
-            "react_tests": "SKIPPED",
-            "rust_lib": "SKIPPED",
-            "rust_beh": "SKIPPED",
-            "build": "SKIPPED",
-            "sqlx": "Pending",
-            "lint": "Pending",
-            "biome": "Pending",
-            "clippy": "Pending",
-            "rust_fmt": "Pending",
-            "tsc": "Pending",
+            "react_tests": STATUS_SKIPPED,
+            "rust_lib": STATUS_SKIPPED,
+            "rust_beh": STATUS_SKIPPED,
+            "build": STATUS_SKIPPED,
+            "sqlx": STATUS_PENDING,
+            "lint": STATUS_PENDING,
+            "biome": STATUS_PENDING,
+            "clippy": STATUS_PENDING,
+            "rust_fmt": STATUS_PENDING,
+            "tsc": STATUS_PENDING,
         }
         self.suite_failed = False
         self.failures: dict[str, str] = {}
@@ -76,6 +87,26 @@ class QualityChecker:
         self.sqlx_dir = self.repo_root / "src-tauri" / ".sqlx"
         self._skipped_for_stack: list[tuple[str, str]] = []  # (reason, check_name)
 
+    # --- Thread-safe state mutators -----------------------------------------
+    # Every shared-state write goes through one of these. The lock stays
+    # invisible at call sites, and the helpers document the only ways the
+    # checker is allowed to mutate its results.
+
+    def _set_metric(self, key: str, value: str) -> None:
+        with self._lock:
+            self.metrics[key] = value
+
+    def _record_failure(self, step: str, output: Optional[str] = None) -> None:
+        with self._lock:
+            self.suite_failed = True
+            if output:
+                self.failures[step] = output
+
+    def _record_stack_skip(self, metric_key: str, check_name: str, reason: str) -> None:
+        with self._lock:
+            self.metrics[metric_key] = STATUS_SKIPPED
+            self._skipped_for_stack.append((reason, check_name))
+
     def _vprint(self, *args, **kwargs):
         if self.verbose:
             print(*args, **kwargs)
@@ -88,9 +119,7 @@ class QualityChecker:
         if marker.exists():
             return False
         print(f"  {check_name}... {INFO}⏩ skipped ({reason}){RESET}", flush=True)
-        with self._lock:
-            self.metrics[metric_key] = "SKIPPED"
-            self._skipped_for_stack.append((reason, check_name))
+        self._record_stack_skip(metric_key, check_name, reason)
         return True
 
     def print_header(self, title: str):
@@ -134,16 +163,11 @@ class QualityChecker:
                 self._vprint(
                     f"{FAILURE}✗ {name}: Failed (Exit {result.returncode}){RESET}"
                 )
-                with self._lock:
-                    self.suite_failed = True
-                    if output:
-                        self.failures[name] = output
+                self._record_failure(name, output)
             return success
         except Exception as e:
             self._vprint(f"{FAILURE}✗ {name}: Exception: {e}{RESET}")
-            with self._lock:
-                self.suite_failed = True
-                self.failures[name] = str(e)
+            self._record_failure(name, str(e))
             return False
 
     def check_sqlx(self) -> bool:
@@ -164,12 +188,11 @@ class QualityChecker:
             self._vprint(
                 f"{FAILURE}✗ SQLx: Unstaged changes in .sqlx/. Run 'just prepare-sqlx' and stage the result.{RESET}"
             )
-            with self._lock:
-                self.metrics["sqlx"] = "Uncommitted"
-                self.suite_failed = True
-                self.failures["SQLx"] = (
-                    "Unstaged changes in .sqlx/. Run 'just prepare-sqlx' and stage the result."
-                )
+            self._set_metric("sqlx", STATUS_UNCOMMITTED)
+            self._record_failure(
+                "SQLx",
+                "Unstaged changes in .sqlx/. Run 'just prepare-sqlx' and stage the result.",
+            )
             return False
 
         success = self.run_step(
@@ -177,8 +200,7 @@ class QualityChecker:
             ["cargo", "sqlx", "prepare", "--check"],
             cwd=self.repo_root / "src-tauri",
         )
-        with self._lock:
-            self.metrics["sqlx"] = "Pass" if success else "Stale"
+        self._set_metric("sqlx", STATUS_PASS if success else STATUS_STALE)
         return success
 
     def run_all(self):
@@ -203,13 +225,13 @@ class QualityChecker:
                 "clippy",
                 "tsc",
             ):
-                self.metrics[key] = "SKIPPED"
+                self.metrics[key] = STATUS_SKIPPED
         elif self.frontend_only:
             for key in ("rust_lib", "rust_beh", "sqlx", "clippy", "rust_fmt"):
-                self.metrics[key] = "SKIPPED"
+                self.metrics[key] = STATUS_SKIPPED
         elif self.backend_only:
             for key in ("react_tests", "build", "lint", "biome", "tsc"):
-                self.metrics[key] = "SKIPPED"
+                self.metrics[key] = STATUS_SKIPPED
 
         if self.format_only:
             self._run_format_only()
@@ -244,15 +266,13 @@ class QualityChecker:
             "lint", "Oxlint", self.package_json, "package.json absent"
         ):
             if self.run_step("Oxlint", ["npm", "run", "lint"]):
-                with self._lock:
-                    self.metrics["lint"] = "Pass"
+                self._set_metric("lint", STATUS_PASS)
 
         if not self._maybe_skip_for_stack(
             "biome", "Biome Check", self.package_json, "package.json absent"
         ):
             if self.run_step("Biome Check", ["npm", "run", "format"]):
-                with self._lock:
-                    self.metrics["biome"] = "Pass"
+                self._set_metric("biome", STATUS_PASS)
 
         if not self._maybe_skip_for_stack(
             "rust_fmt", "Rust Fmt", self.cargo_toml, "src-tauri/Cargo.toml absent"
@@ -262,8 +282,7 @@ class QualityChecker:
                 ["cargo", "fmt", "--check"],
                 cwd=self.repo_root / "src-tauri",
             ):
-                with self._lock:
-                    self.metrics["rust_fmt"] = "Pass"
+                self._set_metric("rust_fmt", STATUS_PASS)
 
     def _run_frontend_group(self):
         """Frontend steps: vitest, build, oxlint, biome, tsc."""
@@ -274,30 +293,26 @@ class QualityChecker:
                 "react_tests", "React Tests", self.package_json, "package.json absent"
             ):
                 if self.run_step("React Tests", ["npm", "test", "--", "--run"]):
-                    with self._lock:
-                        self.metrics["react_tests"] = "Pass"
+                    self._set_metric("react_tests", STATUS_PASS)
 
         if not self.fast_mode:
             if not self._maybe_skip_for_stack(
                 "build", "Application Build", self.package_json, "package.json absent"
             ):
                 if self.run_step("Application Build", ["npm", "run", "build"]):
-                    with self._lock:
-                        self.metrics["build"] = "Pass"
+                    self._set_metric("build", STATUS_PASS)
 
         if not self._maybe_skip_for_stack(
             "lint", "Oxlint", self.package_json, "package.json absent"
         ):
             if self.run_step("Oxlint", ["npm", "run", "lint"]):
-                with self._lock:
-                    self.metrics["lint"] = "Pass"
+                self._set_metric("lint", STATUS_PASS)
 
         if not self._maybe_skip_for_stack(
             "biome", "Biome Check", self.package_json, "package.json absent"
         ):
             if self.run_step("Biome Check", ["npm", "run", "format"]):
-                with self._lock:
-                    self.metrics["biome"] = "Pass"
+                self._set_metric("biome", STATUS_PASS)
 
         if not self._maybe_skip_for_stack(
             "tsc", "TSC", self.package_json, "package.json absent"
@@ -312,16 +327,13 @@ class QualityChecker:
             )
             if tsc_res.returncode == 0:
                 self._vprint(f"{SUCCESS}✓ TSC: Pass{RESET}")
-                with self._lock:
-                    self.metrics["tsc"] = "Pass"
+                self._set_metric("tsc", STATUS_PASS)
             else:
                 err_count = len(re.findall(r"error TS", tsc_res.stdout))
                 self._vprint(f"{WARNING}⚠️  TSC: {err_count} errors found{RESET}")
-                with self._lock:
-                    self.metrics["tsc"] = f"{err_count} errors"
-                    self.suite_failed = True
-                    if not self.verbose and tsc_res.stdout.strip():
-                        self.failures["TSC"] = tsc_res.stdout.strip()
+                self._set_metric("tsc", f"{err_count} errors")
+                err_output = tsc_res.stdout.strip() if not self.verbose else ""
+                self._record_failure("TSC", err_output)
 
     def _run_backend_group(self):
         """Backend steps: rust tests, sqlx, clippy, fmt."""
@@ -340,8 +352,7 @@ class QualityChecker:
                     cwd=self.repo_root / "src-tauri",
                     env_update={"SQLX_OFFLINE": "1"},
                 ):
-                    with self._lock:
-                        self.metrics["rust_lib"] = "Pass"
+                    self._set_metric("rust_lib", STATUS_PASS)
 
             if not self._maybe_skip_for_stack(
                 "rust_beh",
@@ -355,8 +366,7 @@ class QualityChecker:
                     cwd=self.repo_root / "src-tauri",
                     env_update={"SQLX_OFFLINE": "1"},
                 ):
-                    with self._lock:
-                        self.metrics["rust_beh"] = "Pass"
+                    self._set_metric("rust_beh", STATUS_PASS)
 
         self.check_sqlx()
 
@@ -369,8 +379,7 @@ class QualityChecker:
                 cwd=self.repo_root / "src-tauri",
                 env_update={"SQLX_OFFLINE": "1"},
             ):
-                with self._lock:
-                    self.metrics["clippy"] = "Pass"
+                self._set_metric("clippy", STATUS_PASS)
 
         if not self._maybe_skip_for_stack(
             "rust_fmt", "Rust Fmt", self.cargo_toml, "src-tauri/Cargo.toml absent"
@@ -380,8 +389,7 @@ class QualityChecker:
                 ["cargo", "fmt", "--check"],
                 cwd=self.repo_root / "src-tauri",
             ):
-                with self._lock:
-                    self.metrics["rust_fmt"] = "Pass"
+                self._set_metric("rust_fmt", STATUS_PASS)
 
     def _print_stack_summary(self) -> None:
         """Group skipped-for-stack checks by reason and print a consolidated notice.
@@ -405,6 +413,25 @@ class QualityChecker:
             f"{INFO}\n  Once you scaffold the stack, these checks will activate automatically.{RESET}"
         )
 
+    def _format_status(self, value: str) -> str:
+        """Render a metric value into a coloured status cell.
+        Variable-detail warnings (e.g. "3 errors") are recognised by suffix,
+        not substring — `endswith` won't false-positive on a step *name* that
+        happens to contain the word."""
+        if value == STATUS_PASS:
+            return f"{SUCCESS}✅ Pass{RESET}"
+        if value == STATUS_SKIPPED:
+            return f"{INFO}⏩ Skipped{RESET}"
+        if value == STATUS_PENDING:
+            return f"{FAILURE}❌ Fail{RESET}"
+        if (
+            value in (STATUS_STALE, STATUS_UNCOMMITTED)
+            or value.endswith(" errors")
+            or value.endswith(" warnings")
+        ):
+            return f"{WARNING}⚠️  {value}{RESET}"
+        return f"{FAILURE}❌ {value}{RESET}"
+
     def print_report(self):
         print(f"\n{INFO}🚀 Quality Report{RESET}")
         print(f"| {'Check':<20} | {'Status':<30} |")
@@ -412,22 +439,7 @@ class QualityChecker:
 
         for key, value in self.metrics.items():
             name = key.replace("_", " ").capitalize()
-            if value == "Pass":
-                status_str = f"{SUCCESS}✅ Pass{RESET}"
-            elif value == "SKIPPED":
-                status_str = f"{INFO}⏩ Skipped{RESET}"
-            elif value == "Pending":
-                status_str = f"{FAILURE}❌ Fail{RESET}"
-            elif (
-                "errors" in value
-                or "warnings" in value
-                or "Uncommitted" in value
-                or "Stale" in value
-            ):
-                status_str = f"{WARNING}⚠️  {value}{RESET}"
-            else:
-                status_str = f"{FAILURE}❌ {value}{RESET}"
-
+            status_str = self._format_status(value)
             print(f"| {name:<20} | {status_str:<40} |")
 
         if self.suite_failed:
@@ -441,29 +453,61 @@ class QualityChecker:
             print(f"\n{SUCCESS}✨ ALL CHECKS PASSED{RESET}\n")
 
 
+def _parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Kit quality check — runs lint, format, tests, and build.",
+    )
+    parser.add_argument(
+        "--fast",
+        action="store_true",
+        help="Lint + format only (skip tests and build); used by pre-commit hook",
+    )
+    parser.add_argument(
+        "--skip-tests",
+        dest="skip_tests",
+        action="store_true",
+        help="Skip only test execution; build, lint, and format still run",
+    )
+    parser.add_argument(
+        "--sequential",
+        action="store_true",
+        help="Run frontend and backend groups serially (default: parallel)",
+    )
+    parser.add_argument(
+        "--format",
+        dest="format_only",
+        action="store_true",
+        help="Sub-second pre-flight: oxlint + biome + cargo fmt --check only",
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Stream subprocess output instead of capturing it",
+    )
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "--frontend",
+        action="store_true",
+        help="Run frontend group only (vitest, build, oxlint, biome, tsc)",
+    )
+    group.add_argument(
+        "--backend",
+        action="store_true",
+        help="Run backend group only (cargo test, sqlx, clippy, fmt)",
+    )
+    return parser.parse_args(argv)
+
+
 if __name__ == "__main__":
-    is_fast = "--fast" in sys.argv
-    is_verbose = "--verbose" in sys.argv
-    is_sequential = "--sequential" in sys.argv
-    is_frontend = "--frontend" in sys.argv
-    is_backend = "--backend" in sys.argv
-    is_format = "--format" in sys.argv
-    is_skip_tests = "--skip-tests" in sys.argv
-
-    if is_frontend and is_backend:
-        print(
-            f"{FAILURE}❌ --frontend and --backend are mutually exclusive (drop one to run both groups).{RESET}"
-        )
-        sys.exit(2)
-
+    args = _parse_args()
     checker = QualityChecker(
-        fast_mode=is_fast,
-        verbose=is_verbose,
-        sequential=is_sequential,
-        frontend_only=is_frontend,
-        backend_only=is_backend,
-        format_only=is_format,
-        skip_tests=is_skip_tests,
+        fast_mode=args.fast,
+        verbose=args.verbose,
+        sequential=args.sequential,
+        frontend_only=args.frontend,
+        backend_only=args.backend,
+        format_only=args.format_only,
+        skip_tests=args.skip_tests,
     )
     if not checker.run_all():
         sys.exit(1)
