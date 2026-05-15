@@ -6,16 +6,6 @@ _All v4.6 candidates resolved — see commit history. Remaining work is in v4.7.
 
 ## v4.7 candidates
 
-- **SDD Workflow A walk — remaining reviewers.** v4.6 walked `test-writer-e2e` and extracted `reviewer-e2e` from `reviewer-frontend`. Workflow A Phase 4 still has four un-walked reviewers:
-  - `kit/agents/reviewer-arch.md` — always runs in Phase 4 of A; also in Workflow B
-  - `kit/agents/reviewer-sql.md` — if migrations modified
-  - `kit/agents/reviewer-infra.md` — 342 lines; needs convention alignment
-  - `kit/agents/reviewer-security.md` — convention alignment
-
-  Per file: run `ai-reviewer`, apply structural and density findings, align with sibling pattern (`## Not to be confused with`, `## When to use` / `When NOT to use`, `## Output format`, `## Notes`), `/preflight`. Fold v4.4+v4.5 rule references where they apply.
-
-- **`reviewer-arch` trigger scoping** (post-`reviewer-e2e` split). After v4.6's `reviewer-frontend` → `reviewer-frontend` + `reviewer-e2e` split, `reviewer-arch`'s frontmatter trigger still says "Any `.rs`, `.ts`, or `.tsx` modified" — which includes `e2e/**/*.test.ts`. Decide: should `reviewer-arch` exclude E2E test files? Reasonable answer is yes (E2E scenarios aren't DDD-architecture surfaces), but verify before changing. Small follow-up; fold into the `reviewer-arch` walk above.
-
 - **SDD Workflow B walk — verify reviewer dual-use.** Reviewer agents (`reviewer-arch`, `reviewer-backend`, `reviewer-frontend`, `reviewer-e2e`, `reviewer-sql`, `reviewer-infra`, `reviewer-security`) are used by both Workflow A (Phase 4) and Workflow B (step 5). Workflow B has no `docs/plan/{feature}-plan.md`, no `docs/contracts/{domain}-contract.md`, no `docs/spec/{domain}.md`. Verify each reviewer handles the no-plan / no-contract context gracefully (no hard reads, no halts on absent files). Likely surface mostly verification with small graceful-skip patches.
 
 - **Tools walk.** One-shot setup helpers and maintenance skills — different lens than workflow agents ("is this easy to invoke and complete?"). Targets:
@@ -37,5 +27,11 @@ _All v4.6 candidates resolved — see commit history. Remaining work is in v4.7.
   - Option C: project-level config flag declares which markers are expected. Most flexible, more moving parts.
 
   Closes GH #15 + #27 as side-effects. Categorisation per fix item: graceful-skip / doc-gate / sync-time-exclude / accept-as-noise / strict-required.
+
+- **`reviewer-backend` convention audit.** Surfaced during the reviewer-arch/sql/infra/security walk on `feat/v4.7-candidates`. `reviewer-backend.md` (198 lines, untouched in v4.6) likely shares the structural gaps the four sibling walks fixed: missing `## Not to be confused with`, `## When to use` / `When NOT to use`, `## Critical Rules`, `## Notes`; possibly stale base-resolution if Step 3 doesn't use the `BASE=$(git merge-base ...)` fallback chain. Run `ai-reviewer` once, apply must-fix + structural alignment, `/preflight`. Single-file scope.
+
+- **Stable rule numbering for DDD + SQL conventions.** v4.4 introduced rule-number stability for `frontend-rules.md` (F-NN) and `backend-rules.md` (B-NN). Two gaps surface: (1) `docs/ddd-reference.md` is a concept glossary without numbered rules — `reviewer-arch` cites zero rule numbers in its DDD block, breaking the v4.4 pattern; (2) SQL conventions inside `backend-rules.md` aren't separately numbered (no SQL-NN scheme), so `reviewer-sql` findings can't cite a stable id. Decide per-doc: introduce numbered rules (D-NN, SQL-NN), accept the asymmetry as "DDD/SQL conventions are external/established, not project style rules", or hybrid (number SQL, leave DDD). Output is a documented decision + (if number) the renumbered doc and reviewer citations.
+
+- **Extract `BASE=$(git merge-base ...)` to `scripts/diff-changed-lines.sh`.** Identical fallback-chain idiom appears across all 6 branch-aware reviewers (`reviewer-arch`, `reviewer-backend`, `reviewer-frontend`, `reviewer-e2e`, `reviewer-sql`, `reviewer-security`). Each invocation triggers a Bash compound-operator permission prompt unless the session pre-approves. Extract to `scripts/diff-changed-lines.sh <filepath>`, replace 6 inline copies with a single shell call, update all reviewer Step 3 prose. Single deliverable, ~30 lines of script + 6 small reviewer edits.
 
 ## Experimental
