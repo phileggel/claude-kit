@@ -32,4 +32,19 @@ _All v4.6 candidates resolved — see commit history. Remaining work is in v4.7.
 
 - **Extract `BASE=$(git merge-base ...)` to `scripts/diff-changed-lines.sh`.** Identical fallback-chain idiom appears across all 6 branch-aware reviewers (`reviewer-arch`, `reviewer-backend`, `reviewer-frontend`, `reviewer-e2e`, `reviewer-sql`, `reviewer-security`). Each invocation triggers a Bash compound-operator permission prompt unless the session pre-approves. Extract to `scripts/diff-changed-lines.sh <filepath>`, replace 6 inline copies with a single shell call, update all reviewer Step 3 prose. Single deliverable, ~30 lines of script + 6 small reviewer edits.
 
+- **`release.py` deferred refactors.** Script-reviewer surfaced 13 pre-existing items on `feat/v4.7-candidates`; the cheap ones (atomic push, UTC datetime, `--no-verify` waiver, `MAIN_BRANCH` constant, `cargo metadata` recovery) landed inline. Remaining (refactor-tax, not bugs):
+  1. `run()` is 84 lines and 8 responsibilities — split into `_resolve_version()` / `_apply_changes()` / `_finalize()`.
+  2. `preview` + `dry_run` are two booleans where a `Mode = {REAL, DRY_RUN, PREVIEW}` enum + argparse mutex group belongs.
+  3. `Optional[str]` / `List[dict]` imports — migrate to PEP 604 (`str | None`, `list[dict]`).
+
+- **`check.py` deferred polish.** Cheap items (subprocess timeouts, missing-tool diagnostic, `check_sqlx` `check=False`) landed inline. Remaining:
+  1. `Optional[Path]` / `List[str]` imports — migrate to PEP 604.
+  2. Magic strings repeated (`"src-tauri/Cargo.toml absent"` × 4, `"package.json absent"` × 6) — extract constants.
+  3. Stack-marker paths hard-coded to `src-tauri/` layout — should be discoverable for frontend-only projects.
+  4. Emoji column width: `_pad_visible` pads by Python `len()` which counts the ⏩/✅/❌ as 1 char but terminals render them as 2 columns; the table is off by 1 column on emoji rows. Either depend on `wcwidth` or hardcode emoji width compensation.
+
+- **`merge.py` force-push divergence pre-flight.** Surfaced as out-of-scope by script-reviewer on the v4.7 fix. Today: if `origin/<branch>` has commits not in local (someone force-pushed while user wasn't pulling), Step 2's local rebase discards them and Step 5 deletes them from origin without warning. By-design for local-only feature branches, footgun for shared ones. Add Pre-flight 5: `git fetch origin <branch>` + ahead/behind check; refuse if `origin/<branch>` has commits not in local.
+
+- **`common.just` partial-stack guards.** `cd src-tauri &&` recipes (`migrate`, `generate-types`, `prepare-sqlx`, `clean-db`, `format`) lack the `[ -d src-tauri ]` guard that script-backed recipes use — non-Tauri downstream projects get a bare `cd: src-tauri: No such file or directory`. Single-line guard per recipe.
+
 ## Experimental

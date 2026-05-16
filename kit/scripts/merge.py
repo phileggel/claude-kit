@@ -167,7 +167,14 @@ def main() -> int:
     # (which passes after Step 3's FF-merge) instead of the stricter
     # "merged-in-upstream" check that would refuse if the feature branch was
     # ahead of its origin counterpart.
-    remote_branch_deleted = False
+    #
+    # Failure modes we distinguish:
+    #   - Remote ref doesn't exist (race: someone else deleted it). Benign,
+    #     fall through to local cleanup as if it had never been there.
+    #   - Protected branch / pre-receive hook declined. The user needs to
+    #     know — partial state on the remote, fix-forward required.
+    #   - Network / auth failure. Same surface as the protected case.
+    remote_state = "skipped"  # one of: skipped, deleted, gone, failed
     if has_origin_target:
         has_origin_branch = (
             git(
@@ -178,11 +185,20 @@ def main() -> int:
         if has_origin_branch:
             result = git("push", "--delete", "origin", branch, check=False)
             if result.returncode == 0:
-                remote_branch_deleted = True
+                remote_state = "deleted"
+            elif "remote ref does not exist" in (result.stderr or "").lower():
+                remote_state = "gone"  # race — already removed elsewhere
             else:
+                remote_state = "failed"
+                stderr_excerpt = (result.stderr or "").strip().splitlines()
+                detail = stderr_excerpt[-1] if stderr_excerpt else "no stderr"
                 print(
-                    f"{BLUE}ℹ Could not delete origin/{branch} (already removed, "
-                    f"or protected). Local cleanup proceeding.{NC}",
+                    f"{RED}❌ Failed to delete origin/{branch}: {detail}{NC}",
+                    file=sys.stderr,
+                )
+                print(
+                    f"{BLUE}   Retry manually once unblocked: "
+                    f"git push --delete origin {branch}{NC}",
                     file=sys.stderr,
                 )
 
@@ -193,14 +209,22 @@ def main() -> int:
             f"Could not delete local branch {branch}.",
             "The branch is merged into target, but git refused the delete —",
             f"most likely a stale upstream config. Inspect: git branch -vv | grep {branch}",
-            f"Force-delete if you've confirmed the merge: git branch -D {branch}",
+            f"Confirm the merge: git log {target}..{branch}",
+            f"Force-delete if confirmed: git branch -D {branch}",
         )
 
+    # Compose an accurate success summary. Each segment reflects observed state,
+    # not assumed state — important because Step 5's failure path leaves the
+    # remote branch behind and the user must see that in the success line.
+    parts = ["local"]
+    if remote_state == "deleted":
+        parts.append("remote")
+    elif remote_state == "failed":
+        parts.append("remote delete failed — see above")
     suffix = ", pushed" if has_origin_target else ""
-    remote_note = " + remote" if remote_branch_deleted else ""
     print(
         f"{GREEN}✅ {branch} rebased + merged into {target}{suffix}, "
-        f"and deleted (local{remote_note}).{NC}",
+        f"and deleted ({' + '.join(parts)}).{NC}",
         file=sys.stderr,
     )
     return 0

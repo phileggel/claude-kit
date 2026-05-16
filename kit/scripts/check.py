@@ -31,6 +31,18 @@ STATUS_UNCOMMITTED = "Uncommitted"
 # Variable-detail warning values use the suffix " errors" / " warnings"
 # (e.g. "3 errors") — recognised by `_format_status`.
 
+# Strip ANSI escape sequences when measuring visible cell width for the
+# report table. Needed because `f"{s:<30}"` pads by string length, which
+# would over-pad when the string carries color codes and under-pad under
+# NO_COLOR=1.
+_ANSI_RE = re.compile(r"\033\[[0-9;]*m")
+
+
+def _pad_visible(s: str, width: int) -> str:
+    """Pad `s` to `width` visible columns, ignoring ANSI escape codes."""
+    visible_len = len(_ANSI_RE.sub("", s))
+    return s + " " * max(0, width - visible_len)
+
 
 class QualityChecker:
     def __init__(
@@ -61,7 +73,13 @@ class QualityChecker:
         # `cargo tarpaulin`) — avoids running tests twice. Contrast with
         # --fast which also skips build.
         self.skip_tests = skip_tests
+        # Two distinct locks: `_lock` guards mutations to shared state
+        # (metrics / failures / skip list); `_print_lock` serialises stdout
+        # writes so parallel-mode progress lines don't interleave mid-write.
+        # Keeping them separate avoids head-of-line blocking when a worker
+        # writes output while another worker mutates state.
         self._lock = threading.Lock()
+        self._print_lock = threading.Lock()
         self.metrics = {
             "react_tests": STATUS_SKIPPED,
             "rust_lib": STATUS_SKIPPED,
@@ -107,9 +125,16 @@ class QualityChecker:
             self.metrics[metric_key] = STATUS_SKIPPED
             self._skipped_for_stack.append((reason, check_name))
 
+    def _safe_print(self, *args, file=None, **kwargs) -> None:
+        """Lock-serialised `print`. Use for any user-visible output that may
+        race with a parallel worker — keeps each `print` atomic so a step's
+        progress line doesn't get spliced into another step's output."""
+        with self._print_lock:
+            print(*args, file=file or sys.stdout, **kwargs)
+
     def _vprint(self, *args, **kwargs):
         if self.verbose:
-            print(*args, **kwargs)
+            self._safe_print(*args, **kwargs)
 
     def _maybe_skip_for_stack(
         self, metric_key: str, check_name: str, marker: Path, reason: str
@@ -118,7 +143,9 @@ class QualityChecker:
         Records the skip in metrics and in the stack-summary list."""
         if marker.exists():
             return False
-        print(f"  {check_name}... {INFO}⏩ skipped ({reason}){RESET}", flush=True)
+        self._safe_print(
+            f"  {check_name}... {INFO}⏩ skipped ({reason}){RESET}", flush=True
+        )
         self._record_stack_skip(metric_key, check_name, reason)
         return True
 
@@ -135,16 +162,25 @@ class QualityChecker:
         cwd: Optional[Path] = None,
         env_update: Optional[dict] = None,
     ) -> bool:
-        print(f"  {name}...", flush=True)
+        self._safe_print(f"  {name}...", flush=True)
         self._vprint(f"\n{INFO}▶ Running {name}...{RESET}")
 
         current_env = os.environ.copy()
         if env_update:
             current_env.update(env_update)
 
+        # 10-minute cap on any single step. Cargo builds rarely take more
+        # than 5 minutes on a warm cache; vitest the same. A genuine hang
+        # (broken workspace, missing binary in a weird state) needs to
+        # surface as a clear failure, not consume the CI budget silently.
         try:
             if self.verbose:
-                result = subprocess.run(cmd, cwd=cwd or self.repo_root, env=current_env)
+                result = subprocess.run(
+                    cmd,
+                    cwd=cwd or self.repo_root,
+                    env=current_env,
+                    timeout=600,
+                )
                 output = ""
             else:
                 result = subprocess.run(
@@ -153,6 +189,7 @@ class QualityChecker:
                     env=current_env,
                     capture_output=True,
                     text=True,
+                    timeout=600,
                 )
                 output = (result.stdout + result.stderr).strip()
 
@@ -165,7 +202,26 @@ class QualityChecker:
                 )
                 self._record_failure(name, output)
             return success
-        except Exception as e:
+        except FileNotFoundError:
+            # Specific path for the most common cause of failure: tool
+            # missing on PATH. Generic "[Errno 2] No such file or
+            # directory: 'npm'" is unhelpful — point the user at the fix.
+            missing = cmd[0] if cmd else "<unknown>"
+            hint = {
+                "npm": "install Node (https://nodejs.org) and re-run",
+                "npx": "install Node (https://nodejs.org) and re-run",
+                "cargo": "install Rust (https://rustup.rs) and re-run",
+            }.get(missing, "install the tool or remove this step")
+            msg = f"{missing} not found on PATH — {hint}"
+            self._vprint(f"{FAILURE}✗ {name}: {msg}{RESET}")
+            self._record_failure(name, msg)
+            return False
+        except (OSError, subprocess.SubprocessError) as e:
+            # OSError catches PermissionError and similar. SubprocessError
+            # covers TimeoutExpired (10-minute cap above) and
+            # CalledProcessError. Bare `Exception` would swallow real
+            # programming errors (TypeError on bad call shape, etc.) —
+            # keep those surfaced as crashes so they get fixed.
             self._vprint(f"{FAILURE}✗ {name}: Exception: {e}{RESET}")
             self._record_failure(name, str(e))
             return False
@@ -177,12 +233,19 @@ class QualityChecker:
             return True
 
         self._vprint(f"\n{INFO}▶ Checking SQLx Integrity...{RESET}")
+        # check=False so a broken git invocation surfaces as a clean check
+        # failure instead of propagating CalledProcessError out of the
+        # executor and crashing the suite mid-report.
         result = subprocess.run(
             ["git", "diff", "--name-only", str(self.sqlx_dir)],
             capture_output=True,
             text=True,
-            check=True,
+            check=False,
         )
+        if result.returncode != 0:
+            self._set_metric("sqlx", STATUS_STALE)
+            self._record_failure("SQLx", f"git diff failed: {result.stderr.strip()}")
+            return False
         status = result.stdout
         if status.strip():
             self._vprint(
@@ -214,7 +277,10 @@ class QualityChecker:
             )
 
         # Mark groups that won't run as SKIPPED so the final report doesn't
-        # render their "Pending" defaults as failures.
+        # render their "Pending" defaults as failures. These writes run on
+        # the main thread before the executor starts, so they're race-free
+        # by construction — but go through `_set_metric` anyway to honour
+        # the helper-only-writes contract documented above.
         if self.format_only:
             for key in (
                 "react_tests",
@@ -225,13 +291,13 @@ class QualityChecker:
                 "clippy",
                 "tsc",
             ):
-                self.metrics[key] = STATUS_SKIPPED
+                self._set_metric(key, STATUS_SKIPPED)
         elif self.frontend_only:
             for key in ("rust_lib", "rust_beh", "sqlx", "clippy", "rust_fmt"):
-                self.metrics[key] = STATUS_SKIPPED
+                self._set_metric(key, STATUS_SKIPPED)
         elif self.backend_only:
             for key in ("react_tests", "build", "lint", "biome", "tsc"):
-                self.metrics[key] = STATUS_SKIPPED
+                self._set_metric(key, STATUS_SKIPPED)
 
         if self.format_only:
             self._run_format_only()
@@ -317,13 +383,14 @@ class QualityChecker:
         if not self._maybe_skip_for_stack(
             "tsc", "TSC", self.package_json, "package.json absent"
         ):
-            print("  TSC...", flush=True)
+            self._safe_print("  TSC...", flush=True)
             self._vprint(f"\n{INFO}▶ Running TypeScript Check (TSC)...{RESET}")
             tsc_res = subprocess.run(
                 ["npx", "tsc", "--noEmit"],
                 cwd=self.repo_root,
                 capture_output=True,
                 text=True,
+                timeout=600,
             )
             if tsc_res.returncode == 0:
                 self._vprint(f"{SUCCESS}✓ TSC: Pass{RESET}")
@@ -406,7 +473,10 @@ class QualityChecker:
         print(
             f"\n{INFO}ℹ Stack components not detected — {total} check{'s' if total != 1 else ''} skipped:{RESET}"
         )
-        for reason, checks in by_reason.items():
+        # Sort outer reasons and inner check names so the summary is stable
+        # across parallel runs (workers append in non-deterministic order).
+        for reason in sorted(by_reason):
+            checks = sorted(by_reason[reason])
             joined = ", ".join(checks)
             print(f"{INFO}  • {reason} → {joined} ({len(checks)}){RESET}")
         print(
@@ -439,16 +509,23 @@ class QualityChecker:
 
         for key, value in self.metrics.items():
             name = key.replace("_", " ").capitalize()
-            status_str = self._format_status(value)
-            print(f"| {name:<20} | {status_str:<40} |")
+            # Pad the status cell to 30 *visible* columns so the table
+            # aligns whether ANSI codes are present or stripped (NO_COLOR).
+            # `f"{s:<30}"` pads by string length, which under NO_COLOR
+            # padded to 30 but with color codes inflated the cell to ~40.
+            status_str = _pad_visible(self._format_status(value), 30)
+            print(f"| {name:<20} | {status_str} |")
 
         if self.suite_failed:
-            print(f"\n{FAILURE}❌ SUITE FAILED{RESET}")
+            # Failures go to stderr so the report can be redirected /
+            # piped without dragging the error block into downstream
+            # consumers. Compare merge.py's stderr discipline.
+            print(f"\n{FAILURE}❌ SUITE FAILED{RESET}", file=sys.stderr)
             if self.failures:
-                print(f"\n{INFO}— Failure details —{RESET}")
+                print(f"\n{INFO}— Failure details —{RESET}", file=sys.stderr)
                 for step, output in self.failures.items():
-                    print(f"\n{FAILURE}▶ {step}{RESET}")
-                    print(output)
+                    print(f"\n{FAILURE}▶ {step}{RESET}", file=sys.stderr)
+                    print(output, file=sys.stderr)
         else:
             print(f"\n{SUCCESS}✨ ALL CHECKS PASSED{RESET}\n")
 

@@ -286,7 +286,7 @@ Always perform these checks across files together:
 - 🟡 Functions: `function_name() { ... }` — avoid the `function` keyword
 - 🟡 Constants `UPPERCASE`, local variables `lowercase`, use `local` inside functions
 - 🟡 `PROJECT_ROOT` must be derived from `git rev-parse --show-toplevel` or `"$(dirname "$(realpath "$0")")"` — never `$PWD`
-- 🟡 Any script that invokes `cargo` with SQLx must set `SQLX_OFFLINE=true`
+- 🟡 Any script that invokes `cargo` with SQLx must set `SQLX_OFFLINE=true` — **exception**: `cargo sqlx prepare` (and any wrapping recipe like `just prepare-sqlx`) must set `SQLX_OFFLINE=false`, since the whole purpose of `prepare` is to hit the live DB and regenerate the `.sqlx/` cache
 
 ### Python — Safety
 
