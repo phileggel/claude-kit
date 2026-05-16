@@ -30,6 +30,29 @@ Baseline: `+4.5.2`. New baseline: `+4.7.2`. Cherry-picked 9 substance commits (r
 
 ---
 
+## svelte-v0.2.0+4.7.2 → svelte-v0.2.1+4.7.3
+
+Baseline: `+4.7.2`. New baseline: `+4.7.3`. Cherry-picked the single substance commit from main (`d337eb5`, PR #38) — closes GH #37.
+
+### Mirrored to `-svelte` variant
+
+- `kit/agents/reviewer-frontend.md` @ d337eb5 — Step 3 compound-shell wrapper applied verbatim to `reviewer-frontend-svelte.md`. Framework-neutral.
+- `kit/agents/reviewer-security.md` @ d337eb5 — Step 3 compound-shell wrapper applied verbatim to `reviewer-security-svelte.md`. Framework-neutral.
+
+### Skipped (React-specific, no Svelte mirror needed)
+
+(None — the entire #37 fix is framework-neutral plumbing.)
+
+### Custom (flagged for manual treatment)
+
+(None this cycle.)
+
+### Shared (no `-svelte` variant — cherry-pick applied as-is)
+
+Everything else: `branch.sh` (new), `branch-files.sh` (sources `branch.sh base`), `scripts/check.py` lint rule, the 7 main-side reviewer patches, `test-writer-backend.md`, `create-pr/SKILL.md`, `kit-tools.md`, `kit-readme.md`, `docs/TODO.md`.
+
+---
+
 ## Architectural note — when to fork vs share
 
 A new agent or doc should get a `-svelte` fork **only** when its substance is framework-specific (idioms, syntax, helper code). `reviewer-e2e` reviews WebDriver scenarios at the test-code level (selectors, async correctness, no-mock discipline) — these are framework-agnostic, so no fork.
