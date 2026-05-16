@@ -20,7 +20,9 @@ lint-scripts:
     fail=0
     mjs=$(find kit/scripts -maxdepth 1 -type f \( -name '*.mjs' -o -name '*.js' \) | sort)
     py=$(find kit/scripts -maxdepth 1 -type f -name '*.py' | sort)
-    sh=$(find kit/scripts -maxdepth 1 -type f -name '*.sh' | sort)
+    # Include kit/sync-config.sh — the bootstrap script ships once to downstream
+    # as scripts/sync-config.sh but lives outside kit/scripts/.
+    sh=$( { find kit/scripts -maxdepth 1 -type f -name '*.sh'; echo kit/sync-config.sh; } | sort)
     if [ -n "$mjs" ]; then
         echo "▶ biome check (lineWidth=100): $(echo "$mjs" | wc -l) file(s)"
         # shellcheck disable=SC2086  # word-splitting intentional for the file list
