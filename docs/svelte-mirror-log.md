@@ -53,6 +53,28 @@ Everything else: `branch.sh` (new), `branch-files.sh` (sources `branch.sh base`)
 
 ---
 
+## svelte-v0.2.0+4.7.3 → svelte-v0.2.1+4.7.4
+
+Baseline: `+4.7.3`. New baseline: `+4.7.4`. Cherry-picked one main commit (`0f3a0a2`, PR #40) — convention-doc compound-shell follow-up to #37.
+
+### Mirrored to `-svelte` variant
+
+- `kit/docs/test_convention.md` @ 0f3a0a2 — one-line example `cd src-tauri && cargo test` → `cargo test --manifest-path src-tauri/Cargo.toml`. Mirrored verbatim to `test_convention-svelte.md`. Framework-neutral.
+
+### Skipped (React-specific, no Svelte mirror needed)
+
+(None.)
+
+### Custom (flagged for manual treatment)
+
+(None.)
+
+### Shared (no `-svelte` variant — cherry-pick applied as-is)
+
+`kit/docs/test_convention.md` (React-side; coexists with the Svelte fork in this branch).
+
+---
+
 ## Architectural note — when to fork vs share
 
 A new agent or doc should get a `-svelte` fork **only** when its substance is framework-specific (idioms, syntax, helper code). `reviewer-e2e` reviews WebDriver scenarios at the test-code level (selectors, async correctness, no-mock discipline) — these are framework-agnostic, so no fork.
