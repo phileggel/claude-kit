@@ -90,7 +90,7 @@ jobs:
           exit "$FAIL"
 
   quality:
-    name: Quality (python3 scripts/check.py)
+    name: Quality (check.py + lint-scripts)
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -110,5 +110,9 @@ jobs:
           node-version: "22"
       - name: Install Prettier
         run: npm install --global --silent prettier
+      - name: Install just
+        uses: extractions/setup-just@dd310ad5a97d8e7b41793f8ef055398d51ad4de6  # v3.0.0
       - name: Run kit checks
         run: python3 scripts/check.py
+      - name: Lint kit-shipped scripts (biome + ruff + shellcheck)
+        run: just lint-scripts
