@@ -1,22 +1,18 @@
 # List of TODOs
 
-## v4.5 candidates
-
-_All v4.5 candidates resolved — see commit history. Remaining work is in v4.6._
-
 ## v4.6 candidates
 
-- **SDD Phase 4 walk: align review & closure agents with v4.3+ conventions.** Phases 1, 2, 3 walked in earlier releases (1 pre-v4.2, 2 in v4.3, 3 in v4.5). Phase 4 is the last remaining SDD phase. Targets:
-  - `kit/agents/test-writer-e2e.md` — heaviest unwalked file (302 lines, 246-line longest section, 17 critical rules). Natural fold-in of v4.5's E4 (stable `id` selectors) change.
-  - `kit/agents/reviewer-infra.md` — 342 lines; needs convention alignment.
-  - `kit/agents/reviewer-security.md` — convention alignment.
-  - `kit/skills/setup-e2e/SKILL.md` — deferred from v4.5 Phase 3 (frontend-adjacent). 368 lines, 162-line longest section.
+_All v4.6 candidates resolved — see commit history. Remaining work is in v4.7._
 
-  Per file: run `ai-reviewer` to surface findings, apply fixes (frontmatter discoverability, structural completeness, tool-grant minimality, density trimming, voice consistency), then `/preflight`. Fold the v4.4+v4.5 FE rules (E4, F24, F25, F28) where they apply (especially in `test-writer-e2e` and `setup-e2e`).
+## v4.7 candidates
 
-  Closes the SDD walk story; maintenance/sanity skills (prune, dep-audit, kit-discover, etc.) stay ad-hoc — not a formal walk batch.
+- **SDD Workflow B walk — verify reviewer dual-use.** Reviewer agents (`reviewer-arch`, `reviewer-backend`, `reviewer-frontend`, `reviewer-e2e`, `reviewer-sql`, `reviewer-infra`, `reviewer-security`) are used by both Workflow A (Phase 4) and Workflow B (step 5). Workflow B has no `docs/plan/{feature}-plan.md`, no `docs/contracts/{domain}-contract.md`, no `docs/spec/{domain}.md`. Verify each reviewer handles the no-plan / no-contract context gracefully (no hard reads, no halts on absent files). Likely surface mostly verification with small graceful-skip patches.
 
-- **Partial-stack audit + `--strict` toggle generalization (no-DB Tauri, etc.).** Generalizes the work shipped in v4.5 for issue #15 (graceful skip on absent stack). v4.5 added marker-file detection (`package.json`, `src-tauri/Cargo.toml`, `src-tauri/.sqlx/`) and per-checker skip-with-summary; this v4.6 candidate completes the partial-stack story across the rest of the kit and adds release-time strictness.
+- **Tools walk.** One-shot setup helpers and maintenance skills — different lens than workflow agents ("is this easy to invoke and complete?"). Targets:
+  - `kit/skills/setup-e2e/SKILL.md` — 368 lines, 162-line longest section. Deferred from v4.5 Phase 3.
+  - `kit/skills/prune/SKILL.md`, `kit/skills/dep-audit/SKILL.md`, `kit/skills/kit-discover/SKILL.md`, `kit/skills/whats-next/SKILL.md`, `kit/skills/techdebt/SKILL.md`, `kit/skills/visual-proof/SKILL.md`, `kit/skills/start/SKILL.md`, `kit/agents/retro-spec.md`
+
+- **Partial-stack audit + `--strict` toggle generalization (no-DB Tauri, etc.).** Generalizes the work shipped in v4.5 for issue #15 (graceful skip on absent stack). v4.5 added marker-file detection (`package.json`, `src-tauri/Cargo.toml`, `src-tauri/.sqlx/`) and per-checker skip-with-summary; this candidate completes the partial-stack story across the rest of the kit and adds release-time strictness.
 
   Three axes to audit (output is a concrete fix list, not the fixes themselves):
   1. **Scripts beyond `check.py`** — sweep all `kit/scripts/*` and any DB-touching agent helper scripts to confirm they all skip-not-fail when `.sqlx/`, `migrations/`, or DB env vars are absent. Catch partial-stack edge cases (`migrations/` exists but `.sqlx/` doesn't, or the reverse).
@@ -28,8 +24,27 @@ _All v4.5 candidates resolved — see commit history. Remaining work is in v4.6.
   - Option B: `--strict` distinguishes core stack (`package.json` + `Cargo.toml` required) from optional stack (`.sqlx/` optional). Allows no-DB releases while still gating "you forgot to scaffold React".
   - Option C: project-level config flag declares which markers are expected. Most flexible, more moving parts.
 
-  v4.5 already left a `TODO(v4.6)` marker in `kit/scripts/check.py` at the stack-markers block. The audit decision lands the policy; implementation is downstream of the decision.
+  Closes GH #15 + #27 as side-effects. Categorisation per fix item: graceful-skip / doc-gate / sync-time-exclude / accept-as-noise / strict-required.
 
-  Categorisation per fix item: graceful-skip / doc-gate / sync-time-exclude / accept-as-noise / strict-required.
+- **`reviewer-backend` convention audit.** Surfaced during the reviewer-arch/sql/infra/security walk on `feat/v4.7-candidates`. `reviewer-backend.md` (198 lines, untouched in v4.6) likely shares the structural gaps the four sibling walks fixed: missing `## Not to be confused with`, `## When to use` / `When NOT to use`, `## Critical Rules`, `## Notes`; possibly stale base-resolution if Step 3 doesn't use the `BASE=$(git merge-base ...)` fallback chain. Run `ai-reviewer` once, apply must-fix + structural alignment, `/preflight`. Single-file scope.
+
+- **Stable rule numbering for DDD + SQL conventions.** v4.4 introduced rule-number stability for `frontend-rules.md` (F-NN) and `backend-rules.md` (B-NN). Two gaps surface: (1) `docs/ddd-reference.md` is a concept glossary without numbered rules — `reviewer-arch` cites zero rule numbers in its DDD block, breaking the v4.4 pattern; (2) SQL conventions inside `backend-rules.md` aren't separately numbered (no SQL-NN scheme), so `reviewer-sql` findings can't cite a stable id. Decide per-doc: introduce numbered rules (D-NN, SQL-NN), accept the asymmetry as "DDD/SQL conventions are external/established, not project style rules", or hybrid (number SQL, leave DDD). Output is a documented decision + (if number) the renumbered doc and reviewer citations.
+
+- **Extract `BASE=$(git merge-base ...)` to `scripts/diff-changed-lines.sh`.** Identical fallback-chain idiom appears across all 6 branch-aware reviewers (`reviewer-arch`, `reviewer-backend`, `reviewer-frontend`, `reviewer-e2e`, `reviewer-sql`, `reviewer-security`). Each invocation triggers a Bash compound-operator permission prompt unless the session pre-approves. Extract to `scripts/diff-changed-lines.sh <filepath>`, replace 6 inline copies with a single shell call, update all reviewer Step 3 prose. Single deliverable, ~30 lines of script + 6 small reviewer edits.
+
+- **`release.py` deferred refactors.** Script-reviewer surfaced 13 pre-existing items on `feat/v4.7-candidates`; the cheap ones (atomic push, UTC datetime, `--no-verify` waiver, `MAIN_BRANCH` constant, `cargo metadata` recovery) landed inline. Remaining (refactor-tax, not bugs):
+  1. `run()` is 84 lines and 8 responsibilities — split into `_resolve_version()` / `_apply_changes()` / `_finalize()`.
+  2. `preview` + `dry_run` are two booleans where a `Mode = {REAL, DRY_RUN, PREVIEW}` enum + argparse mutex group belongs.
+  3. `Optional[str]` / `List[dict]` imports — migrate to PEP 604 (`str | None`, `list[dict]`).
+
+- **`check.py` deferred polish.** Cheap items (subprocess timeouts, missing-tool diagnostic, `check_sqlx` `check=False`) landed inline. Remaining:
+  1. `Optional[Path]` / `List[str]` imports — migrate to PEP 604.
+  2. Magic strings repeated (`"src-tauri/Cargo.toml absent"` × 4, `"package.json absent"` × 6) — extract constants.
+  3. Stack-marker paths hard-coded to `src-tauri/` layout — should be discoverable for frontend-only projects.
+  4. Emoji column width: `_pad_visible` pads by Python `len()` which counts the ⏩/✅/❌ as 1 char but terminals render them as 2 columns; the table is off by 1 column on emoji rows. Either depend on `wcwidth` or hardcode emoji width compensation.
+
+- **`merge.py` force-push divergence pre-flight.** Surfaced as out-of-scope by script-reviewer on the v4.7 fix. Today: if `origin/<branch>` has commits not in local (someone force-pushed while user wasn't pulling), Step 2's local rebase discards them and Step 5 deletes them from origin without warning. By-design for local-only feature branches, footgun for shared ones. Add Pre-flight 5: `git fetch origin <branch>` + ahead/behind check; refuse if `origin/<branch>` has commits not in local.
+
+- **`common.just` partial-stack guards.** `cd src-tauri &&` recipes (`migrate`, `generate-types`, `prepare-sqlx`, `clean-db`, `format`) lack the `[ -d src-tauri ]` guard that script-backed recipes use — non-Tauri downstream projects get a bare `cd: src-tauri: No such file or directory`. Single-line guard per recipe.
 
 ## Experimental
