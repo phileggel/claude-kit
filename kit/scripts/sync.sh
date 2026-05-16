@@ -192,7 +192,7 @@ out = recipe_re.sub(_filter, src)
 out = re.sub(r'\n{3,}', '\n\n', out)
 open(os.environ['DEST_COMMON'], 'w').write(out)
 for n in skipped:
-    print(f"  \033[1;33m⚠  {n} already defined locally — skipping kit default\033[0m")
+    print(f"  \033[0;34mℹ  {n} already defined locally — skipping kit default\033[0m")
 PY
 fi
 
