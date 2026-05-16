@@ -70,10 +70,10 @@ except Exception:
     else
         _tag_filter='^v[0-9]'
     fi
-    VERSION=$(git ls-remote --tags --sort="v:refname" "$REPO" \
-        | sed 's/.*\///; s/\^{}//' \
-        | grep -E "$_tag_filter" \
-        | tail -n1)
+    VERSION=$(git ls-remote --tags --sort="v:refname" "$REPO" |
+        sed 's/.*\///; s/\^{}//' |
+        grep -E "$_tag_filter" |
+        tail -n1)
     if [[ -z "$VERSION" ]]; then
         echo -e "${YELLOW}⚠  No tag found matching framework=${_kit_framework}. Pass the version explicitly.${NC}" >&2
         exit 1

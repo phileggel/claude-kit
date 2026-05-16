@@ -21,9 +21,8 @@ trap 'rm -rf "$TMP"' EXIT
 
 # Colors (respect NO_COLOR=1)
 if [ -n "${NO_COLOR:-}" ]; then
-    YELLOW='' GREEN='' BLUE='' NC=''
+    GREEN='' BLUE='' NC=''
 else
-    YELLOW='\033[0;33m'
     GREEN='\033[0;32m'
     BLUE='\033[0;34m'
     NC='\033[0m'
@@ -42,15 +41,28 @@ _record() { printf '%s\n' "$1" >>"$MANIFEST"; }
 
 # ── Framework detection ───────────────────────────────────────────────────────
 # Downstream projects declare their target framework in .claude/kit.config.json
-# ({"framework": "react"|"svelte"}). Defaults to "react" when the file is absent
-# (legacy installs). When "svelte" is selected, the sync prefers `*-svelte.md`
-# variants over their base files and strips the `-svelte` suffix from both
-# filename and frontmatter `name:` field at copy time.
+# ({"framework": "react"|"svelte"}). The file is auto-created with the React
+# default on first sync if absent — making the choice discoverable in the tree.
+# Once present, the file is never overwritten; the user can edit it to switch
+# framework before the next sync. When "svelte" is selected, the sync prefers
+# `*-svelte.md` variants over their base files and strips the `-svelte` suffix
+# from filename and frontmatter `name:` at copy time. On main, `-svelte`
+# variants don't ship — so the flag is functionally inert for React projects
+# tagged off main, but the bootstrap layer is identical to svelte-main, making
+# cross-branch cherry-picks of sync logic frictionless.
 KIT_FRAMEWORK="react"
 _KIT_CONFIG="$PROJECT_ROOT/.claude/kit.config.json"
-if [ -f "$_KIT_CONFIG" ]; then
-    KIT_FRAMEWORK=$(
-        python3 - "$_KIT_CONFIG" <<'PY'
+if [ ! -f "$_KIT_CONFIG" ]; then
+    cat >"$_KIT_CONFIG" <<'JSON'
+{
+  "framework": "react"
+}
+JSON
+    echo -e "${BLUE}ℹ Created .claude/kit.config.json (default: framework=react)${NC}"
+fi
+_record ".claude/kit.config.json"
+KIT_FRAMEWORK=$(
+    python3 - "$_KIT_CONFIG" <<'PY'
 import json, sys
 try:
     data = json.load(open(sys.argv[1]))
@@ -59,8 +71,7 @@ try:
 except Exception:
     print("react")
 PY
-    )
-fi
+)
 echo -e "${BLUE}🎯 Framework: ${KIT_FRAMEWORK}${NC}"
 
 # Strip `-svelte` from a file's `name:` frontmatter and write to destination.
@@ -180,7 +191,7 @@ out = recipe_re.sub(_filter, src)
 out = re.sub(r'\n{3,}', '\n\n', out)
 open(os.environ['DEST_COMMON'], 'w').write(out)
 for n in skipped:
-    print(f"  \033[1;33m⚠  {n} already defined locally — skipping kit default\033[0m")
+    print(f"  \033[0;34mℹ  {n} already defined locally — skipping kit default\033[0m")
 PY
 fi
 
