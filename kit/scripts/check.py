@@ -420,7 +420,7 @@ class QualityChecker:
                     "Rust Lib Tests",
                     ["cargo", "test", "--lib"],
                     cwd=self.repo_root / "src-tauri",
-                    env_update={"SQLX_OFFLINE": "1"},
+                    env_update={"SQLX_OFFLINE": "true"},
                 ):
                     self._set_metric("rust_lib", STATUS_PASS)
 
@@ -434,7 +434,7 @@ class QualityChecker:
                     "Rust Behavior Tests",
                     ["cargo", "test", "--tests"],
                     cwd=self.repo_root / "src-tauri",
-                    env_update={"SQLX_OFFLINE": "1"},
+                    env_update={"SQLX_OFFLINE": "true"},
                 ):
                     self._set_metric("rust_beh", STATUS_PASS)
 
@@ -447,7 +447,7 @@ class QualityChecker:
                 "Clippy",
                 ["cargo", "clippy", "--all-targets", "--", "-D", "warnings"],
                 cwd=self.repo_root / "src-tauri",
-                env_update={"SQLX_OFFLINE": "1"},
+                env_update={"SQLX_OFFLINE": "true"},
             ):
                 self._set_metric("clippy", STATUS_PASS)
 
