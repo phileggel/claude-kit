@@ -115,6 +115,7 @@ class KitChecker:
         self._check_sync_coverage()
         self._check_output_format_end_markers()
         self._check_no_settings_json_in_scripts()
+        self._check_no_compound_shell_in_prompts()
         self._check_start_template_references()
         self._check_skill_conventions()
         self._check_workflow_gate_drift()
@@ -366,6 +367,97 @@ class KitChecker:
             return False
 
         self.results["No settings.json in scripts"] = True
+        return True
+
+    def _check_no_compound_shell_in_prompts(self) -> bool:
+        """Flag compound shell ($(...), &&, ||, ;) inside ```bash blocks of
+        agents and skills.
+
+        Claude Code's permission allowlist matches by literal prefix on the
+        command string. A line like `BASE=$(...); git diff ...` cannot be
+        allowlisted as `Bash(git diff *)` because the actual command starts
+        with `BASE=`. Compound shell in agent/skill prompts produces an
+        unavoidable permission prompt for every invocation. Wrap such logic
+        in a kit script and call it by literal name instead.
+        """
+        # Compound-shell signatures we refuse inside ```bash``` fences.
+        # Each pattern below corresponds to a way the actual command issued
+        # to the Bash tool ends up NOT starting with the tool we want to
+        # allowlist (git, cargo, npm, bash, python, ...).
+        patterns: list[tuple[re.Pattern, str]] = [
+            (re.compile(r"\$\("), "command substitution `$(...)`"),
+            (
+                re.compile(r"\s&&\s+(?!\\)"),
+                "sequence `&&` (extract into a script)",
+            ),
+            (
+                re.compile(r"\s\|\|\s+(?!\\)"),
+                "fallback `||` (extract into a script)",
+            ),
+            (
+                re.compile(r";\s*\b(git|cargo|npm|bash|python3?|cd)\b"),
+                "command separator `; cmd`",
+            ),
+            (re.compile(r"^\s*cd\s+\S+\s*&&"), "`cd X && …`"),
+        ]
+        # Allow-list: lines starting with `#` are comments; control-flow
+        # keywords are script-context, not agent-issued commands.
+        skip_prefixes = ("#", "if ", "for ", "while ", "case ", "function ")
+
+        scan_paths: list[Path] = []
+        scan_paths.extend(sorted((REPO_ROOT / "kit" / "agents").glob("*.md")))
+        scan_paths.extend(sorted((REPO_ROOT / "kit" / "skills").rglob("SKILL.md")))
+
+        failures: list[str] = []
+        for f in scan_paths:
+            try:
+                text = f.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                continue
+            in_bash = False
+            quote_open = False  # tracks unclosed single-quote across lines
+            for lineno, line in enumerate(text.splitlines(), 1):
+                stripped = line.strip()
+                if stripped.startswith("```"):
+                    if in_bash:
+                        in_bash = False
+                        quote_open = False
+                    else:
+                        in_bash = stripped in ("```bash", "```sh", "```shell")
+                        quote_open = False
+                    continue
+                if not in_bash:
+                    continue
+                # Skip continuation lines inside an open single-quoted string
+                # (e.g. multi-line awk program embedded in a shell command —
+                # `&&` inside an awk script is awk syntax, not shell).
+                started_in_quote = quote_open
+                for i, c in enumerate(line):
+                    if c == "'" and (i == 0 or line[i - 1] != "\\"):
+                        quote_open = not quote_open
+                if started_in_quote:
+                    continue
+                if not stripped or stripped.startswith(skip_prefixes):
+                    continue
+                for pat, label in patterns:
+                    if pat.search(line):
+                        rel = str(f.relative_to(REPO_ROOT))
+                        failures.append(f"{rel}:{lineno}: {label}: {stripped}")
+                        break
+
+        if failures:
+            print("  No compound shell in prompts...")
+            for msg in failures:
+                print(f"    ✗ {msg}")
+            print(
+                f"  {BLUE}→ Wrap the logic in kit/scripts/<name>.sh and call "
+                f"it by literal name.{NC}"
+            )
+            self.suite_failed = True
+            self.results["No compound shell in prompts"] = False
+            return False
+
+        self.results["No compound shell in prompts"] = True
         return True
 
     def _check_workflow_gate_drift(self) -> bool:
