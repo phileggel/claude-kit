@@ -12,8 +12,6 @@ _All v4.6 candidates resolved — see commit history. Remaining work is in v4.7.
   - `kit/skills/setup-e2e/SKILL.md` — 368 lines, 162-line longest section. Deferred from v4.5 Phase 3.
   - `kit/skills/prune/SKILL.md`, `kit/skills/dep-audit/SKILL.md`, `kit/skills/kit-discover/SKILL.md`, `kit/skills/whats-next/SKILL.md`, `kit/skills/techdebt/SKILL.md`, `kit/skills/visual-proof/SKILL.md`, `kit/skills/start/SKILL.md`, `kit/agents/retro-spec.md`
 
-- **`merge.py` post-merge cleanup of stale remote branch.** v4.6's `merge.py` rewrite deletes the local branch after merge but does not delete the remote tracking branch. When the local branch is "ahead of" its upstream (e.g. later commits never pushed to the feature branch), `git branch -d` refuses. Surface bug hit during v4.6's own release. Fix: before `git branch -d`, run `git push --delete origin <branch>` if the remote branch exists. Restores the "single atomic shortcut" property.
-
 - **Partial-stack audit + `--strict` toggle generalization (no-DB Tauri, etc.).** Generalizes the work shipped in v4.5 for issue #15 (graceful skip on absent stack). v4.5 added marker-file detection (`package.json`, `src-tauri/Cargo.toml`, `src-tauri/.sqlx/`) and per-checker skip-with-summary; this candidate completes the partial-stack story across the rest of the kit and adds release-time strictness.
 
   Three axes to audit (output is a concrete fix list, not the fixes themselves):

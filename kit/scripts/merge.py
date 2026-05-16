@@ -2,9 +2,9 @@
 """Auto-rebase + fast-forward merge the current feature branch into a target branch.
 
 Atomic "task done" shortcut: pull the target, rebase the branch onto it,
-FF-merge into the target, push, and delete the local branch. Fails fast with
-a clear recovery hint at any step that can't proceed cleanly (rebase
-conflict, divergent push, dirty tree, etc.).
+FF-merge into the target, push, and delete the feature branch both locally
+and on origin. Fails fast with a clear recovery hint at any step that can't
+proceed cleanly (rebase conflict, divergent push, dirty tree, etc.).
 
 If your project needs a different merge policy (e.g. preserve merge commits,
 no rebase), override the `merge` recipe in the downstream justfile.
@@ -160,12 +160,47 @@ def main() -> int:
                 f"Pull and re-run: git pull --ff-only origin {target}",
             )
 
-    # Step 5 — delete the local branch.
-    git("branch", "-d", branch)
+    # Step 5 — delete the remote feature branch (if it exists).
+    # Restores the "atomic shortcut" property: one command cleans up both
+    # local and remote feature branches. Also removes the upstream reference
+    # so Step 6's `git branch -d` falls back to the "merged-in-HEAD" check
+    # (which passes after Step 3's FF-merge) instead of the stricter
+    # "merged-in-upstream" check that would refuse if the feature branch was
+    # ahead of its origin counterpart.
+    remote_branch_deleted = False
+    if has_origin_target:
+        has_origin_branch = (
+            git(
+                "rev-parse", "--verify", "--quiet", f"origin/{branch}", check=False
+            ).returncode
+            == 0
+        )
+        if has_origin_branch:
+            result = git("push", "--delete", "origin", branch, check=False)
+            if result.returncode == 0:
+                remote_branch_deleted = True
+            else:
+                print(
+                    f"{BLUE}ℹ Could not delete origin/{branch} (already removed, "
+                    f"or protected). Local cleanup proceeding.{NC}",
+                    file=sys.stderr,
+                )
+
+    # Step 6 — delete the local branch.
+    result = git("branch", "-d", branch, check=False)
+    if result.returncode != 0:
+        fail(
+            f"Could not delete local branch {branch}.",
+            "The branch is merged into target, but git refused the delete —",
+            f"most likely a stale upstream config. Inspect: git branch -vv | grep {branch}",
+            f"Force-delete if you've confirmed the merge: git branch -D {branch}",
+        )
 
     suffix = ", pushed" if has_origin_target else ""
+    remote_note = " + remote" if remote_branch_deleted else ""
     print(
-        f"{GREEN}✅ {branch} rebased + merged into {target}{suffix}, and deleted.{NC}",
+        f"{GREEN}✅ {branch} rebased + merged into {target}{suffix}, "
+        f"and deleted (local{remote_note}).{NC}",
         file=sys.stderr,
     )
     return 0
