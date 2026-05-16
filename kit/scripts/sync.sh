@@ -21,9 +21,8 @@ trap 'rm -rf "$TMP"' EXIT
 
 # Colors (respect NO_COLOR=1)
 if [ -n "${NO_COLOR:-}" ]; then
-    YELLOW='' GREEN='' BLUE='' NC=''
+    GREEN='' BLUE='' NC=''
 else
-    YELLOW='\033[0;33m'
     GREEN='\033[0;32m'
     BLUE='\033[0;34m'
     NC='\033[0m'
