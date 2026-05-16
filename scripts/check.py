@@ -341,9 +341,16 @@ class KitChecker:
             for f in sorted(p.rglob("*")):
                 if not f.is_file():
                     continue
+                # Skip Python bytecode dirs — they're not source and aren't
+                # UTF-8, so `read_text(encoding="utf-8")` raises
+                # UnicodeDecodeError on them. Generated when release.py
+                # imports check.py, so this trips on a fresh `just check`
+                # after any `--preview` run.
+                if "__pycache__" in f.parts:
+                    continue
                 try:
                     text = f.read_text(encoding="utf-8")
-                except OSError:
+                except (OSError, UnicodeDecodeError):
                     continue
                 for lineno, line in enumerate(text.splitlines(), 1):
                     if "settings.json" in line:
