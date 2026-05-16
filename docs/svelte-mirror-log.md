@@ -22,7 +22,7 @@ Baseline: `+4.5.2`. New baseline: `+4.7.2`. Cherry-picked 9 substance commits (r
 
 ### Custom (flagged for manual treatment)
 
-(None this cycle.)
+- `kit/scripts/check.py` — internal metric key `react_tests` is inconsistent with the user-facing label `"Frontend Tests"` (svelte-main's framework-neutral wording, in place since the v4.6.0 a517098 convergence). Rename `react_tests` → `frontend_tests` across all 5 sites (lines 84, 284, 297, 357, 363) on svelte-main only. Cosmetic — does not affect functionality. Defer to a svelte-only follow-up branch; not part of this migration PR.
 
 ### Shared (no `-svelte` variant — cherry-pick applied as-is)
 
