@@ -89,16 +89,13 @@ Display the validated candidate:
 
 ## Step 3 — Draft body
 
-1. Run `git log --oneline $(git merge-base HEAD main)..HEAD` and collect all commit messages.
+1. Run `git log --oneline $(git merge-base HEAD main)..HEAD` and collect all commit messages — used as **input** to summarise what changed; do NOT enumerate them in the PR body. GitHub's Commits tab already provides this view, and squash-merge configs (PR_TITLE + BLANK body) discard the PR body anyway, so an inline commit list is duplication + drift risk every time a new commit is pushed.
 2. Check for a plan doc: `Glob docs/plan/*-plan.md`. If one matches the branch domain, `Read` it and extract the feature description from the top section.
 3. Produce a body in this format — keep it concise:
 
 ```
 ## Summary
 {2–4 bullet points summarising what changed, derived from commits or plan}
-
-## Commits
-{one line per commit from git log, oldest first}
 
 ## Test plan
 - [ ] {inferred from commit messages, plan doc, or reviewer steps completed}

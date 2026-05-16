@@ -1,0 +1,118 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pr-title:
+    name: PR title (conventional commits)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      pull-requests: read
+    steps:
+      # Pinned to full SHA for v6.1.1 — mutable tags are a supply-chain risk.
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            chore
+            docs
+            refactor
+            test
+            ci
+
+  commits:
+    name: Commit messages (mirrors commit-msg hook)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate every commit in the PR
+        run: |
+          set -u
+          BASE=$(git merge-base HEAD origin/main)
+          FAIL=0
+          REGEX='^(feat|fix|docs|test|chore|refactor|ci)(\([^)]+\))?!?: .+'
+          # --no-merges skips the synthetic merge commit GitHub creates at
+          # HEAD for pull_request events (it represents "what main looks
+          # like if this PR merged" — not a real PR commit).
+          for sha in $(git rev-list --no-merges "$BASE..HEAD"); do
+            TITLE=$(git log -1 --pretty=%s "$sha")
+            BODY=$(git log -1 --pretty=%b "$sha")
+
+            if ! echo "$TITLE" | grep -E "$REGEX" >/dev/null; then
+              echo "::error::$sha — invalid conventional format: $TITLE"
+              FAIL=1
+            fi
+            if [ ${#TITLE} -gt 72 ]; then
+              echo "::error::$sha — title > 72 chars (${#TITLE}): $TITLE"
+              FAIL=1
+            fi
+            TRIMMED=$(echo "$TITLE" | sed 's/[[:space:]]*$//')
+            if [[ "$TRIMMED" == *. ]]; then
+              echo "::error::$sha — title ends with period: $TITLE"
+              FAIL=1
+            fi
+            BODY_LINES=$(echo "$BODY" | { grep -v '^$' || true; } | { grep -v '^BREAKING CHANGE:' || true; } | wc -l)
+            if [ "$BODY_LINES" -gt 5 ]; then
+              echo "::error::$sha — body > 5 lines ($BODY_LINES): $TITLE"
+              FAIL=1
+            fi
+            if echo "$BODY" | grep -i '^Co-Authored-By:' >/dev/null; then
+              echo "::error::$sha — contains Co-Authored-By trailer: $TITLE"
+              FAIL=1
+            fi
+          done
+          if [ "$FAIL" -eq 0 ]; then
+            echo "✅ All commits pass the commit-msg hook rules."
+          fi
+          exit "$FAIL"
+
+  quality:
+    name: Quality (check.py + lint-scripts)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python tools
+        run: pip install --quiet ruff
+      - name: Install shfmt
+        run: sudo apt-get update -qq && sudo apt-get install -y shfmt
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Prettier
+        run: npm install --global --silent prettier
+      - name: Install just
+        uses: extractions/setup-just@dd310ad5a97d8e7b41793f8ef055398d51ad4de6  # v3.0.0
+      - name: Run kit checks
+        run: python3 scripts/check.py
+      - name: Lint kit-shipped scripts (biome + ruff + shellcheck)
+        run: just lint-scripts

@@ -98,8 +98,6 @@ class QualityChecker:
         # Stack markers — presence-of-file gates each check.
         # Partial-stack projects (e.g. no-DB Tauri, FE-only, kit-only bootstrap)
         # skip the gated checks instead of failing.
-        # TODO(v4.7): strict mode should treat absent stack as failure.
-        # See `docs/TODO.md` § "Partial-stack & strict-mode audit (no-DB Tauri)".
         self.package_json = self.repo_root / "package.json"
         self.cargo_toml = self.repo_root / "src-tauri" / "Cargo.toml"
         self.sqlx_dir = self.repo_root / "src-tauri" / ".sqlx"
