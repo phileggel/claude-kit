@@ -39,6 +39,4 @@
   3. Stack-marker paths hard-coded to `src-tauri/` layout — should be discoverable for frontend-only projects.
   4. Emoji column width: `_pad_visible` pads by Python `len()` which counts the ⏩/✅/❌ as 1 char but terminals render them as 2 columns; the table is off by 1 column on emoji rows. Either depend on `wcwidth` or hardcode emoji width compensation.
 
-- **`common.just` partial-stack guards.** `cd src-tauri &&` recipes (`migrate`, `generate-types`, `prepare-sqlx`, `clean-db`, `format`) lack the `[ -d src-tauri ]` guard that script-backed recipes use — non-Tauri downstream projects get a bare `cd: src-tauri: No such file or directory`. Single-line guard per recipe.
-
 ## Experimental
