@@ -75,6 +75,34 @@ Baseline: `+4.7.3`. New baseline: `+4.7.4`. Cherry-picked one main commit (`0f3a
 
 ---
 
+## svelte-v0.2.1+4.7.4 → svelte-v0.3.0+4.8.0
+
+Baseline: `+4.7.4`. New baseline: `+4.8.0`. Cherry-picked the single squash commit `c3a695d` (PR #42) — closes GH #15, #22, #23, #25, #27, #28, #29, #32, #35, #41.
+
+### Conflicts resolved during cherry-pick
+
+- `kit/kit-readme.md` — kept Svelte "frontend-rules" wording from svelte-main; added the new `error-model.md` row from main. Convention-doc count is now 8 (matches main).
+- `kit/scripts/check.py` — kept svelte-main's `"Frontend Tests"` label (framework-neutral, per a517098 convergence); genericized the gh#27 comment from "scaffolded React stack" to "scaffolded frontend stack"; applied main's `SKIP_FRONTEND_ABSENT` constant and `--passWithNoTests` flag.
+
+### Mirrored to `-svelte` variant
+
+- `kit/agents/reviewer-frontend.md` @ c3a695d — added the v4.8-new `## Scope` section (diff-scoped default + opt-in `release-sweep` literal trigger) and Critical Rule 8 (Scope-drift guard with cap-overflow guidance) to `reviewer-frontend-svelte.md`. Framework-neutral — the neighbour examples ("presenter for a component change, the hook for a gateway change") apply equally to Svelte (`.svelte` presentational + `.svelte.ts` modules). Verbatim mirror.
+- `kit/agents/reviewer-security.md` @ c3a695d — added the v4.8-new `## Scope` section, the `## When to use` "Skip for" clause (return-type / rename / helper-split refactors with no security delta), the `## Cross-layer findings` intro paragraph (default-mode-vs-release-sweep), and Critical Rule 10 (Scope-drift guard with cap-overflow guidance) to `reviewer-security-svelte.md`. All framework-neutral. Verbatim mirror.
+
+### Skipped (no fork — change flows through cherry-pick as-is)
+
+- `kit/docs/error-model.md` (NEW) — backend-only contract (Rust types + Tauri command boundary). FE handling section narrows on `code` discriminator via Specta-derived bindings; no framework-specific idiom. No `-svelte` fork needed; ships verbatim.
+- `kit/docs/backend-rules.md`, `kit/docs/ddd-reference.md` — backend layering / error-model framing. Framework-neutral; no fork.
+- `kit/agents/reviewer-backend.md`, `kit/agents/reviewer-arch.md`, `kit/agents/reviewer-infra.md`, `kit/agents/reviewer-sql.md`, `kit/agents/reviewer-e2e.md`, `kit/agents/spec-reviewer.md` — no `-svelte` fork; cherry-pick applies as-is.
+- `kit/skills/spec-writer/SKILL.md` — gh#41 Rule 7 expansion. Spec writing is framework-neutral (UL + behavior); no fork.
+- All other touched files (kit-tools, kit-readme handled in conflicts, common.just, scripts, hooks, top-level `docs/TODO.md`, `CLAUDE.md`, `scripts/branch-files.sh`, `scripts/mirror-local.sh`) — shared.
+
+### Custom (flagged for manual treatment)
+
+(None this cycle — both fork-bearing agents had clean verbatim mirrors.)
+
+---
+
 ## Architectural note — when to fork vs share
 
 A new agent or doc should get a `-svelte` fork **only** when its substance is framework-specific (idioms, syntax, helper code). `reviewer-e2e` reviews WebDriver scenarios at the test-code level (selectors, async correctness, no-mock discipline) — these are framework-agnostic, so no fork.

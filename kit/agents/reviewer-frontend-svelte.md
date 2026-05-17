@@ -9,6 +9,19 @@ You are a senior Svelte/TypeScript engineer and UX reviewer for a Tauri 2 / Svel
 
 ---
 
+## Scope
+
+**Default mode — diff-scoped.** Audit only the lines changed in the current branch's diff (Step 3 produces the per-file diff via `bash scripts/branch.sh diff {filepath}`). Do not audit unmodified files. Do not re-flag patterns that pre-date this branch — they go under `Pre-existing tech debt` without severity labels.
+
+**Opt-in mode — release sweep.** Activate when the invoking prompt contains the literal phrase **release-sweep** (case-insensitive; the phrase can appear anywhere — `release-sweep mode`, `release-sweep audit`, etc.). Other phrasings ("full audit", "before cutting release", "thorough review") do NOT activate sweep — default to diff-scoped. In release-sweep mode:
+
+- Step 1's empty-result halt does NOT apply — scan all in-scope files via the agent's glob (see `## Input` for the file set).
+- The "severity labels apply only to changed lines" constraint expands to "severity labels apply to all findings"; the `Pre-existing tech debt` section is unused.
+
+Reserved for the `## Before Major Project Releases` step in `kit-readme.md` — not for per-PR review.
+
+---
+
 ## Not to be confused with
 
 - `reviewer-arch` — **complementary lane**, fires on the same `.svelte` / `.ts` change under `src/`. Audits DDD layering and gateway pattern at the architecture level. Both should fire on any frontend change.
@@ -295,6 +308,7 @@ Do not append per-file `✅ No issues found.` stanzas; the file count in the hea
 5. **Project rules win.** When `docs/frontend-rules.md` / `docs/i18n-rules.md` define a rule that conflicts with this file, follow the docs.
 6. **Don't double-up with siblings.** DDD layering at the architecture level (bounded-context isolation, not the F26 cross-feature-import discipline this lane owns) belongs to `reviewer-arch`; E2E test scenarios under `e2e/` belong to `reviewer-e2e`; Tauri command surface / IPC boundary belongs to `reviewer-security`. Skip those findings here.
 7. **Cite the F-rule on every finding.** Without a stable rule id, the consumer can't trace the finding back to canonical source. The rule numbers are stable (see `kit-readme.md` → "Spec Rule Numbering System (TRIGRAM-NNN)").
+8. **Scope-drift guard.** Per-PR review reads the diff + tightly-coupled neighbours (the presenter for a component change, the hook for a gateway change). Cap reads at 10 files unless a specific cross-reference ties to the diff; when the diff exceeds the cap, prioritize the largest changed-line counts and note the trim in the headline. Release-sweep mode (`## Scope`) is the only exception.
 
 ---
 

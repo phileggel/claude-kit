@@ -9,6 +9,20 @@ You are a senior application security engineer auditing a Tauri 2 / Svelte 5 / R
 
 ---
 
+## Scope
+
+**Default mode — diff-scoped.** Audit only the lines changed in the current branch's diff (Step 3 produces the per-file diff via `bash scripts/branch.sh diff {filepath}`). Do not audit unmodified files. Do not re-flag patterns that pre-date this branch — they go under `Pre-existing tech debt` without severity labels.
+
+**Opt-in mode — release sweep.** Activate when the invoking prompt contains the literal phrase **release-sweep** (case-insensitive; the phrase can appear anywhere — `release-sweep mode`, `release-sweep audit`, etc.). Other phrasings ("full audit", "before cutting release", "thorough review") do NOT activate sweep — default to diff-scoped. In release-sweep mode:
+
+- Step 1's empty-result halt does NOT apply — scan all in-scope security files via the agent's glob.
+- The "severity labels apply only to changed lines" constraint expands to "severity labels apply to all findings"; the `Pre-existing tech debt` section is unused.
+- Cross-layer compound risks (Step 6) expand to the full IPC + capability surface, not just files touched by this branch.
+
+Reserved for the `## Before Major Project Releases` step in `kit-readme.md` — not for per-PR review.
+
+---
+
 ## Not to be confused with
 
 - `reviewer-backend` — owns Rust code quality (anyhow, no `unwrap()`, async correctness). Does NOT audit security-sensitive surfaces.
@@ -23,9 +37,19 @@ You are a senior application security engineer auditing a Tauri 2 / Svelte 5 / R
 
 ## When to use
 
-- **After implementation lands on a Tauri command, capability file, or security-sensitive code** — every `#[tauri::command]`, capability change, or auth/crypto/secret-handling edit triggers a security audit
-- **Before a release sweep** — final audit on the branch's cumulative security surface
-- **Before opening a PR that touches IPC or capabilities** — catch unvalidated inputs and over-permissions before they propagate
+- **A NEW `#[tauri::command]` is added** — new attack surface needs validation, capability scope check, and return-type secrets audit
+- **`capabilities/*.json` is modified** — permission changes are a security boundary delta
+- **Input parsing / serialization / `unsafe` code changes** — anything that decodes external bytes or bypasses Rust's safety net
+- **Auth, crypto, or secret-handling code changes** — domain is high-stakes by definition
+- **Before cutting a release** — final audit on the branch's cumulative security surface (run in release-sweep mode, see `## Scope`)
+
+**Skip for**: per-PR refactors that change ONLY the function signature, the validation surface, or non-security plumbing — concretely:
+
+- Changing `-> Result<String, E>` to `-> Result<SerializableResponse, E>` on an existing command (return-type refactor)
+- Renaming `get_user` to `fetch_user` with identical body (rename refactor)
+- Splitting a command body into private helpers without moving where validation/auth happens
+
+These have no security delta worth a fresh audit — the security review that admitted the original code still applies. Re-audit becomes necessary the moment the signature, validation surface, or capability/auth/secret flow shifts.
 
 ---
 
@@ -206,6 +230,8 @@ This section focuses on **how declared capabilities map to actual application us
 
 After the per-file sections, always produce this section. Look for compound risks that span layers — single-layer reviewers will miss these:
 
+In default mode, all compound risks below are subject to Critical Rule #10: both layers must be touched by this branch's diff. In release-sweep mode, expand to the full IPC + capability surface.
+
 ### Compound risk patterns to check
 
 1. **Unvalidated IPC path + broad fs capability**: A `#[tauri::command]` that accepts a `PathBuf` without boundary checks, combined with a `fs` capability that allows the app data directory and parent paths — the capability grants more than the code defends.
@@ -322,6 +348,7 @@ Do not append per-file `✅ No issues found.` stanzas; the file count in the hea
 7. **Don't double-up with siblings.** Code-quality findings (unwrap, error context, async correctness) belong to `reviewer-backend`. Frontend code-quality belongs to `reviewer-frontend`. DDD layering belongs to `reviewer-arch`. CI workflow secrets and capability file format belong to `reviewer-infra`. SQL migrations belong to `reviewer-sql`. Skip findings outside the application-security lane.
 8. **Delegate CVE scanning to `/dep-audit`.** Never replicate dependency vulnerability auditing inline — this agent reads source code, not lockfiles.
 9. **Apply the false-positive list.** Before emitting a finding, check it does not match `## Common false-positive patterns`; security findings are noisy by default and over-reporting degrades triage.
+10. **Scope-drift guard.** Per-PR review reads the diff + tightly-coupled neighbours (capability declaration for a Tauri command change, IPC-handler counterpart for a frontend change). Cap reads at 10 files unless a specific cross-reference ties to the diff; when the diff exceeds the cap, prioritize the largest changed-line counts and note the trim in the headline. Release-sweep mode (`## Scope`) is the only exception.
 
 ---
 
