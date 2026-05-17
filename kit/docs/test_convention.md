@@ -48,7 +48,7 @@ vi.mock("../gateway", () => ({
   fetchItems: vi.fn(),
 }));
 
-vi.mock("@/core/snackbar", () => ({
+vi.mock("@/ui/components/snackbar/snackbarStore", () => ({
   useSnackbar: () => ({ showSnackbar: vi.fn() }),
 }));
 
@@ -62,7 +62,7 @@ For mocks that are referenced inside `beforeEach` or test bodies, use `vi.hoiste
 ```ts
 const mockToastShow = vi.hoisted(() => vi.fn());
 
-vi.mock("@/core/snackbar", () => ({
+vi.mock("@/ui/components/snackbar/snackbarStore", () => ({
   toastService: { show: mockToastShow, subscribe: vi.fn(() => vi.fn()) },
 }));
 ```
