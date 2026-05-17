@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-Release script for YourProject.
+Release script.
 
-Automates version bumping, changelog generation, and git tagging.
+Automates version bumping, changelog generation, and git tagging for the
+current project.
 
 Process:
   1. Run all quality checks via check.py (tests, lint, SQLx, build)
@@ -267,31 +268,30 @@ class ReleaseManager:
         )
         print("  ✓ src-tauri/tauri.conf.json")
 
-        if self.mode is not Mode.DRY_RUN:
-            print(f"{BLUE}  Updating src-tauri/Cargo.lock...{NC}")
-            try:
-                subprocess.run(
-                    ["cargo", "metadata", "--format-version", "1"],
-                    cwd=self.repo_root / "src-tauri",
-                    capture_output=True,
-                    check=True,
-                )
-            except subprocess.CalledProcessError as e:
-                # JSON files are already mutated above; if cargo crashes here
-                # the working tree is partial. Surface clearly so the user
-                # knows to inspect Cargo.toml (most likely a syntax issue
-                # introduced by the version edit) and revert if needed.
-                print(
-                    f"{RED}❌ cargo metadata failed — Cargo.lock not updated.{NC}",
-                    file=sys.stderr,
-                )
-                print(
-                    f"{BLUE}   Version files already edited; inspect Cargo.toml syntax or "
-                    f"`git checkout -- package.json src-tauri/Cargo.toml src-tauri/tauri.conf.json` to revert.{NC}",
-                    file=sys.stderr,
-                )
-                raise SystemExit(1) from e
-            print("  ✓ src-tauri/Cargo.lock updated")
+        print(f"{BLUE}  Updating src-tauri/Cargo.lock...{NC}")
+        try:
+            subprocess.run(
+                ["cargo", "metadata", "--format-version", "1"],
+                cwd=self.repo_root / "src-tauri",
+                capture_output=True,
+                check=True,
+            )
+        except subprocess.CalledProcessError as e:
+            # JSON files are already mutated above; if cargo crashes here
+            # the working tree is partial. Surface clearly so the user
+            # knows to inspect Cargo.toml (most likely a syntax issue
+            # introduced by the version edit) and revert if needed.
+            print(
+                f"{RED}❌ cargo metadata failed — Cargo.lock not updated.{NC}",
+                file=sys.stderr,
+            )
+            print(
+                f"{BLUE}   Version files already edited; inspect Cargo.toml syntax or "
+                f"`git checkout -- package.json src-tauri/Cargo.toml src-tauri/tauri.conf.json` to revert.{NC}",
+                file=sys.stderr,
+            )
+            raise SystemExit(1) from e
+        print("  ✓ src-tauri/Cargo.lock updated")
 
     def _build_changelog_entry(self) -> str:
         """Build new changelog entry from commits."""
@@ -629,7 +629,7 @@ class ReleaseManager:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Release manager for YourProject.")
+    parser = argparse.ArgumentParser(description="Release manager.")
     # --dry-run and --preview are mutually exclusive: they're two distinct
     # modes (DRY_RUN edits files locally but skips push; PREVIEW is fully
     # read-only). Argparse enforces "at most one" so users get a clear
