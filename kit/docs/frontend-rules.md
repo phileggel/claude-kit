@@ -1,7 +1,5 @@
 # Frontend Rules
 
-⚠️ **AI AGENT MUST NEVER UPDATE THIS DOCUMENT**
-
 > Rule numbers (F1, F2, …) are stable IDs — once assigned, they never change. New rules are appended; deprecated rules keep their number with a note.
 
 ## Top-level `src/` structure

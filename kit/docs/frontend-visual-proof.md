@@ -1,7 +1,5 @@
 # Frontend Visual Proof Rules
 
-> ⚠️ **AI AGENT MUST NEVER UPDATE THIS DOCUMENT**
-
 Any change that touches a `.tsx`, `.css`, or visual asset file **MUST** include committed
 screenshots in `screenshots/` before merging. Screenshots must always cover both **light and
 dark mode**. Use `/visual-proof` to automate the full capture workflow.

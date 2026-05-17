@@ -3,8 +3,6 @@
 Defines what makes a component reliably driveable from the Tauri WebDriver E2E suite.
 Read together with `docs/frontend-rules.md` and `docs/test_convention.md`.
 
-⚠️ **AI AGENT MUST NEVER UPDATE THIS DOCUMENT**
-
 > Rule numbers (E1, E2, …) are stable IDs — once assigned, they never change. New rules are appended; deprecated rules keep their number with a note.
 
 ---

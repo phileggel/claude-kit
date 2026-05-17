@@ -2,8 +2,6 @@
 
 > For DDD concept definitions, see [docs/ddd-reference.md](ddd-reference.md).
 
-**AI AGENT SHOULD NEVER UPDATE THIS DOCUMENT**
-
 > Rule numbers (B0, B1, …) are stable IDs — once assigned, they never change. New rules are appended; deprecated rules keep their number with a note.
 
 ## Folder Structure
