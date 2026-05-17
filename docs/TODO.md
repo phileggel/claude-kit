@@ -1,6 +1,8 @@
 # List of TODOs
 
-## v4.7 candidates
+## v4.8 candidates
+
+## v4.9 candidates
 
 - **SDD Workflow B walk — verify reviewer dual-use.** Reviewer agents (`reviewer-arch`, `reviewer-backend`, `reviewer-frontend`, `reviewer-e2e`, `reviewer-sql`, `reviewer-infra`, `reviewer-security`) are used by both Workflow A (Phase 4) and Workflow B (step 5). Workflow B has no `docs/plan/{feature}-plan.md`, no `docs/contracts/{domain}-contract.md`, no `docs/spec/{domain}.md`. Verify each reviewer handles the no-plan / no-contract context gracefully (no hard reads, no halts on absent files). Likely surface mostly verification with small graceful-skip patches.
 
@@ -22,25 +24,20 @@
 
   Closes GH #15 + #27 as side-effects. Categorisation per fix item: graceful-skip / doc-gate / sync-time-exclude / accept-as-noise / strict-required.
 
-- **`reviewer-backend` convention audit.** Surfaced during the reviewer-arch/sql/infra/security walk on `feat/v4.7-candidates`. `reviewer-backend.md` (198 lines, untouched in v4.6) likely shares the structural gaps the four sibling walks fixed: missing `## Not to be confused with`, `## When to use` / `When NOT to use`, `## Critical Rules`, `## Notes`; possibly stale base-resolution if Step 3 doesn't use the `BASE=$(git merge-base ...)` fallback chain. Run `ai-reviewer` once, apply must-fix + structural alignment, `/preflight`. Single-file scope.
-
-- **Stable rule numbering for DDD + SQL conventions.** v4.4 introduced rule-number stability for `frontend-rules.md` (F-NN) and `backend-rules.md` (B-NN). Two gaps surface: (1) `docs/ddd-reference.md` is a concept glossary without numbered rules — `reviewer-arch` cites zero rule numbers in its DDD block, breaking the v4.4 pattern; (2) SQL conventions inside `backend-rules.md` aren't separately numbered (no SQL-NN scheme), so `reviewer-sql` findings can't cite a stable id. Decide per-doc: introduce numbered rules (D-NN, SQL-NN), accept the asymmetry as "DDD/SQL conventions are external/established, not project style rules", or hybrid (number SQL, leave DDD). Output is a documented decision + (if number) the renumbered doc and reviewer citations.
-
 - **Collapse `branch-files.sh` + `changed-files.sh` into `branch.sh files` subcommand.** v4.7.3 introduced `branch.sh {base|diff|log}` to absorb compound shell from reviewer prompts (issue #37). `branch-files.sh` and `changed-files.sh` differ by exactly one line (whether the committed branch diff is included) — natural candidates to fold in as `branch.sh files` and `branch.sh files --uncommitted-only`. Net −2 scripts. Breaking change for downstream callers (agents naming the scripts directly) — handle as a coordinated rename + sync cycle, not piecemeal.
 
-- **`release.py` deferred refactors.** Script-reviewer surfaced 13 pre-existing items on `feat/v4.7-candidates`; the cheap ones (atomic push, UTC datetime, `--no-verify` waiver, `MAIN_BRANCH` constant, `cargo metadata` recovery) landed inline. Remaining (refactor-tax, not bugs):
-  1. `run()` is 84 lines and 8 responsibilities — split into `_resolve_version()` / `_apply_changes()` / `_finalize()`.
-  2. `preview` + `dry_run` are two booleans where a `Mode = {REAL, DRY_RUN, PREVIEW}` enum + argparse mutex group belongs.
-  3. `Optional[str]` / `List[dict]` imports — migrate to PEP 604 (`str | None`, `list[dict]`).
+- **`check.py` emoji column width.** `_pad_visible` pads by Python `len()` which counts ⏩/✅/❌ as 1 char but terminals render them as 2 columns; the table is off by 1 column on emoji rows. Either depend on `wcwidth` or hardcode emoji width compensation. Split from the v4.8 `check.py` polish entry — fiddlier than the other items.
 
-- **`check.py` deferred polish.** Cheap items (subprocess timeouts, missing-tool diagnostic, `check_sqlx` `check=False`) landed inline. Remaining:
-  1. `Optional[Path]` / `List[str]` imports — migrate to PEP 604.
-  2. Magic strings repeated (`"src-tauri/Cargo.toml absent"` × 4, `"package.json absent"` × 6) — extract constants.
-  3. Stack-marker paths hard-coded to `src-tauri/` layout — should be discoverable for frontend-only projects.
-  4. Emoji column width: `_pad_visible` pads by Python `len()` which counts the ⏩/✅/❌ as 1 char but terminals render them as 2 columns; the table is off by 1 column on emoji rows. Either depend on `wcwidth` or hardcode emoji width compensation.
-
-- **`merge.py` force-push divergence pre-flight.** Surfaced as out-of-scope by script-reviewer on the v4.7 fix. Today: if `origin/<branch>` has commits not in local (someone force-pushed while user wasn't pulling), Step 2's local rebase discards them and Step 5 deletes them from origin without warning. By-design for local-only feature branches, footgun for shared ones. Add Pre-flight 5: `git fetch origin <branch>` + ahead/behind check; refuse if `origin/<branch>` has commits not in local.
-
-- **`common.just` partial-stack guards.** `cd src-tauri &&` recipes (`migrate`, `generate-types`, `prepare-sqlx`, `clean-db`, `format`) lack the `[ -d src-tauri ]` guard that script-backed recipes use — non-Tauri downstream projects get a bare `cd: src-tauri: No such file or directory`. Single-line guard per recipe.
+- **v4.8 review-cycle deferred polish.** Surfaced by the global ai-reviewer + script-reviewer pass on `feat/v4.8-candidates`; triaged as should-fix or consider, not blocking release:
+  - **spec-reviewer wording** — Category B leak-list: `response` too broad (split to `request body` / `response body`); C wire-shape: "command responses" leaks vocab (rephrase to "observable to the user"); G demoted 🟡 trailing sentence duplicates Critical Rule 6 (trim).
+  - **spec-writer Rule 7** — 111-word lead sentence (convert to nested bullets); anti-list missing transport vocabulary (`endpoint`, `route`, `HTTP`, `API call`); Good/Bad table examples skew Rust-Tauri.
+  - **reviewer-frontend** — verify cross-ref `## Before Major Project Releases` in `kit-readme.md` (confirmed exists at L175 during review; mention for future drift).
+  - **reviewer-infra** — Step 7 has dead trigger phrasing predating the v4.8 Scope formalization ("cumulative branch diff against the previous tag, or explicit release sweep"); Scope is now the single source of truth.
+  - **reviewer-backend** — frontmatter description leads with negative anti-patterns; positive trigger (flat-`{BC}Error` model) would route better. `### Error handling` first bullet bundles three rules at one severity; consider split.
+  - **reviewer-e2e Rule 8** — neighbour example reads tautologically ("the changed test file plus its `_helpers/` references"); rephrase as X-for-Y-change pair like siblings.
+  - **release.py** — exit code 2 for malformed `--version` (POSIX); `dataclass Commit` to replace loose `list[dict]`; stdout/stderr split so `release.py --preview` is machine-parseable; Cargo.toml `re.subn` to bail if version-match count != 1; commit error wrapper drops `e.stderr`.
+  - **merge.py** — `git rebase --abort` failure swallowed (line 169); `.format()` mixed with f-strings (line 131); `LC_ALL=C` on git invocations to harden English-error-string parsing.
+  - **sync.sh** — `echo -e` portability (use `printf '%b\n'` if shebang ever drifts to `/bin/sh`); add `command -v python3 >/dev/null` preflight; atomic-rename manifest file to avoid partial-write on early exit; chmod +x for `.py`/`.mjs` if they ever grow shebangs that get invoked directly.
+  - **check.py** — `env_update: dict[str, str] | None` (typed parameterization); `_safe_print` `file: object | None`; TSC verbose-mode loses error output (line 419).
 
 ## Experimental
