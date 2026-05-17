@@ -100,13 +100,16 @@ Use the format in `## Output format` below. Lead with the headline summary.
 
 ### Error handling
 
-- Application services and Tauri command surfaces must return typed `Result<T, *Error>` per [`docs/error-model.md`](../docs/error-model.md) (per-BC leaf, use-case composite). Repositories MAY use `anyhow::Error` as trait error type; infra failures translate to the BC's `{BC}ApplicationError::DatabaseError` (or named `{Class}Error` variant) at the call site. (🟡)
+- Application services and Tauri command surfaces must return typed `Result<T, {BC}Error>` (BC-scoped) or `Result<T, {UseCase}Error>` (cross-BC composite) per [`docs/error-model.md`](../docs/error-model.md) — one flat enum per BC + use-case composites via `#[serde(untagged)]` + `#[from]`. Repositories MAY use `anyhow::Error` as trait error type; infra failures translate to the BC's `{BC}Error::DatabaseError` at the service call site. (🟡)
 - `Result<T, String>` on a wire-visible signature (Tauri command, or service method that composes into one) (🔴 — wire-contract violation; FE bindings lose typing)
-- `anyhow::Result<T>` returned from a service method that surfaces to a Tauri command (🔴 — `error-model.md` anti-pattern #1; breaks the Specta-derived FE union)
-- Translation of an infra failure to `*ApplicationError::DatabaseError` (or any `*ApplicationError` variant) without a `tracing::error!(target: BACKEND, …)` at the same call site — the diagnostic chain must be logged server-side per `error-model.md` rule 2 (🟡)
+- `anyhow::Result<T>` returned from a service or use-case method that surfaces to a Tauri command (🔴 — `error-model.md` anti-pattern; breaks the Specta-derived FE union)
+- Per-BC `*ApplicationError` / `*DomainError` split — collapse into a single flat `{BC}Error` per `error-model.md` § The rule (🟡)
+- Wrapping use-case-specific guards in their own leaf enum (`{UseCase}GuardError` etc.) instead of declaring them as flat variants on the `{UseCase}Error` composite (🟡)
+- Translation of an infra failure to `{BC}Error::DatabaseError` (or any `{BC}Error` variant) without a `tracing::error!(target: BACKEND, …)` at the same call site — the diagnostic chain must be logged server-side per `error-model.md` § Decision tree (🟡)
 - No `unwrap()` or `expect()` in non-test code paths (🔴)
-- Errors must carry context: in repository / infra code (where `anyhow::Error` is permitted) use `.context("...")` or `.with_context(|| ...)`; in application code, translate at the call site with `.map_err(|e| { tracing::error!(target: BACKEND, err = ?e, "service_method: what failed"); {BC}ApplicationError::DatabaseError })?` per `docs/error-model.md` (🟡)
+- Errors must carry context: in repository / infra code (where `anyhow::Error` is permitted) use `.context("...")` or `.with_context(|| ...)`; in application code, translate at the call site with `.map_err(|e| { tracing::error!(target: BACKEND, err = ?e, "service_method: what failed"); {BC}Error::DatabaseError })?` per `docs/error-model.md` (🟡)
 - Bare `?` with no context on opaque external errors crossing the repository → service boundary (🟡)
+- Two wrapper variants in a `#[serde(untagged)]` composite whose BC enums share a `code` discriminant — silent collision (first arm wins); verify uniqueness when adding a wrapper (🟡)
 
 ### Idiomatic patterns
 
@@ -120,7 +123,7 @@ Use the format in `## Output format` below. Lead with the headline summary.
 - Repositories must be defined as traits in `repository.rs` and implemented separately (🔴)
 - The service layer must depend on the trait, not the concrete type — use `dyn Repository` or `<R: Repository>` (🔴)
 - Concrete repository types injected directly into services (🔴, candidate for `[DECISION]` if the trait abstraction would force a cross-cutting refactor)
-- Repository trait error type: `anyhow::Error` (translation to typed `{BC}ApplicationError::DatabaseError` happens at the service call site, not in the repository) (🔵)
+- Repository trait error type: `anyhow::Error` (translation to typed `{BC}Error::DatabaseError` happens at the service call site, not in the repository) (🔵)
 
 ### Async correctness
 
@@ -152,7 +155,7 @@ Then per-file blocks (omit files with no issues — the headline already counts 
 ## {filename}
 
 ### 🔴 Critical (must fix)
-- Line 42: `unwrap()` on `Mutex::lock()` in production path → propagate via `.map_err(|_| { tracing::error!(target: BACKEND, "locking foo registry"); FooApplicationError::DatabaseError })?` (or `anyhow::Error` + `.context(...)` if this is repository-layer code, not a service)
+- Line 42: `unwrap()` on `Mutex::lock()` in production path → propagate via `.map_err(|_| { tracing::error!(target: BACKEND, "locking foo registry"); FooError::DatabaseError })?` (or `anyhow::Error` + `.context(...)` if this is repository-layer code, not a service)
 - Line 58: concrete `SqliteUserRepo` injected directly into `UserService` [DECISION] → define `trait UserRepository` and depend on it; concrete type is wired at composition root
 
 ### 🟡 Warning (should fix)
