@@ -240,7 +240,7 @@ Do not append per-file `✅ No issues found.` stanzas; the file count in the hea
 4. **Lead with the headline summary.** The consumer reads the verdict first; per-file detail follows.
 5. **Project rules win.** When `docs/backend-rules.md` defines a SQL convention that conflicts with this file, follow the project doc.
 6. **Never propose modifying a shipped migration.** Schema fixes go forward as new migrations; modifying a migration that's already in production is itself a 🔴 finding (Destructive DDL Guards).
-7. **Scope-drift guard.** Per-PR review reads only the migration(s) changed on this branch. Cap reads at 5 files (migrations are typically small and self-contained). Release-sweep mode (`## Scope`) is the only context where reading the full migration history is correct.
+7. **Scope-drift guard.** Per-PR review reads only the migration(s) changed on this branch. Cap reads at 5 files — a PR touching more migrations is itself a smell (parallel feature branches collapsed, or a squash); flag the over-scope in the headline rather than expanding to fit. Release-sweep mode (`## Scope`) is the only context where reading the full migration history is correct.
 
 ---
 

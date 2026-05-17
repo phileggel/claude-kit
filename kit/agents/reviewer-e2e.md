@@ -210,7 +210,7 @@ Do not append per-file `✅ No issues found.` stanzas; the file count in the hea
 5. **Project rules win.** When `docs/e2e-rules.md` or `docs/test_convention.md` defines a rule that conflicts with this file, follow the docs.
 6. **Don't double up with siblings.** Findings about React component code (selectors-as-DOM-attributes on the component side, F25 stable-id at the component layer) belong to `reviewer-frontend`. Findings about the IPC / backend implementation belong to `reviewer-arch` / `reviewer-backend`.
 7. **Cite the E-rule on every selector / async / input finding.** The E-rule numbers are stable.
-8. **Scope-drift guard.** Per-PR review reads the diff + tightly-coupled neighbours (the changed test file plus its `_helpers/` references). Cap reads at 10 files unless a specific cross-reference ties to the diff. Release-sweep mode (`## Scope`) is the only exception.
+8. **Scope-drift guard.** Per-PR review reads the diff + tightly-coupled neighbours (the changed test file plus its `_helpers/` references). Cap reads at 10 files unless a specific cross-reference ties to the diff; when the diff exceeds the cap, prioritize the largest changed-line counts and note the trim in the headline. Release-sweep mode (`## Scope`) is the only exception.
 
 ---
 

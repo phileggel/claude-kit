@@ -239,7 +239,7 @@ Do not append per-file `✅ No issues found.` stanzas; the file count in the hea
 4. **Lead with the headline summary.** The consumer reads the verdict first; per-file detail follows.
 5. **Project rules win.** When `docs/backend-rules.md`, `docs/frontend-rules.md`, or `docs/ddd-reference.md` defines a rule that conflicts with this file, follow the project doc.
 6. **Don't double-up with siblings.** Code-quality findings (unwrap, error context, async correctness) belong to `reviewer-backend`. Frontend code-quality and UX completeness belong to `reviewer-frontend`. SQL migrations belong to `reviewer-sql`. Security-sensitive surfaces belong to `reviewer-security`. Skip findings outside the layering lane.
-7. **Scope-drift guard.** Per-PR review reads the diff + tightly-coupled neighbours (the trait for an impl change, the BC module for a bounded-context move). Cap reads at 10 files unless a specific cross-reference ties to the diff. Release-sweep mode (`## Scope`) is the only exception.
+7. **Scope-drift guard.** Per-PR review reads the diff + tightly-coupled neighbours (the trait for an impl change, the BC module for a bounded-context move). Cap reads at 10 files unless a specific cross-reference ties to the diff; when the diff exceeds the cap, prioritize the largest changed-line counts and note the trim in the headline. Release-sweep mode (`## Scope`) is the only exception.
 
 ---
 

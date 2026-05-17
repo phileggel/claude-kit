@@ -347,7 +347,7 @@ Do not append per-file `✅ No issues found.` stanzas; the file count in the hea
 7. **Don't double-up with siblings.** Code-quality findings (unwrap, error context, async correctness) belong to `reviewer-backend`. Frontend code-quality belongs to `reviewer-frontend`. DDD layering belongs to `reviewer-arch`. CI workflow secrets and capability file format belong to `reviewer-infra`. SQL migrations belong to `reviewer-sql`. Skip findings outside the application-security lane.
 8. **Delegate CVE scanning to `/dep-audit`.** Never replicate dependency vulnerability auditing inline — this agent reads source code, not lockfiles.
 9. **Apply the false-positive list.** Before emitting a finding, check it does not match `## Common false-positive patterns`; security findings are noisy by default and over-reporting degrades triage.
-10. **Scope-drift guard.** Per-PR review reads the diff + tightly-coupled neighbours (capability declaration for a Tauri command change, IPC-handler counterpart for a frontend change). Cap reads at 10 files unless a specific cross-reference ties to the diff. Cross-layer compound risks (Step 6) only count when both layers were touched by this branch. Release-sweep mode (`## Scope`) is the only exception.
+10. **Scope-drift guard.** Per-PR review reads the diff + tightly-coupled neighbours (capability declaration for a Tauri command change, IPC-handler counterpart for a frontend change). Cap reads at 10 files unless a specific cross-reference ties to the diff; when the diff exceeds the cap, prioritize the largest changed-line counts and note the trim in the headline. Release-sweep mode (`## Scope`) is the only exception.
 
 ---
 

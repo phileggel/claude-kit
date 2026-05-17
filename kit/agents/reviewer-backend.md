@@ -206,7 +206,7 @@ Do not append per-file `✅ No issues found.` stanzas; the file count in the hea
 4. **Lead with the headline summary.** The consumer (the main agent presenting findings) reads the verdict first; per-file detail follows.
 5. **Project rules win.** When `docs/backend-rules.md` defines a rule that conflicts with this file, follow `docs/backend-rules.md`.
 6. **Don't double-up with siblings.** If a finding is clearly DDD layering (gateway pattern, bounded-context isolation, factory methods), it belongs to `reviewer-arch` — skip it here. If it's security-sensitive (auth, crypto, IPC boundary, unsafe Rust), it belongs to `reviewer-security`.
-7. **Scope-drift guard.** Per-PR review reads the diff + tightly-coupled neighbours (the trait for an impl change, the test file for a public-API change). Cap reads at 10 files unless a specific cross-reference ties to the diff. Release-sweep mode (`## Scope`) is the only exception.
+7. **Scope-drift guard.** Per-PR review reads the diff + tightly-coupled neighbours (the trait for an impl change, the test file for a public-API change). Cap reads at 10 files unless a specific cross-reference ties to the diff; when the diff exceeds the cap, prioritize the largest changed-line counts and note the trim in the headline. Release-sweep mode (`## Scope`) is the only exception.
 
 ---
 
