@@ -122,16 +122,22 @@ def main() -> int:
                 f"Investigate: git fetch origin {branch}",
             )
         # Count commits on origin that are NOT in local. Non-zero means
-        # origin has unique commits we would discard.
+        # origin has unique commits we would discard. Fail closed if the
+        # count itself fails — silently passing here defeats Pre-flight 5's
+        # entire purpose (preventing silent data loss at Step 5).
         ahead = git("rev-list", "--count", f"{branch}..origin/{branch}", check=False)
-        if ahead.returncode == 0 and ahead.stdout.strip() != "0":
-            count = ahead.stdout.strip()
+        if ahead.returncode != 0:
+            fail(
+                f"Could not compare {branch} with origin/{branch}.",
+                f"Investigate: git rev-list --count {branch}..origin/{branch}",
+            )
+        count = ahead.stdout.strip()
+        if count != "0":
             fail(
                 f"origin/{branch} has {count} commit(s) not in local {branch}.",
-                "merge would delete origin/{0} at Step 5 and lose those commits.".format(
-                    branch
-                ),
+                f"merge would delete origin/{branch} at Step 5 and lose those commits.",
                 f"  git pull --ff-only origin {branch}    # incorporate them",
+                f"  git pull --rebase origin {branch}     # if local has also diverged",
                 f"  git push --force-with-lease origin {branch}    # discard them (intentional)",
                 "Then re-run merge.",
             )
