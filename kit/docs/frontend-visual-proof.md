@@ -1,5 +1,7 @@
 # Frontend Visual Proof Rules
 
+> Required by F18 in [`frontend-rules.md`](frontend-rules.md) § Tests.
+
 Any change that touches a `.tsx`, `.css`, or visual asset file **MUST** include committed
 screenshots in `screenshots/` before merging. Screenshots must always cover both **light and
 dark mode**. Use `/visual-proof` to automate the full capture workflow.
