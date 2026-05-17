@@ -13,8 +13,7 @@
 ```
 src-tauri/src/
 ├── shared/                                 ← cross-cutting (was: core/ pre-v4.4)
-│   ├── application/                        ← shared application types
-│   │   └── error.rs                        ← shared InfrastructureError
+│   ├── application/                        ← shared application types (reserved; empty in projects with no cross-BC application concern)
 │   ├── domain/                             ← shared kernel (cross-BC domain — see ddd-reference.md § Shared Kernel)
 │   │   └── *.rs                            ← cross-BC constants, IDs, value objects
 │   └── infrastructure/                     ← shared concrete infra
@@ -60,7 +59,7 @@ src-tauri/src/
 
 **B42** — Top-level cross-cutting folder MUST be named `shared/`, not `core/`. `core/` overpromises (it implies "central business logic" but BCs ARE the business). `shared/` is direct, accurate, and DDD-agnostic for newcomers.
 
-**B43** — Keep layer folders even when small. `shared/application/` may have only one file today (the shared `InfrastructureError`); keep the folder anyway. It documents the layering and reserves the spot for growth — the alternative is a deceptively flat `shared/` that hides the layer structure.
+**B43** — Keep layer folders even when small or empty. `shared/application/` may be empty in projects with no cross-BC application concern (per-BC translation is the rule for infrastructure failures — see [`error-model.md`](error-model.md)); keep the folder anyway. It documents the layering and reserves the spot for growth — the alternative is a deceptively flat `shared/` that hides the layer structure.
 
 ## Ubiquitous Language
 
@@ -132,7 +131,7 @@ Its sole responsibilities are:
 
 1. **Deserialize** — translate Tauri command arguments into domain types
 2. **Delegate** — make exactly one call to its own BC Application Service
-3. **Serialize** — map the result to `Result<T, String>` for Tauri
+3. **Return** — propagate the typed `Result<T, *Error>` directly (the composite IS the FE-facing contract — see [`error-model.md`](error-model.md)); no mapper, no boundary type
 
 It MUST only call the Application Service of its own bounded context.
 It MUST NOT call another BC's service, another BC's repository, or a use case.
@@ -152,7 +151,7 @@ method after commit — the service owns the event, not the use case.
 
 **B21** — MUST declare its Tauri commands in its own `api.rs` file. This `api.rs` follows
 the same framework boundary role as for Bounded Context: deserialize → delegate to the use case orchestrator
-→ serialize. It MUST NOT contain coordination logic — that belongs in the orchestrator.
+→ return the typed composite. It MUST NOT contain coordination logic — that belongs in the orchestrator.
 
 **B22** — SHOULD have an orchestrator as its main entry point (after api) that handles the global logic.
 
@@ -201,9 +200,7 @@ tracing::info!(target: BACKEND, field = value, "message");
 
 ## General
 
-**B31** — MUST use `anyhow::Result<T>` for error handling.
-
-- Exception: Tauri command responses use `Result<T, String>`.
+**B31** — Application services MUST return typed `Result<T, *Error>` per [`error-model.md`](error-model.md) (per-BC leaves, use-case composites). Repositories MAY use `anyhow::Error` as their trait error type; the application layer translates infra failures to the BC's `*ApplicationError::DatabaseError` (or another named `{Class}Error` variant) at the call site. Tauri commands return the typed composite directly — no `Result<T, String>` boundary translation, no `anyhow::Result<T>` on a wire-visible signature.
 
 **B32** — MAY use `#[allow(clippy::too_many_arguments)]` on domain factory methods and production constructors (e.g. orchestrator or service new() with many injected dependencies). MUST NOT use on test helpers — use a builder struct instead.
 

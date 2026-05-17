@@ -100,7 +100,7 @@ Use the format in `## Output format` below. Lead with the headline summary.
 
 ### Error handling
 
-- All fallible functions must return `anyhow::Result<T>` or a project-defined error type — never `Result<T, String>` (🟡)
+- Application services and Tauri command surfaces must return typed `Result<T, *Error>` per [`docs/error-model.md`](../docs/error-model.md) (per-BC leaf, use-case composite). Repositories MAY use `anyhow::Error` as trait error type; infra failures translate to the BC's `{BC}ApplicationError::DatabaseError` (or named `{Class}Error` variant) at the call site. Never `Result<T, String>` on a wire-visible signature; never `anyhow::Result<T>` returned from a service method that surfaces to a Tauri command. (🟡)
 - No `unwrap()` or `expect()` in non-test code paths (🔴)
 - Errors must carry context: use `.context("...")` or `.with_context(|| ...)` from `anyhow` when propagating (🟡)
 - Bare `?` with no context on opaque external errors (🟡)

@@ -185,6 +185,8 @@ Infrastructure types (`sqlx::Pool`, concrete repos) must never appear in Applica
 
 ## Errors
 
+> Concepts and rules below. For the how-to (where to add a variant, leaf vs composite, wire shape, Tauri boundary), see [`error-model.md`](error-model.md).
+
 ### Three categories of errors
 
 - **Domain error** — a violation of a business rule or invariant. Belongs to the domain layer. Expressed in ubiquitous language. Examples: `OrderNotPaid`, `InsufficientStock`, `CannotCancelShippedOrder`.
@@ -206,7 +208,7 @@ Concretely:
 - **Aggregate-method rejection** → domain. `Asset::ensure_user_managed(&self) -> Result<(), AssetDomainError>` is enforcing an invariant on loaded state. Domain.
 - **Service-level pre-check** → application. `if repo.find(id).is_none() { return Err(AssetNotFound) }` runs before any aggregate is loaded. Application.
 - **Use-case orchestrator rejection** (cross-BC preconditions) → application. The orchestrator coordinates BCs; it doesn't own any single aggregate's invariants.
-- **Translated infrastructure failure** → application (e.g. `RepoError::NotFound` → `AssetNotFound`) or opaque `Infrastructure(hint)` catch-all.
+- **Translated infrastructure failure** → application. **Default**: a typed `{BC}ApplicationError::{Class}Error` variant (e.g. `DatabaseError`, `ExternalApiError`, `FileSystemError`) named at the BC's granularity, unit variant (no `hint` payload). The full diagnostic chain is preserved server-side via a `tracing::error!` call at the translation site. **Fallback** (rare): an opaque variant — only when no meaningful BC-level name applies (e.g. a true panic caught at the Tauri boundary). Not for typical service-call failures.
 
 The rule has a useful side-effect: if a service-level pre-check could be moved into the aggregate, the rejection-layer rule says it _should_ be — see the anemic-domain rule in `backend-rules.md`.
 
@@ -226,7 +228,7 @@ An error may move up a layer only if it is meaningful in that layer's vocabulary
 
 - **Domain error** → reaches the UI essentially as-is. It may be structurally wrapped in the outer error enum so the application boundary returns a single `Result<T, E>`, but its meaning is not transformed.
 - **Application error** → goes straight to the UI. It was born at the application layer speaking the UI's language.
-- **Infrastructure error** → must be translated at the application boundary. Either into a meaningful application error (e.g. `RepoError::NotFound` → `OrderNotFound`), or into an opaque variant (e.g. `Io`, `Deserialize` → generic `Infrastructure` / 500). Raw infrastructure errors never cross into the UI.
+- **Infrastructure error** → must be translated at the application boundary. **Default**: into a typed per-BC variant — either a meaningful application error (e.g. `RepoError::NotFound` → `OrderNotFound`) when the failure has a domain-meaningful translation, or a named infrastructure-class variant on the BC's application error (e.g. `DatabaseError`, `ExternalApiError`) when it doesn't. **Fallback** (rare): an opaque generic variant — only when no meaningful BC-level name applies. Raw infrastructure errors and free-form `hint` strings never cross into the UI; diagnostic detail goes to logs.
 
 ### Principles
 
@@ -273,8 +275,10 @@ pub enum PlaceOrderError {
     Domain(OrderError),         // wrapped, not translated
     OrderNotFound,              // translated from RepoError::NotFound
     Unauthorized,               // born at this layer
-    Infrastructure,             // opaque catch-all for plumbing failures
+    DatabaseError,              // typed per-BC translation of any sqlx failure
+                                // (unit variant — diagnostic chain goes to tracing::error!,
+                                // not to the wire)
 }
 ```
 
-At the UI boundary, `PlaceOrderError` is mapped to the user-facing response (HTTP status, view model, CLI exit code, etc.). Domain and application variants get specific messages; the `Infrastructure` variant becomes a generic failure response, with details only in logs.
+At the UI boundary, `PlaceOrderError` is mapped to the user-facing response (HTTP status, view model, CLI exit code, etc.). Domain and application variants get specific messages; `DatabaseError` (and any sibling `{Class}Error` variant) becomes a generic failure response, with details only in logs.
