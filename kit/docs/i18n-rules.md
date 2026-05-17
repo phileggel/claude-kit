@@ -1,6 +1,6 @@
 # i18n Rules
 
-Convention doc read by `reviewer-frontend` when present. Defines translation file structure, what must and must not be translated, and key naming conventions.
+Defines translation file structure, what must and must not be translated, and key naming conventions.
 
 ## Translation file structure
 
@@ -28,7 +28,7 @@ All user-visible text in `.tsx` files must use `t("key")` from the i18n library.
 
 ## Key naming convention
 
-Dot notation: `{domain}.{component}.{element}` — e.g. `auth.loginForm.submitButton`, `invoice.table.amountHeader`.
+Dot notation with **snake_case for every segment**: `{domain}.{component}.{element}` — e.g. `auth.login_form.submit_button`, `invoice.table.amount_header`. snake_case keeps keys readable in JSON and consistent with backend identifiers; never mix camelCase or kebab-case segments.
 
 ## Cross-locale requirement
 

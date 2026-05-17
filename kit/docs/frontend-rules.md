@@ -136,6 +136,8 @@ The reviewer-frontend lane flags primary interactive elements without an `id` pr
 
 The reviewer-frontend lane flags any literal string passed to those props.
 
+> E4 in `e2e-rules.md` explains the consequence: because `aria-label` is locale-variant and refactor-prone, E2E tests MUST NOT select on it. F24 governs the runtime label; E4 governs the selector strategy.
+
 ## Error Handling
 
 **F17** — SHOULD handle errors appropriately:
@@ -201,6 +203,8 @@ Client-side validation (no backend round-trip) follows the same pipeline: valida
 - State transitions triggered by user actions (auto-fill, reset after submit, etc.)
 - API call arguments and success/error handling
 - Do NOT write tests that only verify rendering or DOM structure
+
+> Visual changes additionally require committed screenshots — see [`frontend-visual-proof.md`](frontend-visual-proof.md).
 
 **F19** — When using `renderHook`, NEVER create objects or functions inside the render callback. The callback runs on every render; inline factories produce new references each render. If used as a `useEffect` dependency, this causes an infinite loop → OOM crash. Always extract stable references before calling `renderHook`.
 
