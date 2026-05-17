@@ -28,4 +28,16 @@
 
 - **`check.py` emoji column width.** `_pad_visible` pads by Python `len()` which counts ⏩/✅/❌ as 1 char but terminals render them as 2 columns; the table is off by 1 column on emoji rows. Either depend on `wcwidth` or hardcode emoji width compensation. Split from the v4.8 `check.py` polish entry — fiddlier than the other items.
 
+- **v4.8 review-cycle deferred polish.** Surfaced by the global ai-reviewer + script-reviewer pass on `feat/v4.8-candidates`; triaged as should-fix or consider, not blocking release:
+  - **spec-reviewer wording** — Category B leak-list: `response` too broad (split to `request body` / `response body`); C wire-shape: "command responses" leaks vocab (rephrase to "observable to the user"); G demoted 🟡 trailing sentence duplicates Critical Rule 6 (trim).
+  - **spec-writer Rule 7** — 111-word lead sentence (convert to nested bullets); anti-list missing transport vocabulary (`endpoint`, `route`, `HTTP`, `API call`); Good/Bad table examples skew Rust-Tauri.
+  - **reviewer-frontend** — verify cross-ref `## Before Major Project Releases` in `kit-readme.md` (confirmed exists at L175 during review; mention for future drift).
+  - **reviewer-infra** — Step 7 has dead trigger phrasing predating the v4.8 Scope formalization ("cumulative branch diff against the previous tag, or explicit release sweep"); Scope is now the single source of truth.
+  - **reviewer-backend** — frontmatter description leads with negative anti-patterns; positive trigger (flat-`{BC}Error` model) would route better. `### Error handling` first bullet bundles three rules at one severity; consider split.
+  - **reviewer-e2e Rule 8** — neighbour example reads tautologically ("the changed test file plus its `_helpers/` references"); rephrase as X-for-Y-change pair like siblings.
+  - **release.py** — exit code 2 for malformed `--version` (POSIX); `dataclass Commit` to replace loose `list[dict]`; stdout/stderr split so `release.py --preview` is machine-parseable; Cargo.toml `re.subn` to bail if version-match count != 1; commit error wrapper drops `e.stderr`.
+  - **merge.py** — `git rebase --abort` failure swallowed (line 169); `.format()` mixed with f-strings (line 131); `LC_ALL=C` on git invocations to harden English-error-string parsing.
+  - **sync.sh** — `echo -e` portability (use `printf '%b\n'` if shebang ever drifts to `/bin/sh`); add `command -v python3 >/dev/null` preflight; atomic-rename manifest file to avoid partial-write on early exit; chmod +x for `.py`/`.mjs` if they ever grow shebangs that get invoked directly.
+  - **check.py** — `env_update: dict[str, str] | None` (typed parameterization); `_safe_print` `file: object | None`; TSC verbose-mode loses error output (line 419).
+
 ## Experimental
