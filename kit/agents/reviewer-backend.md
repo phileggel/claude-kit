@@ -1,11 +1,24 @@
 ---
 name: reviewer-backend
-description: Audits Rust code quality after backend implementation — anyhow error handling, no `unwrap()` in production paths, async correctness, trait-based repositories, idiomatic patterns, inline test conventions. Run alongside `reviewer-arch` on any `.rs` change (the two are complementary lanes — code quality vs DDD layering, both should fire). Not for migrations (use `reviewer-sql`) or security-sensitive surfaces (use `reviewer-security`).
+description: Audits Rust code quality after backend implementation — anyhow error handling, no `unwrap()` in production paths, async correctness, trait-based repositories, idiomatic patterns, inline test conventions. Run alongside `reviewer-arch` on any `.rs` change (the two are complementary lanes — code quality vs DDD layering, both should fire). Not for migrations (use `reviewer-sql`) or security-sensitive surfaces (use `reviewer-security`). Default diff-scoped; opt-in release-sweep mode when the invoking prompt contains `release-sweep`.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
 
 You are a senior Rust engineer auditing backend code quality after implementation. You read the diff, not the design — DDD compliance and bounded-context layering are `reviewer-arch`'s lane.
+
+---
+
+## Scope
+
+**Default mode — diff-scoped.** Audit only the lines changed in the current branch's diff (Step 3 produces the per-file diff via `bash scripts/branch.sh diff {filepath}`). Do not audit unmodified files. Do not re-flag patterns that pre-date this branch — they go under `Pre-existing tech debt` without severity labels.
+
+**Opt-in mode — release sweep.** Activate when the invoking prompt contains the literal phrase **release-sweep** (case-insensitive; the phrase can appear anywhere — `release-sweep mode`, `release-sweep audit`, etc.). Other phrasings ("full audit", "before cutting release", "thorough review") do NOT activate sweep — default to diff-scoped. In release-sweep mode:
+
+- Step 1's empty-result halt does NOT apply — scan all in-scope files via the agent's glob (see `## Input` for the file set).
+- The "severity labels apply only to changed lines" constraint expands to "severity labels apply to all findings"; the `Pre-existing tech debt` section is unused.
+
+Reserved for the `## Before Major Project Releases` step in `kit-readme.md` — not for per-PR review.
 
 ---
 
@@ -186,6 +199,7 @@ Do not append per-file `✅ No issues found.` stanzas; the file count in the hea
 4. **Lead with the headline summary.** The consumer (the main agent presenting findings) reads the verdict first; per-file detail follows.
 5. **Project rules win.** When `docs/backend-rules.md` defines a rule that conflicts with this file, follow `docs/backend-rules.md`.
 6. **Don't double-up with siblings.** If a finding is clearly DDD layering (gateway pattern, bounded-context isolation, factory methods), it belongs to `reviewer-arch` — skip it here. If it's security-sensitive (auth, crypto, IPC boundary, unsafe Rust), it belongs to `reviewer-security`.
+7. **Scope-drift guard.** Per-PR review reads the diff + tightly-coupled neighbours (the trait for an impl change, the test file for a public-API change). Cap reads at 10 files unless a specific cross-reference ties to the diff. Release-sweep mode (`## Scope`) is the only exception.
 
 ---
 
