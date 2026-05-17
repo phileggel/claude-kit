@@ -1,6 +1,6 @@
 ---
 name: reviewer-backend
-description: Audits Rust code quality after backend implementation — anyhow error handling, no `unwrap()` in production paths, async correctness, trait-based repositories, idiomatic patterns, inline test conventions. Run alongside `reviewer-arch` on any `.rs` change (the two are complementary lanes — code quality vs DDD layering, both should fire). Not for migrations (use `reviewer-sql`) or security-sensitive surfaces (use `reviewer-security`). Default diff-scoped; opt-in release-sweep mode when the invoking prompt contains `release-sweep`.
+description: Audits Rust code quality after backend implementation — typed error handling per `error-model.md` (no `anyhow::Result` or `Result<T, String>` on wire-visible signatures), no `unwrap()` in production paths, async correctness, trait-based repositories, idiomatic patterns, inline test conventions. Run alongside `reviewer-arch` on any `.rs` change (the two are complementary lanes — code quality vs DDD layering, both should fire). Not for migrations (use `reviewer-sql`) or security-sensitive surfaces (use `reviewer-security`). Default diff-scoped; opt-in release-sweep mode when the invoking prompt contains `release-sweep`.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
@@ -100,10 +100,13 @@ Use the format in `## Output format` below. Lead with the headline summary.
 
 ### Error handling
 
-- Application services and Tauri command surfaces must return typed `Result<T, *Error>` per [`docs/error-model.md`](../docs/error-model.md) (per-BC leaf, use-case composite). Repositories MAY use `anyhow::Error` as trait error type; infra failures translate to the BC's `{BC}ApplicationError::DatabaseError` (or named `{Class}Error` variant) at the call site. Never `Result<T, String>` on a wire-visible signature; never `anyhow::Result<T>` returned from a service method that surfaces to a Tauri command. (🟡)
+- Application services and Tauri command surfaces must return typed `Result<T, *Error>` per [`docs/error-model.md`](../docs/error-model.md) (per-BC leaf, use-case composite). Repositories MAY use `anyhow::Error` as trait error type; infra failures translate to the BC's `{BC}ApplicationError::DatabaseError` (or named `{Class}Error` variant) at the call site. (🟡)
+- `Result<T, String>` on a wire-visible signature (Tauri command, or service method that composes into one) (🔴 — wire-contract violation; FE bindings lose typing)
+- `anyhow::Result<T>` returned from a service method that surfaces to a Tauri command (🔴 — `error-model.md` anti-pattern #1; breaks the Specta-derived FE union)
+- Translation of an infra failure to `*ApplicationError::DatabaseError` (or any `*ApplicationError` variant) without a `tracing::error!(target: BACKEND, …)` at the same call site — the diagnostic chain must be logged server-side per `error-model.md` rule 2 (🟡)
 - No `unwrap()` or `expect()` in non-test code paths (🔴)
-- Errors must carry context: use `.context("...")` or `.with_context(|| ...)` from `anyhow` when propagating (🟡)
-- Bare `?` with no context on opaque external errors (🟡)
+- Errors must carry context: in repository / infra code (where `anyhow::Error` is permitted) use `.context("...")` or `.with_context(|| ...)`; in application code, translate at the call site with `.map_err(|e| { tracing::error!(target: BACKEND, err = ?e, "service_method: what failed"); {BC}ApplicationError::DatabaseError })?` per `docs/error-model.md` (🟡)
+- Bare `?` with no context on opaque external errors crossing the repository → service boundary (🟡)
 
 ### Idiomatic patterns
 
@@ -117,6 +120,7 @@ Use the format in `## Output format` below. Lead with the headline summary.
 - Repositories must be defined as traits in `repository.rs` and implemented separately (🔴)
 - The service layer must depend on the trait, not the concrete type — use `dyn Repository` or `<R: Repository>` (🔴)
 - Concrete repository types injected directly into services (🔴, candidate for `[DECISION]` if the trait abstraction would force a cross-cutting refactor)
+- Repository trait error type: `anyhow::Error` (translation to typed `{BC}ApplicationError::DatabaseError` happens at the service call site, not in the repository) (🔵)
 
 ### Async correctness
 
@@ -148,7 +152,7 @@ Then per-file blocks (omit files with no issues — the headline already counts 
 ## {filename}
 
 ### 🔴 Critical (must fix)
-- Line 42: `unwrap()` on `Mutex::lock()` in production path → return `anyhow::Result` and propagate via `.context("locking foo registry")`
+- Line 42: `unwrap()` on `Mutex::lock()` in production path → propagate via `.map_err(|_| { tracing::error!(target: BACKEND, "locking foo registry"); FooApplicationError::DatabaseError })?` (or `anyhow::Error` + `.context(...)` if this is repository-layer code, not a service)
 - Line 58: concrete `SqliteUserRepo` injected directly into `UserService` [DECISION] → define `trait UserRepository` and depend on it; concrete type is wired at composition root
 
 ### 🟡 Warning (should fix)
@@ -210,3 +214,5 @@ This agent is the **code-quality lane** for `.rs` changes. `reviewer-arch` is th
 The Rust Rules block intentionally does **not** invoke `cargo clippy`. Clippy is a deterministic checker the project should run separately (typically via `cargo clippy` in CI or `just check-full`); this agent's value is judgment on patterns Clippy can't catch — error-context quality, async-mutex-await deadlock risk, trait-vs-concrete repository injection, test-assertion `unwrap()` smell. The "Idiomatic patterns" sub-section flags surface-level smells a reader can spot without compilation.
 
 The two-pass diff workflow (Step 3 + Step 4) is deliberate: severity labels on the diff, full-file reads for context. The alternative — flagging anything visible in the file — would penalise branches that touched a single line in a long-pre-existing legacy file.
+
+The `### Error handling` block tracks `docs/backend-rules.md` B31 + B16 and `docs/error-model.md`. Edits to those convention docs should propagate here — the rule severities encoded above (🔴 for wire-contract violations, 🟡 for translation-site hygiene) are this agent's interpretation of those rules, not duplicate sources of truth.
