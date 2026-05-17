@@ -79,16 +79,7 @@ These directories MAY exist alongside the 4 buckets and are not subject to the r
 
 ## Feature Structure
 
-**F1** — SHOULD follow the gold layout:
-
-```
-feature/
-  {sub_feature}/        <== SubFeature.tsx + useSubFeature.ts + useSubFeature.test.ts
-  shared/               <== shared utilities, types, presenter, validation
-  gateway.ts            <== ONLY file that calls commands.* (Tauri)
-  store.ts              <== feature-scoped Zustand store (if needed)
-  index.ts              <== public re-exports
-```
+**F1** — Each feature folder MUST follow F0's `features/{feature}/` subsection: a snake_case sub-feature folder per use case (F2), a `shared/` for cross-sub-feature primitives (F4, F5), a `gateway.ts` that owns every `commands.*` call (F3), an optional `store.ts` for feature-scoped state, and `index.ts` for public re-exports.
 
 **F2** — Each sub-feature MUST live in its own subfolder named in snake_case.
 

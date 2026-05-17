@@ -275,6 +275,16 @@ async fn build_ctx() -> Ctx {
 
 ---
 
+### Tier 4 — E2E (WebDriver UI flows)
+
+**Location:** `e2e/` tests driving the full app through WebDriver.
+
+**Purpose:** Validate UI flows end-to-end against an ephemeral database (per B36).
+
+See [`e2e-rules.md`](e2e-rules.md) for the full rule set (E1–E10) — selector discipline, React controlled-input helpers, locale-formatted date pickers, deterministic test values.
+
+---
+
 ### What not to test (all tiers)
 
 - A constructor doesn't panic
