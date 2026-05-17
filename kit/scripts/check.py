@@ -356,7 +356,14 @@ class QualityChecker:
             if not self._maybe_skip_for_stack(
                 "react_tests", "React Tests", self.package_json, "package.json absent"
             ):
-                if self.run_step("React Tests", ["npm", "test", "--", "--run"]):
+                # --passWithNoTests: a scaffolded React stack with no test files
+                # yet (mid-bootstrap, fresh feature start) would otherwise exit 1
+                # from vitest's "No test files found" path and fail the suite.
+                # The flag short-circuits to exit 0 in that case; harmless once
+                # tests exist. See gh#27.
+                if self.run_step(
+                    "React Tests", ["npm", "test", "--", "--run", "--passWithNoTests"]
+                ):
                     self._set_metric("react_tests", STATUS_PASS)
 
         if not self.fast_mode:
