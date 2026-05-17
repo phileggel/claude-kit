@@ -1,6 +1,6 @@
 # List of TODOs
 
-## v4.7 candidates
+## v4.8 candidates
 
 - **SDD Workflow B walk — verify reviewer dual-use.** Reviewer agents (`reviewer-arch`, `reviewer-backend`, `reviewer-frontend`, `reviewer-e2e`, `reviewer-sql`, `reviewer-infra`, `reviewer-security`) are used by both Workflow A (Phase 4) and Workflow B (step 5). Workflow B has no `docs/plan/{feature}-plan.md`, no `docs/contracts/{domain}-contract.md`, no `docs/spec/{domain}.md`. Verify each reviewer handles the no-plan / no-contract context gracefully (no hard reads, no halts on absent files). Likely surface mostly verification with small graceful-skip patches.
 
@@ -22,7 +22,7 @@
 
   Closes GH #15 + #27 as side-effects. Categorisation per fix item: graceful-skip / doc-gate / sync-time-exclude / accept-as-noise / strict-required.
 
-- **`reviewer-backend` convention audit.** Surfaced during the reviewer-arch/sql/infra/security walk on `feat/v4.7-candidates`. `reviewer-backend.md` (198 lines, untouched in v4.6) likely shares the structural gaps the four sibling walks fixed: missing `## Not to be confused with`, `## When to use` / `When NOT to use`, `## Critical Rules`, `## Notes`; possibly stale base-resolution if Step 3 doesn't use the `BASE=$(git merge-base ...)` fallback chain. Run `ai-reviewer` once, apply must-fix + structural alignment, `/preflight`. Single-file scope.
+- **`reviewer-backend` convention audit.** Surfaced during the reviewer-arch/sql/infra/security walk on `feat/v4.7-candidates`. `reviewer-backend.md` likely shares the structural gaps the four sibling walks fixed: missing `## Not to be confused with`, `## When to use` / `When NOT to use`, `## Critical Rules`, `## Notes`. (Base-resolution already addressed in v4.7.3 via PR #38.) Run `ai-reviewer` once, apply must-fix + structural alignment, `/preflight`. Single-file scope.
 
 - **Stable rule numbering for DDD + SQL conventions.** v4.4 introduced rule-number stability for `frontend-rules.md` (F-NN) and `backend-rules.md` (B-NN). Two gaps surface: (1) `docs/ddd-reference.md` is a concept glossary without numbered rules — `reviewer-arch` cites zero rule numbers in its DDD block, breaking the v4.4 pattern; (2) SQL conventions inside `backend-rules.md` aren't separately numbered (no SQL-NN scheme), so `reviewer-sql` findings can't cite a stable id. Decide per-doc: introduce numbered rules (D-NN, SQL-NN), accept the asymmetry as "DDD/SQL conventions are external/established, not project style rules", or hybrid (number SQL, leave DDD). Output is a documented decision + (if number) the renumbered doc and reviewer citations.
 
