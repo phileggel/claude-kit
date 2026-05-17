@@ -2,11 +2,6 @@
 
 ## v4.8 candidates
 
-- **`release.py` deferred refactors.** Script-reviewer surfaced 13 pre-existing items on `feat/v4.7-candidates`; the cheap ones (atomic push, UTC datetime, `--no-verify` waiver, `MAIN_BRANCH` constant, `cargo metadata` recovery) landed inline. Remaining (refactor-tax, not bugs):
-  1. `run()` is 84 lines and 8 responsibilities — split into `_resolve_version()` / `_apply_changes()` / `_finalize()`.
-  2. `preview` + `dry_run` are two booleans where a `Mode = {REAL, DRY_RUN, PREVIEW}` enum + argparse mutex group belongs.
-  3. `Optional[str]` / `List[dict]` imports — migrate to PEP 604 (`str | None`, `list[dict]`).
-
 - **`check.py` deferred polish.** Cheap items (subprocess timeouts, missing-tool diagnostic, `check_sqlx` `check=False`) landed inline. Remaining:
   1. `Optional[Path]` / `List[str]` imports — migrate to PEP 604.
   2. Magic strings repeated (`"src-tauri/Cargo.toml absent"` × 4, `"package.json absent"` × 6) — extract constants.
