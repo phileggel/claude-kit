@@ -74,7 +74,16 @@ def _git(*args: str) -> str:
 
 
 def collect_todo_file() -> dict | None:
-    """Return TODO file content split into sections, or None if absent."""
+    """Return TODO file content split into sections, or None if absent.
+
+    Two bullet styles are captured per section:
+      - Checkbox bullets at any indent (`- [ ] foo`, `- [x] foo`) — surfaced
+        with `done: true|false` from the checkbox state.
+      - Plain top-level bullets (`- foo`, no checkbox) — surfaced with
+        `done: false`. The TODO candidates pool typically uses this style;
+        only top-level entries count (nested `  - sub-item` lines are
+        treated as continuation of the parent, not separate candidates).
+    """
     for name in ("docs/todo.md", "docs/TODO.md"):
         path = ROOT / name
         text = _read(path)
@@ -82,7 +91,7 @@ def collect_todo_file() -> dict | None:
             continue
         sections: list[dict] = []
         current_heading: str | None = None
-        current_items: list[str] = []
+        current_items: list[dict] = []
         for line in text.splitlines():
             heading = re.match(r"^##\s+(.+?)\s*$", line)
             if heading:
@@ -93,13 +102,21 @@ def collect_todo_file() -> dict | None:
                 current_heading = heading.group(1)
                 current_items = []
                 continue
-            item = re.match(r"^\s*-\s+\[(?P<state>[ xX])\]\s+(?P<text>.+)$", line)
-            if item and current_heading is not None:
+            checkbox = re.match(r"^\s*-\s+\[(?P<state>[ xX])\]\s+(?P<text>.+)$", line)
+            if checkbox and current_heading is not None:
                 current_items.append(
                     {
-                        "done": item.group("state").lower() == "x",
-                        "text": item.group("text").strip(),
+                        "done": checkbox.group("state").lower() == "x",
+                        "text": checkbox.group("text").strip(),
                     }
+                )
+                continue
+            # Lookahead excludes ONLY checkbox bullets (`- [ ]` / `- [x]`),
+            # not link bullets (`- [text](url)`) — link-bullet TODOs are valid.
+            plain = re.match(r"^-\s+(?!\[[ xX]\])(?P<text>.+)$", line)
+            if plain and current_heading is not None:
+                current_items.append(
+                    {"done": False, "text": plain.group("text").strip()}
                 )
         if current_heading is not None:
             sections.append({"heading": current_heading, "items": current_items})
