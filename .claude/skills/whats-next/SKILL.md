@@ -86,7 +86,7 @@ If two items tie, prefer the one with explicit user signal (most recent edit, me
 
 ### Step 6 — Output, save, confirm
 
-1. Print the findings to the conversation using `## Output format` below.
+1. Print the findings to the conversation using `## Output format` below. The output ends with a mandatory Recap section — counts per source so the user sees the full backlog landscape behind the single suggested action.
 2. **Save** the compact summary to `REPORT_PATH` using the Write tool — mandatory final action. The skill is incomplete until Write succeeds. Format defined in `## Save report` below.
 3. Reply: `Report saved to {REPORT_PATH}`.
 
@@ -128,7 +128,19 @@ Source: {source — e.g. `docs/TODO.md:NN`, `docs/plan/foo-plan.md`, `docs/techd
 Value/Effort: {value} / {effort}
 Why: {1–2 sentences explaining the value/effort win and any dependency context}
 First step: {concrete file or command to start with}
+
+### Recap
+- TODOs (sections): N
+- Inline TODOs: N
+- Techdebt: N
+- GH issues: N
+- Planning docs: N
+- Feature plans: N
+- Open questions: N
+- Roadmap: n/a | present
 ```
+
+`n/a` when the source file/feature doesn't exist in the project (e.g. no `docs/techdebt.md`, no `gh` CLI). `0` when the source exists but is currently empty. The Recap is mandatory — it grounds the suggested action in the full backlog size at a glance.
 
 If nothing is pending:
 
