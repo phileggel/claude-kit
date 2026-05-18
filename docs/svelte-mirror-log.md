@@ -6,6 +6,33 @@ This file lives on `svelte-main` only — never cherry-picked back to `main`.
 
 ---
 
+## svelte-v0.4.0+4.9.0 → svelte-v0.5.0+4.10.0
+
+Baseline: `+4.9.0`. New baseline: `+4.10.0`. Cherry-picked all 7 v4.10 substance commits individually (`aa65dca..4e281ab`) — first cycle under the new rebase-merge convention, so main now ships each fix/feat as its own commit instead of a single squash; per-commit granularity carries to the svelte lineage too.
+
+### Auto-merged during cherry-pick (no manual resolution)
+
+- `kit/scripts/whats-next.py` @ c892df1 + 082e1bd — svelte-main has a pre-existing divergent version (per the v4.6.0 framework-aware convergence); the v4.10 additions (`collect_kit_update()`, plain-bullet TODO regex) auto-merged cleanly because they touched disjoint regions.
+- `kit/scripts/check.py` @ 8f201f9 — same story; the `_pad_visible` / `_WIDE_CHARS` additions sit at module top, away from svelte-main's divergent metric-label section.
+
+### Mirrored to `-svelte` variant
+
+- `kit/docs/frontend-rules.md` @ 083736d — gh#46 F0 split mirrored to `frontend-rules-svelte.md`. `App.svelte` + `Router.svelte` moved out of `shell/` to `src/` root; `shell/` reduced to layout chrome only (`AppShell.svelte`); F28 `shell/` REJECTS list rewritten to match. Also took the opportunity to fix a pre-existing F23 wiring-points reference that named `router.ts` instead of `Router.svelte` — drift wasn't introduced by this commit, but the F0 mirror made it actively contradictory, so closed the loop in the same commit (caught by doc-reviewer).
+
+### Skipped (no fork — change flows through cherry-pick as-is)
+
+- `kit/docs/error-model.md`, `kit/docs/ddd-reference.md`, `kit/docs/backend-rules.md` @ aa65dca — gh#45 fix is backend/Rust + Specta-derived FE bindings. Framework-neutral; no -svelte fork.
+- `kit/agents/reviewer-backend.md` @ aa65dca — error-handling lane wording update. Backend-only.
+- `kit/skills/whats-next/SKILL.md` @ 3438e59 + c892df1 — Recap + kit-update sections added to a shared skill. No fork.
+- `kit/scripts/whats-next.py` + `kit/scripts/check.py` — see "Auto-merged" above.
+- `docs/TODO.md` @ 4e281ab — kit-internal TODO restructure (flattening `## v4.X candidates` sections). Cherry-picked cleanly into svelte-main's own TODO file; the version-tag drop applies to either lineage.
+
+### Custom (flagged for manual treatment)
+
+(None this cycle — the F23 stale-router fix that doc-reviewer caught was folded into the F0 mirror commit rather than deferred, since it's a 1-line change made actively contradictory by F0.)
+
+---
+
 ## svelte-v0.1.1+4.5.2 → svelte-v0.2.0+4.7.2
 
 Baseline: `+4.5.2`. New baseline: `+4.7.2`. Cherry-picked 9 substance commits (release commits skipped — svelte-main owns its own release lineage).
