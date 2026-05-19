@@ -6,6 +6,30 @@ This file lives on `svelte-main` only — never cherry-picked back to `main`.
 
 ---
 
+## svelte-v0.5.0+4.10.0 → svelte-v0.6.0+4.11.0
+
+Baseline: `+4.10.0`. New baseline: `+4.11.0`. Cherry-picked all 8 v4.11 substance commits individually (`6019c63..060c973`) — clean apply on all, no conflicts. v4.11's centerpiece is the new `/review-triage` skill + `.review/` persistence layer; framework-neutral discipline (sub-agent → main-agent boundary exists identically in Svelte projects).
+
+### Mirrored to `-svelte` variants
+
+- `kit/agents/reviewer-frontend-svelte.md` — mirrored Save report section + Write tool grant + reframed Critical Rule 1, identical wording to React counterpart (commits 51cb6a0 + 060c973). The Save protocol bridges the sub-agent boundary; framework-agnostic.
+- `kit/agents/reviewer-security-svelte.md` — same pattern as reviewer-frontend-svelte. Same rationale.
+- `kit/agents/test-writer-frontend-svelte.md` — mirrored Critical Rule 12 (abstraction discipline) + new halt template "test requires unplanned abstraction" (commit 6019c63). The failure mode (inventing dead-code helpers) applies identically to Svelte test-writers; the case-study example `presentAssetCrudError` would just become `presentUserError.svelte.ts` on this side.
+
+### Skipped (no fork — change flows through cherry-pick as-is)
+
+- `kit/agents/{reviewer-arch,reviewer-backend,reviewer-e2e,reviewer-infra,reviewer-sql,feature-planner,test-writer-backend}.md` — no svelte fork; cherry-pick applied directly.
+- `kit/scripts/review-path.sh`, `kit/scripts/list-fresh-reviews.sh` — new helpers; framework-neutral; applied as-is.
+- `kit/skills/review-triage/SKILL.md` (new) + `kit/skills/start/SKILL.md` — new skill body and template tweaks are framework-neutral.
+- `kit/kit-readme.md`, `kit/kit-tools.md` — discovery docs; applied as-is.
+- `.claude/agents/{ai,doc,script}-reviewer.md` + `.claude/skills/review-triage/SKILL.md` + `scripts/{review-path,list-fresh-reviews}.sh` + `scripts/mirror-local.sh` + `.gitignore` — kit-internal mirror; framework-neutral.
+
+### Custom (flagged for manual treatment)
+
+(None this cycle — all forks accepted the same wording as their React counterparts since the v4.11 additions are pure discipline / persistence infrastructure with no framework idiom in the wording.)
+
+---
+
 ## svelte-v0.4.0+4.9.0 → svelte-v0.5.0+4.10.0
 
 Baseline: `+4.9.0`. New baseline: `+4.10.0`. Cherry-picked all 7 v4.10 substance commits individually (`aa65dca..4e281ab`) — first cycle under the new rebase-merge convention, so main now ships each fix/feat as its own commit instead of a single squash; per-commit granularity carries to the svelte lineage too.
