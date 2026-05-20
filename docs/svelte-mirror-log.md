@@ -6,6 +6,31 @@ This file lives on `svelte-main` only — never cherry-picked back to `main`.
 
 ---
 
+## svelte-v0.6.0+4.11.0 → svelte-v0.6.1+4.11.1
+
+Baseline: `+4.11.0`. New baseline: `+4.11.1`. Cherry-picked all 3 v4.11.1 commits individually (`cfa68f1..311362e`) — clean apply on all; `kit/kit-readme.md` and `kit/scripts/whats-next.py` auto-merged against pre-existing svelte-main divergences without conflict.
+
+### Mirrored to `-svelte` variants
+
+- `kit/agents/reviewer-frontend-svelte.md` Step 1 → `bash scripts/branch-files.sh --frontend` (same filter name as React lineage; underlying regex is Svelte-flavored on svelte-main per `branch-files.sh` divergence).
+- `kit/agents/reviewer-security-svelte.md` Step 1 → `bash scripts/branch-files.sh --security` (same shape).
+
+### Divergence introduced
+
+- `kit/scripts/branch-files.sh` — `--frontend`/`--arch`/`--security` regex on svelte-main replaces `tsx` with `svelte` (3 single-line diffs). Lets the Svelte `-svelte` reviewers use the same filter names as React reviewers post-sync (the `-svelte` suffix is stripped during sync, so downstream Svelte projects see one `reviewer-frontend` calling `--frontend` against a Svelte-aware script). Adds branch-files.sh to the previously-3 diverging scripts; total now 4.
+
+### Skipped (no fork — change flows through cherry-pick as-is)
+
+- `kit/agents/{reviewer-arch,reviewer-backend,reviewer-e2e,reviewer-sql}.md` @ cfa68f1 — no svelte fork; cherry-pick applied directly. Their `--rust`/`--arch`/`--e2e`/`--migrations` filter calls work without per-lineage adaptation because their regexes either match the same files (`--rust`, `--migrations`) or the `--arch` regex is itself Svelte-aware on svelte-main.
+- `kit/kit-readme.md` @ e9e592e — Write(.review/\*\*) allowlist suggestion is framework-neutral.
+- `kit/scripts/whats-next.py` @ 311362e — `_latest_kit_tag` endpoint swap auto-merged against the pre-existing `.svelte` SOURCE_EXTS divergence (disjoint regions).
+
+### Custom (flagged for manual treatment)
+
+(None this cycle — all forks accepted the same filter-name swap as their React counterparts since branch-files.sh on svelte-main makes the regex Svelte-aware.)
+
+---
+
 ## svelte-v0.5.0+4.10.0 → svelte-v0.6.0+4.11.0
 
 Baseline: `+4.10.0`. New baseline: `+4.11.0`. Cherry-picked all 8 v4.11 substance commits individually (`6019c63..060c973`) — clean apply on all, no conflicts. v4.11's centerpiece is the new `/review-triage` skill + `.review/` persistence layer; framework-neutral discipline (sub-agent → main-agent boundary exists identically in Svelte projects).
