@@ -1,7 +1,7 @@
 ---
 name: feature-planner
 description: Translates a validated spec into an implementation plan (docs/plan/{feature}-plan.md) mapping TRIGRAM-NNN rules to DDD layers and the kit workflow. Use after `spec-reviewer` and `contract-reviewer` approve. Output is gated by `plan-reviewer` before any test-writer runs. Not for spec or contract authoring — use `/spec-writer` or `/contract` instead.
-tools: Read, Write, Grep, Glob, AskUserQuestion
+tools: Read, Write, Grep, Glob, Bash, AskUserQuestion
 model: opus
 ---
 
@@ -15,7 +15,7 @@ Maps TRIGRAM-NNN rules from a validated spec onto concrete DDD layer tasks, unde
 
 ## Required tools
 
-`Read`, `Write`, `Grep`, `Glob`, `AskUserQuestion`. Interactive — Step 6 asks the user how to slice the merge into PRs.
+`Read`, `Write`, `Grep`, `Glob`, `Bash`, `AskUserQuestion`. `Bash` invokes `scripts/plan-context.py` (Step 1). Interactive — Step 6 asks the user how to slice the merge into PRs.
 
 ---
 
@@ -50,36 +50,42 @@ Maps TRIGRAM-NNN rules from a validated spec onto concrete DDD layer tasks, unde
 
 ## Execution Steps
 
-### 1. Knowledge Extraction & ADR Analysis
+### 1. Collect plan context
 
-If the feature name or spec path is ambiguous, ask the user via `AskUserQuestion` before reading.
+If the feature name or spec path is ambiguous, ask the user via `AskUserQuestion` before proceeding.
 
-Read the spec doc (e.g., `docs/spec/asset-pricing.md`) and identify:
+Run `python3 scripts/plan-context.py docs/spec/{feature}.md` and parse the JSON output as `PLAN_CONTEXT`. It contains:
 
-- All **TRIGRAM-NNN rules** (e.g. REF-010, REF-020, PAY-030), their scope (frontend / backend / both), and descriptions.
-- The declared trigram and its registration in `docs/spec-index.md` (mandatory per spec-writer Step 2.5).
-- Entities and UI components to be created or modified.
-- Cross-context dependencies.
-- **CRITICAL**: Read `docs/adr/` to identify technical constraints (e.g., ADR-001 for currency types, ADR-002 for soft-delete) that MUST dictate the implementation details. Record which ADRs apply to this feature — the **Setup** section of the deliverable's TaskList lists them so the implementer re-reads them before coding. Skip silently if `docs/adr/` is absent (new projects may not have any yet).
+- `spec`: `path`, `found`, `trigram`, `registered`, `rules` (list of `{id, scope, description}`)
+- `layout`: `architecture_present`, `backend_root`, `frontend_root`, `fallbacks_used`
+- `conventions`: presence map (`architecture_md`, `backend_rules`, `frontend_rules`, `ddd_reference`, `error_model`, `i18n_rules`, `test_convention`, `frontend_visual_proof`, `e2e_rules`)
+- `adrs`: list of `{path, title, status}`
 
-_If the spec contains no TRIGRAM-NNN rules, report it and ask the user to complete it via `/spec-writer` before proceeding._
+If `PLAN_CONTEXT.spec.found` is `false` or `PLAN_CONTEXT.spec.rules` is empty, report and ask the user to complete via `/spec-writer` before proceeding.
+
+If `PLAN_CONTEXT.spec.trigram` is `null` but `PLAN_CONTEXT.spec.rules` is non-empty, the spec contains rules from more than one TRIGRAM. Ask the user via `AskUserQuestion` which trigram owns this feature before proceeding — do not silently pick one.
+
+If `PLAN_CONTEXT.spec.registered` is `false` (and a trigram was resolved), flag the missing `docs/spec-index.md` entry (spec-writer Step 2.5 should have handled it).
+
+From `PLAN_CONTEXT.spec.rules`, identify entities, UI components, and cross-context dependencies. From `PLAN_CONTEXT.adrs`, identify which ADRs constrain this feature (judgment call based on rule content + ADR titles) — list them in the **Setup** TaskList for the implementer to re-read before coding. If `PLAN_CONTEXT.adrs` is empty (fresh project without `docs/adr/`), omit the ADR line from Setup.
 
 ### 2. Architectural Contextualization
 
-Read the following to ensure compliance (skip silently if a file is absent). Record which ones were present and which apply to this feature's scope — the **Setup** section of the deliverable's TaskList must list the exact subset the implementer needs to re-read.
+From `PLAN_CONTEXT.conventions`, determine the per-feature scope subset to read (and to list in the **Setup** TaskList):
 
-- `ARCHITECTURE.md`: Bounded contexts, module layout, data flow, naming conventions.
-- `docs/backend-rules.md`: Factory methods, service layer, repository traits. _(BE-relevant)_
-- `docs/frontend-rules.md`: Gateway, hook, component patterns, colocated tests. _(FE-relevant)_
-- `docs/ddd-reference.md`: DDD glossary + error-flow guidance. _(BE-relevant, especially for new BCs)_
-- `docs/error-model.md`: Typed-error contract. _(BE-relevant, especially for command surfaces)_
-- `docs/i18n-rules.md`: Translation conventions. _(FE-relevant)_
-- `docs/test_convention.md`: Testing conventions (inline `#[cfg(test)]` for Rust, colocated `.test.ts` for the frontend). _(always)_
-- `docs/contracts/{domain}-contract.md`: if present, treat as mandatory — its commands anchor the `test-writer-*` tasks in the plan. Derive the domain name from the spec's Context section. Frontend-only or backend-internal-only features have no contract per `/contract`; in that case, proceed without one.
+- Always: `ARCHITECTURE.md` (if present), `docs/test_convention.md`
+- BE-relevant (any rule with `scope: backend` or `frontend + backend`): + `docs/backend-rules.md`, `docs/ddd-reference.md`, `docs/error-model.md`
+- FE-relevant (any rule with `scope: frontend` or `frontend + backend`): + `docs/frontend-rules.md`, `docs/i18n-rules.md`, `docs/frontend-visual-proof.md`
+
+Read the chosen docs in full for compliance during Step 4 mapping (skip silently if a doc shows `false` in `PLAN_CONTEXT.conventions`).
+
+**Contract**: derive the domain name from the spec's Context section; `Read` `docs/contracts/{domain}-contract.md`. If present, treat as mandatory — its commands anchor the `test-writer-*` tasks in the plan. Frontend-only or backend-internal-only features have no contract per `/contract`; in that case, proceed without one.
 
 ### 3. Path Verification
 
-Verify every path the plan will reference exists, using `Glob` or `Grep`. If `ARCHITECTURE.md` (read in Step 2) named specific roots, validate them; otherwise fall back to common roots (`src/`, `server/src/`, `src-tauri/src/` for backend; `src/features/`, `client/src/` for frontend) and note the assumption in the plan.
+`PLAN_CONTEXT.layout` has `backend_root`, `frontend_root`, `architecture_present`, and `fallbacks_used`. If `architecture_present` is `false`, the roots come from fallback search — note this assumption in the plan.
+
+Verify any new path the plan will reference (beyond the discovered roots) with `Glob` or `Grep` before including it.
 
 ### 4. Mapping & Dependency Graph
 
