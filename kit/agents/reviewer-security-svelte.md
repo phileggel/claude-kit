@@ -380,5 +380,3 @@ Cross-layer findings have their own section because compound risks fail single-l
 CVE / dependency-vulnerability scanning is delegated to `/dep-audit` because the work shape is different — `/dep-audit` reads lockfiles and registries, this agent reads source. Folding them produces an agent that does both poorly.
 
 **Svelte vs React XSS surface.** The primary frontend XSS sink in Svelte is `{@html expr}` — Svelte auto-escapes `{expr}` text by default and the `{@html}` tag is the explicit opt-out. This is structurally cleaner than React's `dangerouslySetInnerHTML` (whose name signals intent at the call site too), but the audit discipline is identical: every `{@html}` is Critical unless the source is provably trusted, and a documented sanitizer like `DOMPurify.sanitize` in scope is the only legitimate exception.
-
-Workflow B compatible: all convention-doc reads are guarded (`if exists`), and the agent never hard-reads `docs/plan/*.md` or `docs/contracts/*.md`. Safe to invoke in fix/chore branches that have no plan or contract doc.
