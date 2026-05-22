@@ -6,6 +6,32 @@ This file lives on `svelte-main` only — never cherry-picked back to `main`.
 
 ---
 
+## svelte-v0.6.1+4.11.1 → svelte-v0.7.0+4.12.0
+
+Baseline: `+4.11.1`. New baseline: `+4.12.0`. Cherry-picked all 5 v4.12 commits individually (`e215dc8..a28e5ab`). One merge conflict resolved on `kit/kit-tools.md` Scripts table — svelte-main has the `list-fe-test-targets.py` row (Svelte-specific helper) absent on main; main added a `plan-context.py` row. Resolution: keep both, wider column padding from svelte-main. v4.12 substance is the new `/feature-planner` skill (agent→skill migration + helper script) and Workflow A/B tightening — framework-neutral.
+
+### Mirrored to `-svelte` variants
+
+- `kit/agents/reviewer-security-svelte.md` — dropped the Workflow B compatible footer to match main's drop in `bea07fc` (v4.12 docs B commit). Framework-neutral footer; the v4.11.1 cycle had added it, now removed everywhere.
+- `kit/agents/test-writer-frontend-svelte.md` — `feature-planner` → `/feature-planner` reference update (one line at the `modified_functions` paragraph). Mirrors main's same change from the agent→skill migration.
+
+### Skipped (no fork — change flows through cherry-pick as-is)
+
+- `kit/agents/{adr-reviewer,contract-reviewer,plan-reviewer,reviewer-arch,reviewer-infra,reviewer-sql,spec-reviewer}.md` — no svelte fork; cherry-pick applied directly. All carry `feature-planner` → `/feature-planner` reference updates from the migration.
+- `kit/skills/{contract,spec-writer,start}/SKILL.md` — no svelte fork; cherry-pick applied. `start/SKILL.md` carries the full Workflow A/B tightening (parallel reviewer batches, per-layer reviewer placement, format-late, spec-checker HARD GATE, closure collapse, Phase 1 reviewer parallelization).
+- `kit/kit-readme.md`, `kit/kit-tools.md` — discovery docs; applied as-is (kit-tools conflict resolved per above).
+- `kit/scripts/plan-context.py` (NEW) — framework-neutral deterministic data collector; downstream-only (not mirrored to .claude/). Works on any spec regardless of frontend framework.
+- `kit/skills/feature-planner/SKILL.md` (NEW) — framework-neutral skill body; references generic spec/contract/ADR/conventions. No React idiom.
+- `kit/agents/feature-planner.md` (DELETED) — old agent file removed by the migration; no svelte fork to deal with.
+- `scripts/check.py` — kit-internal tooling; never synced downstream.
+- `.claude/skills/preflight/SKILL.md`, `docs/TODO.md` — kit-local files; not part of the release artifact set.
+
+### Custom (flagged for manual treatment)
+
+(None this cycle — all forks accepted the same wording as their React counterparts since the v4.12 changes are framework-neutral discipline / authoring infrastructure.)
+
+---
+
 ## svelte-v0.6.0+4.11.0 → svelte-v0.6.1+4.11.1
 
 Baseline: `+4.11.0`. New baseline: `+4.11.1`. Cherry-picked all 3 v4.11.1 commits individually (`cfa68f1..311362e`) — clean apply on all; `kit/kit-readme.md` and `kit/scripts/whats-next.py` auto-merged against pre-existing svelte-main divergences without conflict.
