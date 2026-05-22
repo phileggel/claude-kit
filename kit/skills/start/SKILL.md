@@ -93,7 +93,7 @@ Pick the template matching the chosen workflow. Replace `{task}` with the user's
 - [ ] `/spec-writer` → `docs/spec/{feature}.md`
 - [ ] `/contract` → `docs/contracts/{domain}-contract.md` [human approves shape]
 - [ ] Run `spec-reviewer` + `contract-reviewer` in parallel (one Agent batch) [soft gate — hard if 🔴]
-- [ ] `feature-planner` → `docs/plan/{feature}-plan.md`
+- [ ] `/feature-planner` → `docs/plan/{feature}-plan.md`
 - [ ] `plan-reviewer` → validate plan vs spec + contract [soft gate — hard if 🔴]
 - [ ] **🔀 Switch model** — use **AskUserQuestion** to pause and ask the user to run `/model sonnet` before Phase 2. Phases 2–3 are mechanical execution against locked artifacts; sonnet is the right model. Do NOT proceed until the user confirms the switch is done. Switch back to `opus` later only if a reviewer surfaces a design-level finding that requires re-planning.
 
@@ -132,7 +132,7 @@ Pick the template matching the chosen workflow. Replace `{task}` with the user's
 - [ ] `/create-pr` → final PR per the **PR Plan** (or merge directly: `git checkout main && git merge --no-ff feat/{name}`)
 ```
 
-> **Reading the PR Plan**: after `feature-planner` writes `docs/plan/{feature}-plan.md`, open it and locate the **PR Plan** section. The strategy (`1 PR` / `2 PRs` / `3 PRs`) tells you which `/create-pr` checkpoints above are active. Default behaviour when the section is absent: single `/create-pr` at the end of Phase 4.
+> **Reading the PR Plan**: after `/feature-planner` writes `docs/plan/{feature}-plan.md`, open it and locate the **PR Plan** section. The strategy (`1 PR` / `2 PRs` / `3 PRs`) tells you which `/create-pr` checkpoints above are active. Default behaviour when the section is absent: single `/create-pr` at the end of Phase 4.
 
 ---
 

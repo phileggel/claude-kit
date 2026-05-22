@@ -34,4 +34,9 @@
   - **sync.sh** — `echo -e` portability (use `printf '%b\n'` if shebang ever drifts to `/bin/sh`); add `command -v python3 >/dev/null` preflight; atomic-rename manifest file to avoid partial-write on early exit; chmod +x for `.py`/`.mjs` if they ever grow shebangs that get invoked directly.
   - **check.py** — `env_update: dict[str, str] | None` (typed parameterization); `_safe_print` `file: object | None`; TSC verbose-mode loses error output (line 419).
 
+- **Mechanize `/feature-planner` deterministic phases via helper scripts.** Surfaced by ai-reviewer on the agent→skill migration. Two extraction candidates:
+  - `scripts/extract-rules.py {spec-path}` → JSON `{rules: [{id, scope, description}], trigram, registered}`. Replaces Step 1's regex extraction of TRIGRAM-NNN rules across the spec doc. Faster + deterministic.
+  - `scripts/discover-layout.py` → JSON `{backend_root, frontend_root, fallbacks, adr_list}`. Replaces Step 3's `Glob`/`Grep` walk of `ARCHITECTURE.md` + common roots.
+    Coordinated work: new scripts + skill refactor to consume JSON + sync.sh table update + downstream sync. Pattern win — kit's `scripts/whats-next.py` already follows this shape.
+
 ## Experimental
