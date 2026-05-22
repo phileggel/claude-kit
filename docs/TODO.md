@@ -2,8 +2,6 @@
 
 ## Candidates
 
-- **SDD Workflow B walk — verify reviewer dual-use.** Reviewer agents (`reviewer-arch`, `reviewer-backend`, `reviewer-frontend`, `reviewer-e2e`, `reviewer-sql`, `reviewer-infra`, `reviewer-security`) are used by both Workflow A (Phase 4) and Workflow B (step 5). Workflow B has no `docs/plan/{feature}-plan.md`, no `docs/contracts/{domain}-contract.md`, no `docs/spec/{domain}.md`. Verify each reviewer handles the no-plan / no-contract context gracefully (no hard reads, no halts on absent files). Likely surface mostly verification with small graceful-skip patches.
-
 - **Tools walk.** One-shot setup helpers and maintenance skills — different lens than workflow agents ("is this easy to invoke and complete?"). Targets:
   - `kit/skills/setup-e2e/SKILL.md` — 368 lines, 162-line longest section. Deferred from v4.5 Phase 3.
   - `kit/skills/prune/SKILL.md`, `kit/skills/dep-audit/SKILL.md`, `kit/skills/kit-discover/SKILL.md`, `kit/skills/whats-next/SKILL.md`, `kit/skills/techdebt/SKILL.md`, `kit/skills/visual-proof/SKILL.md`, `kit/skills/start/SKILL.md`, `kit/agents/retro-spec.md`
