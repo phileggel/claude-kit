@@ -115,28 +115,26 @@ A synthetic checklist for mandatory quality and process steps:
 - [ ] 🗄️ Database Migration (`just migrate` + `just prepare-sqlx`) — if schema changes required
 - [ ] ✍️ Backend test stubs (`test-writer-backend` — all stubs written, red confirmed) — if backend rules present
 - [ ] 🏗️ Backend Implementation (minimal — make failing tests pass, green confirmed)
-- [ ] 🧹 `just format` (rustfmt + clippy --fix)
-- [ ] 🔍 Backend Review (`reviewer-backend` + `reviewer-arch` if .rs modified → save reports to .review/ → `/review-triage` → apply Follow-ups) — if .rs modified
+- [ ] 🔍 Backend Review (`reviewer-backend` if .rs + `reviewer-arch` if .rs + `reviewer-sql` if migrations — all in parallel → `/review-triage` → apply Follow-ups)
 - [ ] 🔗 Type Synchronization (`just generate-types`) — if backend rules present
-- [ ] 🔧 Compilation fixup (TypeScript errors from new bindings only — no UI work) — if backend rules present
-- [ ] ✅ `just check` — TypeScript clean
+- [ ] 🔧 Run `npx tsc --noEmit` → fix TS errors from new bindings only (no UI work) — if backend rules present
+- [ ] 🧹 `just format` (rustfmt + clippy --fix)
 - [ ] 💾 Commit: backend layer via `/smart-commit` (suggested title from plan)
 - [ ] 🔀 `/create-pr` — if the PR Plan slices BE into its own PR; otherwise continue. After merge, branch the next phase off updated `main`.
 - [ ] ✍️ Frontend test stubs (`test-writer-frontend` — all stubs written, red confirmed; pass `modified_functions` list if any `[unit-test-needed]` rules are present) — if frontend rules present
 - [ ] 💻 Frontend Implementation (minimal — make failing tests pass, green confirmed)
-- [ ] 🧹 `just format`
 - [ ] 📸 Visual proof (`/visual-proof` — capture final state; stage screenshots before commit) — if frontend rules present
-- [ ] 🔍 Frontend Review (`reviewer-frontend` → save report to .review/ → `/review-triage` → apply Follow-ups) — if .ts/.tsx modified
+- [ ] 🔍 Frontend Review (`reviewer-frontend` → `/review-triage` → apply Follow-ups) — if .ts/.tsx modified
+- [ ] 🧹 `just format`
 - [ ] 💾 Commit: frontend layer via `/smart-commit` (suggested title from plan)
 - [ ] 🔀 `/create-pr` — if the PR Plan slices FE into its own PR; otherwise continue. After merge, branch the next phase off updated `main`.
 - [ ] ✍️ E2E scenarios (`test-writer-e2e` — produces pyramid-friendly scenarios; run `/setup-e2e` first if not done) — if E2E coverage applies to this feature
 - [ ] ▶️ Run E2E suite (`npm run test:e2e` → green confirmed; main agent triages any failure) — if E2E coverage applies to this feature
-- [ ] 🔍 E2E Review (`reviewer-e2e` → save report to .review/ → `/review-triage` → apply Follow-ups) — if E2E coverage applies to this feature
-- [ ] 💾 Commit: E2E tests via `/smart-commit` (suggested title from plan)
-- [ ] 🔍 Cross-cutting Review (`reviewer-arch` if `.rs` modified in this branch + `reviewer-sql` if migrations + `reviewer-infra` if any config, script, hook, or workflow file changed + `reviewer-security` if Tauri command, capability, or security-sensitive file modified → save reports to .review/ → `/review-triage` → apply Follow-ups)
+- [ ] 🔍 Phase 4 Review (`reviewer-e2e` + `reviewer-infra` if any config, script, hook, or workflow file changed + `reviewer-security` if Tauri command, capability, or security-sensitive file modified — all in parallel → `/review-triage` → apply Follow-ups)
 - [ ] 📚 Documentation Update (`docs/todo.md` — close shipped entries; `ARCHITECTURE.md` only if a new module/path or layer pattern was introduced)
-- [ ] ✅ Spec check (`spec-checker`)
-- [ ] 💾 Commit: tests & docs via `/smart-commit` (suggested title from plan)
+- [ ] ✅ Spec check (`spec-checker`) [HARD GATE — halt on any uncovered rule or command]
+- [ ] 🧹 `just format`
+- [ ] 💾 Commit: closure via `/smart-commit` (suggested title from plan)
 - [ ] 🔀 `/create-pr` — final PR per the PR Plan (or merge directly: `git checkout main && git merge --no-ff feat/{name}`)
 
 ### 2. Detailed Implementation Plan
