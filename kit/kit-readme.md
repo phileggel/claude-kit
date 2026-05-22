@@ -101,15 +101,16 @@ git checkout -b feat/{feature-name}
 
 _Use for: Bug fixes, dependency updates, minor maintenance (no new business rules or features)._
 
-**Before starting:** create a feature branch if on `main`: `git checkout -b fix/{description}` (or `chore/`, `test/`, etc.)
+**Before starting:** create a feature branch if on `main`: `git checkout -b fix/{description}` (or `chore/`, `test/`, etc.). Use `TaskCreate` / `TaskUpdate` throughout to track progress.
 
 1. **Analysis**: Read relevant documentation and analyze the codebase.
 2. **Direct Plan**: Propose a concise TODO plan with exact file paths in the chat. Ask user to validate.
-3. **Tracking**: Use `TaskCreate` / `TaskUpdate` tools to track workflow steps (`in_progress` when starting, `completed` when done).
-4. **Implementation**: Execute the code changes.
-5. **Review & Quality**: Run `just check` (or `just check-full`), write missing tests, then run reviewers: `reviewer-backend` (if `.rs` modified) · `reviewer-frontend` (if `.ts`/`.tsx` modified) · `reviewer-arch` (if `.rs` modified) · `reviewer-sql` (if migrations) · `reviewer-infra` (if scripts, hooks, config, or workflow files changed) · `reviewer-security` (if Tauri command, capability, or security-sensitive file modified). Then **`/review-triage`** → apply each Follow-up.
-6. **Closure**: Ask user if another task is needed before commit, otherwise use **`/smart-commit`** skill.
-7. **`/create-pr`** → push branch and open PR (or merge directly: `git checkout main && git merge --no-ff fix/{name}`).
+3. **Implementation**: Execute the code changes; write missing regression tests for any modified behavior.
+4. **Reviewers (parallel)**: Run all applicable reviewers in one Agent batch — `reviewer-backend` (if `.rs` modified) · `reviewer-frontend` (if `.ts`/`.tsx` modified) · `reviewer-arch` (if `.rs` — skip on docs/config-only) · `reviewer-sql` (if migrations) · `reviewer-infra` (if scripts, hooks, config, or workflow files changed) · `reviewer-security` (if Tauri command, capability, or security-sensitive file modified).
+5. **`/review-triage`** → triage findings; halt on (b)/(c) rows. Apply Follow-ups for (a) rows (skip if no findings).
+6. Update `docs/todo.md` if a TODO entry was resolved.
+7. **`just format`** → **`/smart-commit`** [HARD GATE].
+8. Ask user: merge directly (`git checkout main && git merge --ff-only fix/{name} && git push`) or **`/create-pr`**.
 
 ---
 

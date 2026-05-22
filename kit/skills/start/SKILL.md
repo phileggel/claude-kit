@@ -155,21 +155,23 @@ Pick the template matching the chosen workflow. Replace `{task}` with the user's
 **Workflow**: B — Simple Technical Workflow
 
 ### Steps
-- [ ] Track progress with `TaskCreate` / `TaskUpdate` as you go
+
+> Use `TaskCreate` / `TaskUpdate` throughout to track progress.
+
 - [ ] Analyze: read relevant docs and code
 - [ ] Propose plan in chat → wait for user validation
 - [ ] Implement changes (write missing regression tests for any modified behavior)
-- [ ] `just check` (or `just check-full` if tests needed)
-- [ ] `reviewer-backend` → if any `.rs` modified
-- [ ] `reviewer-frontend` → if any `.ts`/`.tsx` modified
-- [ ] `reviewer-arch` _(if any `.rs` file modified — skip on docs-only or config-only fixes)_ → save report to `.review/`
-- [ ] `reviewer-sql` _(if migrations)_ → save report to `.review/`
-- [ ] `reviewer-infra` _(if scripts, hooks, config, or workflow files changed)_ → save report to `.review/`
-- [ ] `reviewer-security` _(if Tauri command, capability, or security-sensitive file modified)_ → save report to `.review/`
-- [ ] `/review-triage` → triage findings; apply each Follow-up; halt for user on any (b)/(c) row
+- [ ] Run applicable reviewers in parallel (one Agent batch):
+      - `reviewer-backend` _(if any `.rs` modified)_
+      - `reviewer-frontend` _(if any `.ts`/`.tsx` modified)_
+      - `reviewer-arch` _(if any `.rs` — skip on docs-only or config-only fixes)_
+      - `reviewer-sql` _(if migrations)_
+      - `reviewer-infra` _(if scripts, hooks, config, or workflow files changed)_
+      - `reviewer-security` _(if Tauri command, capability, or security-sensitive file modified)_
+- [ ] `/review-triage` → triage findings; halt for user on any (b)/(c) row
+- [ ] Apply review fixes per `/review-triage` Follow-ups _(skip if no findings)_
 - [ ] Update `docs/todo.md` _(if a TODO entry was resolved)_
-- [ ] Update `ARCHITECTURE.md` _(only if a new module/path, new layer pattern, or new cross-layer abstraction was introduced)_
-- [ ] Ask user if another task is needed
+- [ ] `just format`
 - [ ] `/smart-commit` [HARD GATE]
-- [ ] `/create-pr` → push branch and open PR (or merge directly: `git checkout main && git merge --no-ff fix/{name}`)
+- [ ] Ask user: merge directly (`git checkout main && git merge --ff-only fix/{name} && git push`) or `/create-pr`
 ```
