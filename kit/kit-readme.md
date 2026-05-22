@@ -59,7 +59,7 @@ git checkout -b feat/{feature-name}
 1. Run **`/spec-writer`** skill → produces `docs/spec/{feature}.md`. [soft gate]
 2. Run **`/contract`** skill → produces or updates `docs/contracts/{domain}-contract.md`. [soft gate: human approves shape]
 3. Run **`spec-reviewer`** + **`contract-reviewer`** agents in parallel (one Agent batch) → validate spec quality + contract vs spec. [soft gate — hard if 🔴]
-4. Run **`feature-planner`** agent → produces `docs/plan/{feature}-plan.md`. [auto]
+4. Run **`/feature-planner`** skill → produces `docs/plan/{feature}-plan.md`. [auto]
 5. Run **`plan-reviewer`** agent → validate plan vs spec + contract. [soft gate — hard if 🔴]
 6. Switch the main agent to **`sonnet`** before Phase 2 — execution against locked artifacts is mechanical work; opus is reserved for design (Phase 1) or design-level rework triggered by reviewer findings.
 

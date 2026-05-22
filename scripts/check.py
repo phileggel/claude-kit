@@ -461,20 +461,20 @@ class KitChecker:
         return True
 
     def _check_workflow_gate_drift(self) -> bool:
-        """Verify workflow gates stay in sync between start and feature-planner.
+        """Verify workflow gates stay in sync between start and /feature-planner.
 
-        Both `start`'s Workflow A template and `feature-planner`'s emitted
+        Both `start`'s Workflow A template and `/feature-planner`'s emitted
         Workflow TaskList list the gates (agents and slash commands) the main
         agent must execute during implementation. If they drift, the main
         agent runs different sequences depending on which artifact it follows.
 
         Compares Phase 2/3/4 of start's Workflow A (after plan-reviewer
-        green-lights) against feature-planner's Workflow TaskList. Phase 1
+        green-lights) against /feature-planner's Workflow TaskList. Phase 1
         gates are excluded — they run before the plan is written and are
         irrelevant to the post-plan implementation TaskList.
         """
         start_path = REPO_ROOT / "kit" / "skills" / "start" / "SKILL.md"
-        planner_path = REPO_ROOT / "kit" / "agents" / "feature-planner.md"
+        planner_path = REPO_ROOT / "kit" / "skills" / "feature-planner" / "SKILL.md"
         if not start_path.exists() or not planner_path.exists():
             return True
 
@@ -541,11 +541,11 @@ class KitChecker:
         failures: list[str] = []
         for gate in sorted(start_gates - planner_gates):
             failures.append(
-                f"start's Workflow A Phase 2/3/4 mentions `{gate}` but feature-planner's TaskList doesn't"
+                f"start's Workflow A Phase 2/3/4 mentions `{gate}` but /feature-planner's TaskList doesn't"
             )
         for gate in sorted(planner_gates - start_gates):
             failures.append(
-                f"feature-planner's TaskList mentions `{gate}` but start's Workflow A Phase 2/3/4 doesn't"
+                f"/feature-planner's TaskList mentions `{gate}` but start's Workflow A Phase 2/3/4 doesn't"
             )
 
         if failures:
