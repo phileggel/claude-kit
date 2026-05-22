@@ -91,9 +91,8 @@ Pick the template matching the chosen workflow. Replace `{task}` with the user's
 
 ### Phase 1 — Spec & Contract & Plan _(main agent: opus)_
 - [ ] `/spec-writer` → `docs/spec/{feature}.md`
-- [ ] `spec-reviewer` → validate spec quality [soft gate — hard if 🔴]
 - [ ] `/contract` → `docs/contracts/{domain}-contract.md` [human approves shape]
-- [ ] `contract-reviewer` → validate contract vs spec [soft gate — hard if 🔴]
+- [ ] Run `spec-reviewer` + `contract-reviewer` in parallel (one Agent batch) [soft gate — hard if 🔴]
 - [ ] `feature-planner` → `docs/plan/{feature}-plan.md`
 - [ ] `plan-reviewer` → validate plan vs spec + contract [soft gate — hard if 🔴]
 - [ ] **🔀 Switch model** — use **AskUserQuestion** to pause and ask the user to run `/model sonnet` before Phase 2. Phases 2–3 are mechanical execution against locked artifacts; sonnet is the right model. Do NOT proceed until the user confirms the switch is done. Switch back to `opus` later only if a reviewer surfaces a design-level finding that requires re-planning.
@@ -102,41 +101,34 @@ Pick the template matching the chosen workflow. Replace `{task}` with the user's
 - [ ] Database migration (`just migrate` + `just prepare-sqlx`) _(if schema changes per plan)_
 - [ ] `test-writer-backend` → Rust stubs from contract, confirm red
 - [ ] Implement backend (make tests green)
-- [ ] `just format`
-- [ ] `reviewer-backend` → save report to `.review/` per agent contract
-- [ ] `reviewer-arch` _(if any `.rs` file modified — layer-local pass)_ → save report to `.review/`
-- [ ] `/review-triage` → triage findings; apply each Follow-up; halt for user on any (b)/(c) row
+- [ ] Run `reviewer-backend` + `reviewer-arch` _(if any `.rs` modified)_ + `reviewer-sql` _(if migrations)_ in parallel → `/review-triage` → apply Follow-ups; halt for user on any (b)/(c) row
 - [ ] `just generate-types` → updates `src/bindings.ts`
-- [ ] Fix TS compilation errors from new bindings only — no UI work
-- [ ] `just check` — TypeScript clean
+- [ ] Run `npx tsc --noEmit` → fix TS errors from new bindings only (no UI work)
+- [ ] `just format`
 - [ ] `/smart-commit`: backend layer [HARD GATE]
 - [ ] `/create-pr` if the **PR Plan** section of `docs/plan/{feature}-plan.md` slices BE into its own PR; otherwise continue. After merge, branch the next phase off updated `main`.
 
 ### Phase 3 — Frontend _(main agent: sonnet)_
-- [ ] `test-writer-frontend` → Vitest stubs from contract, confirm red
+- [ ] `test-writer-frontend` → Vitest stubs from contract (reads fresh bindings), confirm red
 - [ ] Implement frontend (make tests green)
-- [ ] `just format`
 - [ ] `/visual-proof` → capture final state; stage screenshots before commit _(if .tsx/.css changed)_
-- [ ] `reviewer-frontend` → save report to `.review/` per agent contract
-- [ ] `/review-triage` → triage findings; apply each Follow-up; halt for user on any (b)/(c) row
+- [ ] `reviewer-frontend` → `/review-triage` → apply Follow-ups; halt for user on any (b)/(c) row
+- [ ] `just format`
 - [ ] `/smart-commit`: frontend layer [HARD GATE]
 - [ ] `/create-pr` if the **PR Plan** slices FE into its own PR; otherwise continue. After merge, branch the next phase off updated `main`.
 
 ### Phase 4 — Review & Closure _(main agent: sonnet — switch back to opus only if a reviewer surfaces a design-level finding)_
 - [ ] `test-writer-e2e` → produces pyramid-friendly E2E scenarios from contract (run `/setup-e2e` first if not done)
 - [ ] Run `npm run test:e2e` → green confirmed (main agent triages any failure)
-- [ ] `reviewer-e2e` _(reviews E2E test files)_ → save report to `.review/`
-- [ ] `/review-triage` → triage findings; apply each Follow-up; halt for user on any (b)/(c) row
-- [ ] `/smart-commit`: E2E layer [HARD GATE]
-- [ ] `reviewer-arch` _(if any `.rs` file modified in this branch — whole-feature recap over the cumulative diff; skip on docs-only or E2E-only Phase 4 PRs)_ → save report to `.review/`
-- [ ] `reviewer-sql` _(if migrations)_ → save report to `.review/`
-- [ ] `reviewer-infra` _(if any config, script, hook, or workflow file changed)_ → save report to `.review/`
-- [ ] `reviewer-security` _(if Tauri command, capability, or security-sensitive file modified)_ → save report to `.review/`
-- [ ] `/review-triage` → triage all findings from this Phase 4 batch; apply each Follow-up
-- [ ] Update `docs/todo.md` (always — close shipped entries, surface follow-ups)
-- [ ] Update `ARCHITECTURE.md` _(only if a new module/path, new layer pattern, or new cross-layer abstraction was introduced; skip when adding functions to existing modules or endpoints following the existing pattern)_
-- [ ] `spec-checker` → all rules and contract commands covered
-- [ ] `/smart-commit`: tests & docs [HARD GATE]
+- [ ] Run applicable reviewers in parallel (one Agent batch):
+      - `reviewer-e2e` _(reviews E2E test files)_
+      - `reviewer-infra` _(if any config, script, hook, or workflow file changed)_
+      - `reviewer-security` _(if Tauri command, capability, or security-sensitive file modified)_
+- [ ] `/review-triage` → triage all Phase 4 batch findings; apply Follow-ups; halt for user on any (b)/(c) row
+- [ ] Documentation Update — `docs/todo.md` (always: close shipped entries, surface follow-ups); `ARCHITECTURE.md` _(only if a new module/path, new layer pattern, or new cross-layer abstraction was introduced)_
+- [ ] `spec-checker` → all rules and contract commands covered [HARD GATE — halt and surface any uncovered items to the user before proceeding]
+- [ ] `just format`
+- [ ] `/smart-commit`: closure [HARD GATE]
 - [ ] `/create-pr` → final PR per the **PR Plan** (or merge directly: `git checkout main && git merge --no-ff feat/{name}`)
 ```
 
