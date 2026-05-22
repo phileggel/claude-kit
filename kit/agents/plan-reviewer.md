@@ -120,9 +120,9 @@ Skip this section if no contract exists.
 
 ### F — Workflow TaskList integrity
 
-Compare the plan's Workflow TaskList against the canonical list in `CLAUDE.md`:
+Compare the plan's Workflow TaskList against the canonical template emitted by `/feature-planner` (Output format §1 of the skill):
 
-- 🔴 A mandatory gate is missing (`test-writer-backend` before backend impl, `just generate-types` between BE and FE on Tauri, `reviewer-backend` after `.rs` changes, `reviewer-frontend` after `.ts/.tsx` changes, `reviewer-arch` always, `spec-checker` before final commit)
+- 🔴 A mandatory gate is missing (`test-writer-backend` before backend impl, `just generate-types` between BE and FE on Tauri, `reviewer-backend` + `reviewer-arch` after `.rs` changes, `reviewer-frontend` after `.ts/.tsx` changes, `/review-triage` after every reviewer batch, `spec-checker` before final commit [HARD GATE])
 - 🔴 A test-writer gate appears **after** the implementation it should precede (test-first discipline broken)
 - 🟡 A conditional gate (`reviewer-sql` only if migrations, `reviewer-infra` only if config/script/hook/workflow changed) is unconditionally listed when the change set does not warrant it, or vice versa
 - 🟡 The TaskList contains gates not present in `CLAUDE.md` and not justified by the plan's scope
