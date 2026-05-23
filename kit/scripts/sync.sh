@@ -8,12 +8,12 @@ set -euo pipefail
 # Never run this script directly.
 #
 # Env vars:
-#   KIT_TMP        — path to the cloned kit temp directory (required)
-#   KIT_SYNC_FORCE — set to "true" to overwrite drifted docs without prompting (-f flag)
+#   KIT_TMP      — path to the cloned kit temp directory (required)
+#   KIT_SYNC_YES — set to "true" to overwrite drifted docs without prompting (-y flag)
 
 TMP="${KIT_TMP:?KIT_TMP not set — run via scripts/sync-config.sh}"
 VERSION="${1:?VERSION not set}"
-KIT_SYNC_FORCE="${KIT_SYNC_FORCE:-false}"
+KIT_SYNC_YES="${KIT_SYNC_YES:-false}"
 
 _sha1() { python3 -c "import hashlib,sys; print(hashlib.sha1(open(sys.argv[1],'rb').read(),usedforsecurity=False).hexdigest())" "$1"; }
 
@@ -278,7 +278,7 @@ for doc in "$TMP/kit/docs/"*.md; do
         echo -e "  → docs/$doc_name (new)"
     elif [ "$(_sha1 "$doc")" = "$(_sha1 "$dest")" ]; then
         : # identical — silent, no drift
-    elif [ "$KIT_SYNC_FORCE" = "true" ]; then
+    elif [ "$KIT_SYNC_YES" = "true" ]; then
         cp "$doc" "$dest"
         echo -e "  ↑ docs/$doc_name (overwritten — local differed from kit)"
     elif [ -e /dev/tty ] && [ -r /dev/tty ]; then
@@ -291,7 +291,7 @@ for doc in "$TMP/kit/docs/"*.md; do
             echo -e "  ↩ docs/$doc_name (skipped — local copy kept)"
         fi
     else
-        echo -e "  ↩ docs/$doc_name (skipped — non-interactive; pass -f to overwrite)"
+        echo -e "  ↩ docs/$doc_name (skipped — non-interactive; pass -y to overwrite)"
     fi
 done
 
