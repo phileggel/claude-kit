@@ -10,14 +10,35 @@ set -euo pipefail
 # Env vars:
 #   KIT_TMP      — path to the cloned kit temp directory (required)
 #   KIT_SYNC_YES — set to "true" to overwrite drifted docs without prompting (-y flag)
+#
+# Runtime requirements: python3 on PATH (used inline for JSON parsing and SHA1
+# hashing). Preflighted at the top of the script.
 
 TMP="${KIT_TMP:?KIT_TMP not set — run via scripts/sync-config.sh}"
 VERSION="${1:?VERSION not set}"
 KIT_SYNC_YES="${KIT_SYNC_YES:-false}"
 
+# Preflight: python3 is required throughout (JSON parsing, SHA1 hashing).
+# Surface a clear message instead of failing later on opaque "command not found".
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "sync.sh: python3 not found on PATH — required for sync (JSON parsing, SHA1 hashing)." >&2
+    exit 1
+fi
+
 _sha1() { python3 -c "import hashlib,sys; print(hashlib.sha1(open(sys.argv[1],'rb').read(),usedforsecurity=False).hexdigest())" "$1"; }
 
-trap 'rm -rf "$TMP"' EXIT
+# MANIFEST_TMP and KIT_VERSION_TMP are initialised below; the trap guards
+# against unset to cover an early exit before those paths are computed. The
+# trailing `:` ensures the trap exits with rc 0 regardless of the conditional
+# results — bash propagates the originating exit code through `trap … EXIT`,
+# but a future cleanup step inheriting a non-zero last-command rc could
+# silently rewrite the script's exit code.
+trap '
+    rm -rf "$TMP"
+    if [ -n "${MANIFEST_TMP:-}" ]; then rm -f "$MANIFEST_TMP"; fi
+    if [ -n "${KIT_VERSION_TMP:-}" ]; then rm -f "$KIT_VERSION_TMP"; fi
+    :
+' EXIT
 
 # Colors (respect NO_COLOR=1)
 if [ -n "${NO_COLOR:-}" ]; then
@@ -30,14 +51,17 @@ fi
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 MANIFEST="$PROJECT_ROOT/.claude/kit-manifest.txt"
+MANIFEST_TMP="${MANIFEST}.tmp.$$"
 
 # Manifest of every file the sync writes — consumed by `bash scripts/validate-sync.sh`
-# (invoked by the /kit-discover skill).
-# Paths are relative to PROJECT_ROOT, one per line, sorted at end.
+# (invoked by the /kit-discover skill). Paths are relative to PROJECT_ROOT, one
+# per line, sorted at end. We write to a temp file and atomically rename at the
+# end of the script, so a partial-write on early exit doesn't leave
+# validate-sync.sh seeing false sync gaps.
 mkdir -p "$PROJECT_ROOT/.claude"
-: >"$MANIFEST"
+: >"$MANIFEST_TMP"
 
-_record() { printf '%s\n' "$1" >>"$MANIFEST"; }
+_record() { printf '%s\n' "$1" >>"$MANIFEST_TMP"; }
 
 # Auto-activate kit hooks: set core.hooksPath = .githooks unless the user has
 # opted out (SYNC_NO_HOOKS=1) or already configured a non-`.githooks` hooks
@@ -353,17 +377,23 @@ ${DELTA}"
     fi
 fi
 
-cat >"$PROJECT_ROOT/.claude/kit-version.md" <<EOF
+KIT_VERSION_FILE="$PROJECT_ROOT/.claude/kit-version.md"
+KIT_VERSION_TMP="${KIT_VERSION_FILE}.tmp.$$"
+cat >"$KIT_VERSION_TMP" <<EOF
 # Kit version
 
 claude-kit **${VERSION}** — synced ${TODAY}
 
 ${DELTA_BODY}
 EOF
+# Atomic-rename so a partial-write on early exit doesn't corrupt the version
+# file (which silently breaks the next sync's PREV_VERSION delta detection).
+mv -f "$KIT_VERSION_TMP" "$KIT_VERSION_FILE"
 _record ".claude/kit-version.md"
 
-# Sort manifest for deterministic diffs
-sort -u -o "$MANIFEST" "$MANIFEST"
+# Sort manifest for deterministic diffs, then atomically replace the live file.
+sort -u -o "$MANIFEST_TMP" "$MANIFEST_TMP"
+mv -f "$MANIFEST_TMP" "$MANIFEST"
 
 # Remove legacy version file — superseded by .claude/kit-version.md
 rm -f "$PROJECT_ROOT/.claude-kit-version"
