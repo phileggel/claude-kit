@@ -11,7 +11,8 @@ set -euo pipefail
 # Usage:
 #   ./scripts/sync-config.sh            # sync latest release tag
 #   ./scripts/sync-config.sh v4.0.0     # sync a specific tag
-#   ./scripts/sync-config.sh -f         # overwrite drifted docs without prompting
+#   ./scripts/sync-config.sh -y         # overwrite drifted docs without prompting
+#   ./scripts/sync-config.sh -h         # show help and exit
 
 REPO="https://github.com/phileggel/claude-kit"
 # Colors (respect NO_COLOR=1)
@@ -27,7 +28,27 @@ fi
 ORIG_ARGS=("$@")
 
 VERSION=""
-KIT_SYNC_FORCE="false"
+KIT_SYNC_YES="false"
+
+_print_help() {
+    cat <<'EOF'
+sync-config.sh — Sync claude-kit into a downstream project.
+
+Usage:
+  ./scripts/sync-config.sh              sync latest release tag
+  ./scripts/sync-config.sh vX.Y.Z       sync a specific tag
+  ./scripts/sync-config.sh -y           overwrite drifted docs without prompting
+  ./scripts/sync-config.sh -h           show this help and exit
+
+Flags:
+  -y, --yes      auto-answer "yes" to the docs-drift overwrite prompt
+  -h, --help     show this help and exit
+
+Environment:
+  SYNC_NO_HOOKS=1   skip auto-activation of core.hooksPath = .githooks
+  NO_COLOR=1        disable ANSI colors
+EOF
+}
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -37,9 +58,18 @@ while [[ $# -gt 0 ]]; do
         if [[ "$1" == "--profile" ]] && [[ $# -ge 2 ]]; then shift; fi
         shift
         ;;
-    -f | --force)
-        KIT_SYNC_FORCE="true"
+    -y | --yes)
+        KIT_SYNC_YES="true"
         shift
+        ;;
+    -h | --help)
+        _print_help
+        exit 0
+        ;;
+    -*)
+        echo -e "${YELLOW}✗ Unknown flag: $1${NC}" >&2
+        echo "Run with -h for usage." >&2
+        exit 2
         ;;
     *)
         VERSION="$1"
@@ -102,5 +132,5 @@ if [[ -z "${KIT_SELF_UPDATED:-}" ]]; then
 fi
 
 export KIT_TMP="$TMP"
-export KIT_SYNC_FORCE
+export KIT_SYNC_YES
 exec bash "$TMP/kit/scripts/sync.sh" "$VERSION"
