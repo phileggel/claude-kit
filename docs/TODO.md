@@ -22,10 +22,4 @@
 
 - **Collapse `branch-files.sh` + `changed-files.sh` into `branch.sh files` subcommand.** v4.7.3 introduced `branch.sh {base|diff|log}` to absorb compound shell from reviewer prompts (issue #37). `branch-files.sh` and `changed-files.sh` differ by exactly one line (whether the committed branch diff is included) — natural candidates to fold in as `branch.sh files` and `branch.sh files --uncommitted-only`. Net −2 scripts. Breaking change for downstream callers (agents naming the scripts directly) — handle as a coordinated rename + sync cycle, not piecemeal.
 
-- **v4.8 review-cycle deferred polish (script-side remainder).** Surfaced by the global ai-reviewer + script-reviewer pass on `feat/v4.8-candidates`; agent-wording items resolved in v4.13. Remaining script items:
-  - **release.py** — exit code 2 for malformed `--version` (POSIX); `dataclass Commit` to replace loose `list[dict]`; stdout/stderr split so `release.py --preview` is machine-parseable; Cargo.toml `re.subn` to bail if version-match count != 1; commit error wrapper drops `e.stderr`.
-  - **merge.py** — `git rebase --abort` failure swallowed (line 169); `.format()` mixed with f-strings (line 131); `LC_ALL=C` on git invocations to harden English-error-string parsing.
-  - **sync.sh** — `echo -e` portability (use `printf '%b\n'` if shebang ever drifts to `/bin/sh`); add `command -v python3 >/dev/null` preflight; atomic-rename manifest file to avoid partial-write on early exit; chmod +x for `.py`/`.mjs` if they ever grow shebangs that get invoked directly.
-  - **check.py** — `env_update: dict[str, str] | None` (typed parameterization); `_safe_print` `file: object | None`; TSC verbose-mode loses error output (line 419).
-
 ## Experimental
