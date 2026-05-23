@@ -11,7 +11,8 @@ Onboarding guide for claude-kit: an opinionated Claude-assisted factory for Taur
 ```bash
 ./scripts/sync-config.sh            # latest release tag
 ./scripts/sync-config.sh v4.0.0     # specific tag
-./scripts/sync-config.sh -f         # overwrite drifted docs without prompting
+./scripts/sync-config.sh -y         # overwrite drifted docs without prompting
+./scripts/sync-config.sh -h         # show help and exit
 ```
 
 The script self-updates before syncing: if `sync-config.sh` itself changed in the kit, it re-executes the new version automatically. Review `git diff` after syncing.
