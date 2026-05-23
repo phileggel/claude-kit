@@ -6,6 +6,36 @@ This file lives on `svelte-main` only — never cherry-picked back to `main`.
 
 ---
 
+## svelte-v0.7.0+4.12.0 → svelte-v0.8.0+4.13.0
+
+Baseline: `+4.12.0`. New baseline: `+4.13.0`. v4.13 substance is **kit reliability**: `sync-config.sh` flag-parsing rework (`-y`/`-h`, fail-loud on unknown), `whats-next.py` per-stream `kit_update` detection (closes gh#59 — the false `behind: true` on Svelte projects this branch is most affected by), stale-bootstrap detector + recovery recipe, and a release/merge/sync script hardening pass. All 5 commits are framework-neutral; cherry-pick `821ff3d..620cb27` applies as-is.
+
+### Mirrored to `-svelte` variants
+
+- _None._ No agent or doc with a `-svelte` fork was touched on main during the cycle. The 4 forked agents (`reviewer-frontend-svelte`, `reviewer-security-svelte`, `test-writer-e2e-svelte`, `test-writer-frontend-svelte`) and 4 forked docs (`e2e-rules-svelte`, `frontend-rules-svelte`, `frontend-visual-proof-svelte`, `test_convention-svelte`) all stay unchanged.
+
+### Shared (cherry-pick applies as-is)
+
+- Agent wording: `kit/agents/{reviewer-e2e,reviewer-infra,spec-reviewer}.md` — framework-neutral wording polish (Rule 8 X-for-Y example; Step 7 defers to `## Scope`; Category C transport-vocab swap + Category G CR6 duplicate trim).
+- Scripts: `kit/scripts/{merge.py,release.py,sync.sh,validate-sync.sh}` — release/merge/sync hardening pass (CLI validation, recovery messages, atomic-rename manifest + kit-version.md, python3 preflight).
+- Bootstrap: `kit/sync-config.sh` — `-y`/`-h` flag rework + unknown-flag fail-loud.
+- Discovery: `kit/kit-readme.md`, `kit/skills/kit-discover/SKILL.md`, `kit/skills/whats-next/SKILL.md` — stale-bootstrap recovery recipe + recipe pointer; whats-next skill body documents per-stream cache.
+- Local mirrors: `scripts/validate-sync.sh`, `scripts/whats-next.py` — auto-applied by cherry-pick.
+
+### Spot-check after cherry-pick
+
+- `kit/scripts/whats-next.py` and `scripts/whats-next.py`: divergent only at `SOURCE_EXTS` (svelte-main adds `".svelte"`). v4.13's gh#59 fix replaces `_kit_tag_cache_file()` + `_latest_kit_tag()` (identical in both lineages pre-v4.13), so cherry-pick should leave the `.svelte` extension intact. Confirm before tagging.
+
+### Skipped (React-specific)
+
+- _None._ Every v4.13 change is framework-neutral.
+
+### Custom (manual treatment)
+
+- _None._
+
+---
+
 ## svelte-v0.6.1+4.11.1 → svelte-v0.7.0+4.12.0
 
 Baseline: `+4.11.1`. New baseline: `+4.12.0`. Cherry-picked all 5 v4.12 commits individually (`e215dc8..a28e5ab`). One merge conflict resolved on `kit/kit-tools.md` Scripts table — svelte-main has the `list-fe-test-targets.py` row (Svelte-specific helper) absent on main; main added a `plan-context.py` row. Resolution: keep both, wider column padding from svelte-main. v4.12 substance is the new `/feature-planner` skill (agent→skill migration + helper script) and Workflow A/B tightening — framework-neutral.
