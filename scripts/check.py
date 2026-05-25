@@ -118,6 +118,7 @@ class KitChecker:
         self._check_no_compound_shell_in_prompts()
         self._check_start_template_references()
         self._check_skill_conventions()
+        self._check_skills_with_checklists_seed_tasks()
         self._check_workflow_gate_drift()
 
         self._print_artifact_metrics()
@@ -677,6 +678,93 @@ class KitChecker:
             return False
 
         self.results["Skill conventions"] = True
+        return True
+
+    def _check_skills_with_checklists_seed_tasks(self) -> bool:
+        """Verify skills that emit an agent workflow checklist also instruct TaskCreate seeding.
+
+        Without this lint, a skill can ship a workflow checklist in its Output
+        format that the main agent uses as its visible plan but never mirrors
+        into the harness task tracker — silent progress loss across long
+        workflows. This is the gh#62 class of drift, observed in the
+        VaultCompass session that opened the issue.
+
+        Detection: scan `kit/skills/*/SKILL.md`. A fenced block is an "agent
+        workflow checklist" when it contains `- [ ]` items AND at least one
+        of the workflow markers (`### Phase`, `### Steps`, `**Workflow**:`).
+        PR bodies / issue templates / test plans use `- [ ]` for human
+        reviewer ticks and lack these markers — those are skipped. When an
+        agent workflow checklist is detected, the skill body MUST mention
+        `TaskCreate` outside fenced blocks.
+
+        Known limitation: the fence detector tracks ``` toggles only; a
+        skill using 4-backtick fences to wrap content with triple backticks
+        would corrupt the in-fence state for the rest of the file. Not
+        currently exercised by any kit-shipped skill.
+        """
+        fence_re = re.compile(r"^```")
+        checkbox_re = re.compile(r"^\s*- \[ \]")
+        # `\s` (not `\b`) after Phase/Steps — `\b` would accept `### Phase-out`
+        # as a workflow marker, which it isn't.
+        workflow_marker_re = re.compile(
+            r"^(?:###\s+Phase\s|###\s+Steps\s*$|\*\*Workflow\*\*:)"
+        )
+
+        failures: list[str] = []
+        for skill_path in sorted((REPO_ROOT / "kit" / "skills").glob("*/SKILL.md")):
+            content = skill_path.read_text(encoding="utf-8")
+            rel = str(skill_path.relative_to(REPO_ROOT))
+
+            # Walk the file. Track fenced blocks; for each fenced block,
+            # remember whether it contained both a workflow marker AND a
+            # checkbox. Outside fences we collect body lines for the
+            # TaskCreate-mention check.
+            in_fence = False
+            current_block_has_marker = False
+            current_block_has_checkbox = False
+            file_has_workflow_block = False  # set if ANY fenced block in file qualifies
+            body_lines: list[str] = []
+
+            for line in content.splitlines():
+                if fence_re.match(line):
+                    # Per-block flags are evaluated only on fence CLOSE
+                    # (asymmetric on purpose — reset both on close).
+                    if in_fence:
+                        if current_block_has_marker and current_block_has_checkbox:
+                            file_has_workflow_block = True
+                        current_block_has_marker = False
+                        current_block_has_checkbox = False
+                    in_fence = not in_fence
+                    continue
+                if in_fence:
+                    if workflow_marker_re.match(line):
+                        current_block_has_marker = True
+                    if checkbox_re.match(line):
+                        current_block_has_checkbox = True
+                else:
+                    body_lines.append(line)
+
+            if not file_has_workflow_block:
+                continue  # no agent workflow checklist — exempt
+
+            body = "\n".join(body_lines)
+            if "TaskCreate" not in body:
+                failures.append(f"{rel}")
+
+        if failures:
+            print("  Checklist skills seed tasks...")
+            print(
+                "    Rule: a skill emitting a fenced workflow checklist "
+                "(Phase / Steps / Workflow markers + - [ ] items) must also "
+                "instruct TaskCreate in its body."
+            )
+            for f in failures:
+                print(f"    ✗ {f}")
+            self.suite_failed = True
+            self.results["Checklist skills seed tasks"] = False
+            return False
+
+        self.results["Checklist skills seed tasks"] = True
         return True
 
     def _check_start_template_references(self) -> bool:
