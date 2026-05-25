@@ -36,14 +36,18 @@ src/
 │   └── modules/                       ← generic reactive modules (.svelte.ts)
 │       └── fuzzySearch.svelte.ts
 │
-├── infra/                             ← platform adapters ONLY (F15)
+├── infra/                             ← platform adapters + app-wide singleton state (F15, F28)
 │   ├── logger.ts                      ← native / console logger sink
-│   └── i18n/                          ← F16 i18n runtime adapter
-│       ├── index.ts                   ← setupI18n() initializer
-│       ├── config.ts
-│       └── locales/                   ← translation JSON files (per i18n-rules.md)
-│           └── {locale}/
-│               └── common.json
+│   ├── i18n/                          ← F16 i18n runtime adapter
+│   │   ├── index.ts                   ← setupI18n() initializer
+│   │   ├── config.ts
+│   │   └── locales/                   ← translation JSON files (per i18n-rules.md)
+│   │       └── {locale}/
+│   │           └── common.json
+│   ├── cache/                         ← BE/FE shared data cache (Svelte store singleton, F28 Store kinds)
+│   │   └── cacheStore.svelte.ts
+│   └── settings/                      ← FE-persisted UI prefs (theme, locale, layout)
+│       └── settingsStore.svelte.ts
 │
 ├── assets/                            ← images, fonts, SVGs imported by code (framework exception)
 ├── styles/                            ← global CSS, theme tokens (framework exception)
@@ -64,9 +68,25 @@ Each bucket's mandate:
 - **`features/`** — User-facing surfaces, organised per F1. A feature MAY own a gateway. **REJECTS:** anything reusable across features (promote to `ui/`) or any cross-cutting platform adapter (promote to `infra/`). A feature folder appearing anywhere else in the tree (e.g. inside `infra/` or `ui/`) is a misclassification.
 - **`shell/`** — Layout chrome ONLY: AppShell, persistent header/sidebar/content slot, app-level overlay hosts (snackbar mount point, modal portal target). Single instance per app, not reusable. **REJECTS:** `App.svelte` (root), `Router.svelte` (root), anything reusable (`ui/`), anything feature-scoped (`features/`).
 - **`ui/`** — Reusable UI primitives: widgets in `ui/components/`, cross-feature formatters in `ui/format/`, generic reactive modules in `ui/modules/`. Widget runtime state colocates with the widget (e.g. `ui/components/snackbar/snackbarStore.svelte.ts`). **REJECTS:** any domain term, any Tauri call (no `commands.*` from `ui/`), any platform adapter (`infra/`).
-- **`infra/`** — Platform adapters ONLY: code that talks to a runtime outside our control (logger sink, browser storage, i18n runtime, native bridges). **REJECTS:** pure helpers and formatters (promote to `ui/format/`), generic UI reactive modules (promote to `ui/modules/`), stateful UI runtime (colocate with the widget in `ui/components/`), anything feature-scoped (`features/`).
+- **`infra/`** — Platform adapters AND app-wide singleton state. Platform adapters: code that talks to a runtime outside our control (logger sink, browser storage, i18n runtime, native bridges). App-wide state: BE/FE shared data cache (`infra/cache/`), FE-persisted settings (`infra/settings/`) — see **Store kinds** below. **REJECTS:** pure helpers and formatters (promote to `ui/format/`), generic UI reactive modules (promote to `ui/modules/`), widget-local UI runtime (colocate with the widget in `ui/components/`), anything feature-scoped (`features/`).
 
 When a file lands in the wrong bucket, the exclusion rule of the destination bucket is what flags it.
+
+### Store kinds
+
+Stateful UI state has three legitimate homes, distinguished by scope:
+
+| Kind                   | Description                          | Home                           |
+| ---------------------- | ------------------------------------ | ------------------------------ |
+| BE/FE shared cache     | Singleton of backend-projection data | `infra/cache/`                 |
+| FE-persisted settings  | UI prefs (theme, locale, layout)     | `infra/settings/`              |
+| Feature-local UI state | Single-feature draft/modal state     | `features/{x}/store.svelte.ts` |
+
+The shared cache is seeded by initial fetches and updated via Tauri events. Cross-feature reads of the shared cache MUST go through each feature's own gateway (which reads selectors from the cache); direct cross-feature store imports remain a SHOULD-NOT per **F26**.
+
+Svelte stores in `infra/cache/` and `infra/settings/` use Svelte 5 runes (`.svelte.ts` files exporting `$state`-backed singletons) or `writable()`/`readable()` from `svelte/store` — both are acceptable; pick one per project and keep it consistent.
+
+Widget-local runtime state (e.g. snackbar mount internals) stays colocated with the widget in `ui/components/`. The `infra/` exclusion above refers only to that widget-local case — app-wide singletons are explicitly included.
 
 **Framework-resource exception.** Static resources owned by the framework (not by application code) sit outside the 4-bucket discipline because the industry-standard Svelte/Vite convention is well-established and tools (build, bundler, dev server) expect those paths:
 
@@ -313,6 +333,6 @@ The only authorised cross-feature navigation wiring points are:
 **F26** — Cross-feature imports are evaluated by what is imported, not by the fact of crossing:
 
 - **Primitive imports are fine.** Types, pure functions, and presentational components MAY be imported across feature boundaries. They are not behaviour coupling — they are shared primitives. Example: `features/account_details/.../X.svelte` importing `TransactionFormData` (type), `validateTransactionForm` (pure), or `RecordPriceCheckbox.svelte` (presentational) from `features/transactions/shared/` is acceptable.
-- **Behaviour imports are a code smell.** A reactive module or store imported from another feature couples the two features behaviourally and typically signals one of: wrong feature boundary, missing shared layer, or a piece of behaviour that should be promoted to `ui/modules/` or `shell/`. Treat the import as SHOULD-NOT and prefer promotion when it appears twice.
+- **Behaviour imports are a code smell.** A reactive module or store imported from another feature couples the two features behaviourally and typically signals one of: wrong feature boundary, missing shared layer, or a piece of behaviour that should be promoted (see destinations below). Treat the import as SHOULD-NOT and prefer promotion when it appears twice.
 
-Promotion destinations (see F28): generic UI reactive modules → `ui/modules/`; app-wide stores → `shell/`; cross-cutting platform adapters → `infra/`.
+Promotion destinations (see F28): generic UI reactive modules → `ui/modules/`; app-wide stores → `infra/cache/` (BE/FE data) or `infra/settings/` (FE prefs); cross-cutting platform adapters → `infra/`.
