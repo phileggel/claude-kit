@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.14.0] - 2026-05-25
+
+### Added
+
+- lint workflow-checklist skills require TaskCreate (gh#62)
+- F28 store-kind table + F26 promotion target (gh#63)
+
+### Fixed
+
+- F26 cross-feature store import detector (gh#64)
+- make TaskCreate explicit Step 5 (gh#62)
+
 ## [v4.13.0] - 2026-05-23
 
 ### Added
