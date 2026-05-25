@@ -6,6 +6,31 @@ This file lives on `svelte-main` only — never cherry-picked back to `main`.
 
 ---
 
+## svelte-v0.8.0+4.13.0 → svelte-v0.9.0+4.14.0
+
+Baseline: `+4.13.0`. New baseline: `+4.14.0`. v4.14 substance is **FE rules + workflow polish** — gh#62 (TaskCreate now Step 5 in `/start`), gh#63 (F28 Store kinds: BE/FE shared cache → `infra/cache/`, FE-persisted settings → `infra/settings/`), gh#64 (reviewer-frontend F26 cross-feature store detector). Also a new deterministic `check.py` lint preventing future gh#62-class drift. Cherry-picked `c441e86..700a71a` (4 commits, dropped the `chore: release v4.14.0` commit on the usual conflict).
+
+### Mirrored to `-svelte` variants
+
+- `kit/docs/frontend-rules-svelte.md` — applied F28 Store kinds + F26 promotion target + infra/ exclusion tightening + F0 tree update with Svelte filenames. Translations: `Zustand singleton` → `Svelte store singleton (writable / Svelte 5 runes)`; `useCacheStore.ts` → `cacheStore.svelte.ts`; `useSettingsStore.ts` → `settingsStore.svelte.ts`. Architectural concept (3 store kinds, 3 homes, cross-feature reads via gateway) is framework-neutral and applies identically.
+- `kit/agents/reviewer-frontend-svelte.md` — applied F26 promotion-target update + F28 widget-local wording verbatim. Translated the F26 cross-feature store-import detector: React's `useXStore` symbol-shape regex doesn't apply to Svelte (no naming convention), so switched to a path-based detector — `grep -rE 'import\s+\{[^}]*\}\s+from\s+"@/features/[^/"]+/store(\.svelte)?"'`. Same path-scope rule and remediation message.
+
+### Shared (cherry-pick applies as-is)
+
+- `kit/skills/start/SKILL.md` — TaskCreate Step 5 + imperative blockquotes; framework-neutral workflow.
+- `scripts/check.py` — new `_check_skills_with_checklists_seed_tasks` lint; kit-only (not synced).
+- React canonicals (`kit/agents/reviewer-frontend.md`, `kit/docs/frontend-rules.md`) — cherry-pick lands their React-form updates; the Svelte forks above carry the Svelte-form mirror.
+
+### Skipped (React-specific)
+
+- _None._ Every v4.14 concept transfers; only wording needed translation.
+
+### Custom (manual treatment)
+
+- _None._
+
+---
+
 ## svelte-v0.7.0+4.12.0 → svelte-v0.8.0+4.13.0
 
 Baseline: `+4.12.0`. New baseline: `+4.13.0`. v4.13 substance is **kit reliability**: `sync-config.sh` flag-parsing rework (`-y`/`-h`, fail-loud on unknown), `whats-next.py` per-stream `kit_update` detection (closes gh#59 — the false `behind: true` on Svelte projects this branch is most affected by), stale-bootstrap detector + recovery recipe, and a release/merge/sync script hardening pass. All 5 commits are framework-neutral; cherry-pick `821ff3d..620cb27` applies as-is.
