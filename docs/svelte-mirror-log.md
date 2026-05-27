@@ -6,6 +6,34 @@ This file lives on `svelte-main` only — never cherry-picked back to `main`.
 
 ---
 
+## svelte-v0.9.0+4.14.0 → svelte-v0.10.0+4.15.0
+
+Baseline: `+4.14.0`. New baseline: `+4.15.0`. v4.15 substance is **kit hardening + reviewer hygiene** — gh#68 (markdown drift detection in `--fast`), `check.py` `--strict` toggle for release-time enforcement (sqlx conditional on `migrations/`), helper extract (`_frontend_npm_check_step`), partial-stack `npm` guards in `common.just`, gh#67 partial (Prong 2 humility rule across 5 reviewers), TODO trim. Cherry-picked `76ca394..c0de943` (6 commits, dropped `chore: release v4.15.0` per usual).
+
+### Mirrored to `-svelte` variants
+
+- `kit/agents/reviewer-frontend-svelte.md` — applied humility rule (gh#67) verbatim. Framework-neutral wording (about version/idiom/tool claims, not framework-specific). Added as Critical Rule #9 after Scope-drift guard, matching the React fork's placement.
+- `kit/agents/reviewer-security-svelte.md` — same humility rule, added as Critical Rule #11 after Scope-drift guard. Identical wording across both -svelte forks (and the 5 React reviewers on `main`).
+
+### Shared (cherry-pick applies as-is)
+
+- `kit/agents/reviewer-arch.md`, `kit/agents/reviewer-backend.md`, `kit/agents/reviewer-infra.md` — humility rule cherry-picked into React canonicals; no Svelte fork exists for these so they ARE the svelte-main version.
+- `kit/scripts/check.py` — md drift + helper extract + `--strict` + `expected_when`. Auto-merged cleanly with the existing svelte divergence (`"React Tests"` → `"Frontend Tests"` rename preserved by git's 3-way merge).
+- `kit/scripts/release.py` — `strict_mode=True` wiring on the `QualityChecker` call; framework-neutral.
+- `kit/common.just` — `npm run format:fix` / `format:docs` guards on `package.json` presence; framework-neutral.
+- `scripts/check.py` — kit-local; promoted prettier markdown check from full-only to also run in `--fast` mode.
+- `docs/TODO.md` — partial-stack entry trim; framework-neutral.
+
+### Skipped (React-specific)
+
+None this cycle.
+
+### Custom
+
+None this cycle.
+
+---
+
 ## svelte-v0.8.0+4.13.0 → svelte-v0.9.0+4.14.0
 
 Baseline: `+4.13.0`. New baseline: `+4.14.0`. v4.14 substance is **FE rules + workflow polish** — gh#62 (TaskCreate now Step 5 in `/start`), gh#63 (F28 Store kinds: BE/FE shared cache → `infra/cache/`, FE-persisted settings → `infra/settings/`), gh#64 (reviewer-frontend F26 cross-feature store detector). Also a new deterministic `check.py` lint preventing future gh#62-class drift. Cherry-picked `c441e86..700a71a` (4 commits, dropped the `chore: release v4.14.0` commit on the usual conflict).
