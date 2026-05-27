@@ -27,8 +27,11 @@ STATUS_SKIPPED = "SKIPPED"
 STATUS_PENDING = "Pending"  # never-ran sentinel — rendered as Fail
 STATUS_STALE = "Stale"
 STATUS_UNCOMMITTED = "Uncommitted"
-# Variable-detail warning values use the suffix " errors" / " warnings"
-# (e.g. "3 errors") — recognised by `_format_status`.
+# Variable-detail values use a recognised prefix/suffix in `_format_status`:
+#   suffix " errors" / " warnings" — e.g. "3 errors"  (TSC)
+#   prefix "missing: "             — e.g. "missing: package.json absent"
+#                                    (strict-mode marker absent — see
+#                                    `_maybe_skip_for_stack`)
 
 # Backend root directory. Default to the kit's `src-tauri/` convention;
 # downstream forks with a different layout (e.g. `app/`, `tauri/`,
@@ -110,10 +113,17 @@ class QualityChecker:
         backend_only: bool = False,
         format_only: bool = False,
         skip_tests: bool = False,
+        strict_mode: bool = False,
     ):
         self.repo_root = Path(__file__).parent.parent
         self.fast_mode = fast_mode
         self.verbose = verbose
+        # Strict mode promotes stack-marker skips to failures when the marker
+        # is "expected" (always-expected by default; sqlx is conditional on
+        # src-tauri/migrations/ existing). release.py passes --strict so a
+        # missing marker — e.g. accidentally deleted .sqlx/ — blocks the
+        # release instead of silently skipping the check.
+        self.strict_mode = strict_mode
         # Full mode runs frontend + backend groups concurrently by default.
         # --sequential forces the old serial order (useful for clean output
         # when debugging a single step's failure). Single-group modes
@@ -158,6 +168,13 @@ class QualityChecker:
         self.package_json = self.repo_root / "package.json"
         self.cargo_toml = self.repo_root / BACKEND_DIR / "Cargo.toml"
         self.sqlx_dir = self.repo_root / BACKEND_DIR / ".sqlx"
+        # Used as the `expected_when` signal for sqlx: the .sqlx/ cache is only
+        # required when the project actually has migrations. No migrations →
+        # no-DB project → sqlx skip is legitimate even under --strict.
+        # Cargo.toml-parsing for the `sqlx` dep would also work but is heavier
+        # (TOML parser or fragile regex); migrations-dir presence matches
+        # operator intuition: "I have a DB" ⇔ "I have migrations".
+        self.migrations_dir = self.repo_root / BACKEND_DIR / "migrations"
         self._skipped_for_stack: list[tuple[str, str]] = []  # (reason, check_name)
 
     # --- Thread-safe state mutators -----------------------------------------
@@ -192,12 +209,32 @@ class QualityChecker:
             self._safe_print(*args, **kwargs)
 
     def _maybe_skip_for_stack(
-        self, metric_key: str, check_name: str, marker: Path, reason: str
+        self,
+        metric_key: str,
+        check_name: str,
+        marker: Path,
+        reason: str,
+        *,
+        expected_when: Path | None = None,
     ) -> bool:
-        """Return True if the check should be skipped (stack marker absent).
-        Records the skip in metrics and in the stack-summary list."""
+        """Return True if the check should be skipped or fail-replaced (marker
+        absent). In default mode, records a skip. In strict mode, promotes the
+        skip to a failure when the marker is expected (always expected unless
+        `expected_when` is given and absent — used by sqlx, which only requires
+        .sqlx/ when src-tauri/migrations/ exists)."""
         if marker.exists():
             return False
+
+        is_expected = expected_when is None or expected_when.exists()
+        if self.strict_mode and is_expected:
+            self._safe_print(
+                f"  {check_name}... {FAILURE}❌ missing: {reason}{RESET}",
+                flush=True,
+            )
+            self._set_metric(metric_key, f"missing: {reason}")
+            self._record_failure(check_name, f"{reason} (required under --strict mode)")
+            return True
+
         self._safe_print(
             f"  {check_name}... {INFO}⏩ skipped ({reason}){RESET}", flush=True
         )
@@ -297,7 +334,11 @@ class QualityChecker:
 
     def check_sqlx(self) -> bool:
         if self._maybe_skip_for_stack(
-            "sqlx", "SQLx Integrity", self.sqlx_dir, SKIP_SQLX_ABSENT
+            "sqlx",
+            "SQLx Integrity",
+            self.sqlx_dir,
+            SKIP_SQLX_ABSENT,
+            expected_when=self.migrations_dir,
         ):
             return True
 
@@ -633,6 +674,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Stream subprocess output instead of capturing it",
     )
+    parser.add_argument(
+        "--strict",
+        dest="strict_mode",
+        action="store_true",
+        help=(
+            "Promote stack-marker skips to failures. "
+            "Used by release.py to catch accidentally-deleted markers."
+        ),
+    )
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         "--frontend",
@@ -657,6 +707,7 @@ if __name__ == "__main__":
         backend_only=args.backend,
         format_only=args.format_only,
         skip_tests=args.skip_tests,
+        strict_mode=args.strict_mode,
     )
     if not checker.run_all():
         sys.exit(1)
