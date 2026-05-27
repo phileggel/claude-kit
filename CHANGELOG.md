@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.15.0] - 2026-05-27
+
+### Added
+
+- training-cutoff humility rule (gh#67)
+- add --strict release-time enforcement
+
+### Fixed
+
+- guard npm format recipes for partial-stack
+- detect md format drift in --fast (gh#68)
+
+### Changed
+
+- extract \_frontend_npm_check_step helper
+
 ## [v4.14.0] - 2026-05-25
 
 ### Added
