@@ -86,28 +86,30 @@ class KitChecker:
         else:
             self._vprint(f"{BLUE}ℹ shellcheck not installed, skipping.{NC}")
 
-        if not self.fast_mode:
-            if self._tool_exists("npx"):
-                self._step(
-                    "Prettier (markdown)",
-                    [
-                        "npx",
-                        "prettier",
-                        "--check",
-                        "**/*.md",
-                        "--ignore-path",
-                        ".gitignore",
-                    ],
-                )
-            elif self.strict_mode:
-                print(
-                    f"{RED}✗ Prettier not installed — required for release checks.{NC}"
-                )
-                print("  Install with: npm install -g prettier")
-                self.results["Prettier (markdown)"] = False
-                self.suite_failed = True
-            else:
-                self._vprint(f"{BLUE}ℹ npx not installed, skipping Prettier.{NC}")
+        # Kit-local tolerates missing npx (degrades to vprint-skip in
+        # non-strict mode). Downstream kit/scripts/check.py treats missing
+        # npx as a hard failure via run_step's FileNotFoundError path —
+        # asymmetric on purpose: contributor machines may lack npx; a
+        # downstream project with package.json must have it.
+        if self._tool_exists("npx"):
+            self._step(
+                "Prettier (markdown)",
+                [
+                    "npx",
+                    "prettier",
+                    "--check",
+                    "**/*.md",
+                    "--ignore-path",
+                    ".gitignore",
+                ],
+            )
+        elif self.strict_mode:
+            print(f"{RED}✗ Prettier not installed — required for release checks.{NC}")
+            print("  Install with: npm install -g prettier")
+            self.results["Prettier (markdown)"] = False
+            self.suite_failed = True
+        else:
+            self._vprint(f"{BLUE}ℹ npx not installed, skipping Prettier.{NC}")
 
         self._check_agent_inventory()
         self._check_tool_minimality()
