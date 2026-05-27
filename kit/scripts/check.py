@@ -126,6 +126,7 @@ class QualityChecker:
             "sqlx": STATUS_PENDING,
             "lint": STATUS_PENDING,
             "biome": STATUS_PENDING,
+            "prettier_docs": STATUS_PENDING,
             "clippy": STATUS_PENDING,
             "rust_fmt": STATUS_PENDING,
             "tsc": STATUS_PENDING,
@@ -332,7 +333,14 @@ class QualityChecker:
             for key in ("rust_lib", "rust_beh", "sqlx", "clippy", "rust_fmt"):
                 self._set_metric(key, STATUS_SKIPPED)
         elif self.backend_only:
-            for key in ("react_tests", "build", "lint", "biome", "tsc"):
+            for key in (
+                "react_tests",
+                "build",
+                "lint",
+                "biome",
+                "prettier_docs",
+                "tsc",
+            ):
                 self._set_metric(key, STATUS_SKIPPED)
 
         if self.format_only:
@@ -375,6 +383,31 @@ class QualityChecker:
         ):
             if self.run_step("Biome Check", ["npm", "run", "format"]):
                 self._set_metric("biome", STATUS_PASS)
+
+        # Markdown drift gate (gh#68). Biome doesn't cover .md and
+        # `npm run format:docs` is write-only — without this step, drift
+        # slips through PRs and `just format` silently rewrites unrelated
+        # files on the next contributor's branch. Gated on package.json
+        # because prettier ships via the JS devDep stack; pure-backend
+        # projects skip rather than carry an npm dep just for md linting.
+        # `**/*.md` must reach prettier as a literal string (prettier
+        # handles globs internally via fast-glob); do NOT switch to
+        # shell=True or pre-expand the glob.
+        if not self._maybe_skip_for_stack(
+            "prettier_docs", "Prettier Docs", self.package_json, SKIP_FRONTEND_ABSENT
+        ):
+            if self.run_step(
+                "Prettier Docs",
+                [
+                    "npx",
+                    "prettier",
+                    "--check",
+                    "**/*.md",
+                    "--ignore-path",
+                    ".gitignore",
+                ],
+            ):
+                self._set_metric("prettier_docs", STATUS_PASS)
 
         if not self._maybe_skip_for_stack(
             "rust_fmt", "Rust Fmt", self.cargo_toml, SKIP_BACKEND_ABSENT
@@ -422,6 +455,22 @@ class QualityChecker:
         ):
             if self.run_step("Biome Check", ["npm", "run", "format"]):
                 self._set_metric("biome", STATUS_PASS)
+
+        if not self._maybe_skip_for_stack(
+            "prettier_docs", "Prettier Docs", self.package_json, SKIP_FRONTEND_ABSENT
+        ):
+            if self.run_step(
+                "Prettier Docs",
+                [
+                    "npx",
+                    "prettier",
+                    "--check",
+                    "**/*.md",
+                    "--ignore-path",
+                    ".gitignore",
+                ],
+            ):
+                self._set_metric("prettier_docs", STATUS_PASS)
 
         if not self._maybe_skip_for_stack(
             "tsc", "TSC", self.package_json, SKIP_FRONTEND_ABSENT
