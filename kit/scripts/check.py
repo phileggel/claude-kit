@@ -43,6 +43,24 @@ SKIP_FRONTEND_ABSENT = "package.json absent"
 SKIP_BACKEND_ABSENT = f"{BACKEND_DIR}/Cargo.toml absent"
 SKIP_SQLX_ABSENT = f"{BACKEND_DIR}/.sqlx/ absent"
 
+# Markdown drift gate (gh#68). Biome doesn't cover .md and
+# `npm run format:docs` is write-only — without this step, drift
+# slips through PRs and `just format` silently rewrites unrelated
+# files on the next contributor's branch. Gated on package.json
+# because prettier ships via the JS devDep stack; pure-backend
+# projects skip rather than carry an npm dep just for md linting.
+# `**/*.md` must reach prettier as a literal string (prettier
+# handles globs internally via fast-glob); do NOT switch to
+# shell=True or pre-expand the glob.
+_PRETTIER_DOCS_CMD = [
+    "npx",
+    "prettier",
+    "--check",
+    "**/*.md",
+    "--ignore-path",
+    ".gitignore",
+]
+
 # Strip ANSI escape sequences when measuring visible cell width for the
 # report table. Needed because `f"{s:<30}"` pads by string length, which
 # would over-pad when the string carries color codes and under-pad under
@@ -185,6 +203,20 @@ class QualityChecker:
         )
         self._record_stack_skip(metric_key, check_name, reason)
         return True
+
+    def _frontend_npm_check_step(
+        self, metric_key: str, name: str, cmd: list[str]
+    ) -> None:
+        """Frontend npm/npx single-step pattern: skip if package.json
+        absent, else run `cmd` and mark `metric_key` PASS on success.
+        Encapsulates the gate→run→record triple shared by Oxlint, Biome,
+        and Prettier Docs. Backend (cargo) steps need cwd/env overrides
+        and have their own shape — do not retrofit them here."""
+        if not self._maybe_skip_for_stack(
+            metric_key, name, self.package_json, SKIP_FRONTEND_ABSENT
+        ):
+            if self.run_step(name, cmd):
+                self._set_metric(metric_key, STATUS_PASS)
 
     def print_header(self, title: str):
         self._vprint(f"\n{INFO}🚀 {title}{RESET}")
@@ -372,42 +404,11 @@ class QualityChecker:
     def _run_format_only(self):
         """Format-only: oxlint + biome + cargo fmt --check. Sub-second.
         Useful as a super-fast pre-flight before committing."""
-        if not self._maybe_skip_for_stack(
-            "lint", "Oxlint", self.package_json, SKIP_FRONTEND_ABSENT
-        ):
-            if self.run_step("Oxlint", ["npm", "run", "lint"]):
-                self._set_metric("lint", STATUS_PASS)
-
-        if not self._maybe_skip_for_stack(
-            "biome", "Biome Check", self.package_json, SKIP_FRONTEND_ABSENT
-        ):
-            if self.run_step("Biome Check", ["npm", "run", "format"]):
-                self._set_metric("biome", STATUS_PASS)
-
-        # Markdown drift gate (gh#68). Biome doesn't cover .md and
-        # `npm run format:docs` is write-only — without this step, drift
-        # slips through PRs and `just format` silently rewrites unrelated
-        # files on the next contributor's branch. Gated on package.json
-        # because prettier ships via the JS devDep stack; pure-backend
-        # projects skip rather than carry an npm dep just for md linting.
-        # `**/*.md` must reach prettier as a literal string (prettier
-        # handles globs internally via fast-glob); do NOT switch to
-        # shell=True or pre-expand the glob.
-        if not self._maybe_skip_for_stack(
-            "prettier_docs", "Prettier Docs", self.package_json, SKIP_FRONTEND_ABSENT
-        ):
-            if self.run_step(
-                "Prettier Docs",
-                [
-                    "npx",
-                    "prettier",
-                    "--check",
-                    "**/*.md",
-                    "--ignore-path",
-                    ".gitignore",
-                ],
-            ):
-                self._set_metric("prettier_docs", STATUS_PASS)
+        self._frontend_npm_check_step("lint", "Oxlint", ["npm", "run", "lint"])
+        self._frontend_npm_check_step("biome", "Biome Check", ["npm", "run", "format"])
+        self._frontend_npm_check_step(
+            "prettier_docs", "Prettier Docs", _PRETTIER_DOCS_CMD
+        )
 
         if not self._maybe_skip_for_stack(
             "rust_fmt", "Rust Fmt", self.cargo_toml, SKIP_BACKEND_ABSENT
@@ -444,33 +445,11 @@ class QualityChecker:
                 if self.run_step("Application Build", ["npm", "run", "build"]):
                     self._set_metric("build", STATUS_PASS)
 
-        if not self._maybe_skip_for_stack(
-            "lint", "Oxlint", self.package_json, SKIP_FRONTEND_ABSENT
-        ):
-            if self.run_step("Oxlint", ["npm", "run", "lint"]):
-                self._set_metric("lint", STATUS_PASS)
-
-        if not self._maybe_skip_for_stack(
-            "biome", "Biome Check", self.package_json, SKIP_FRONTEND_ABSENT
-        ):
-            if self.run_step("Biome Check", ["npm", "run", "format"]):
-                self._set_metric("biome", STATUS_PASS)
-
-        if not self._maybe_skip_for_stack(
-            "prettier_docs", "Prettier Docs", self.package_json, SKIP_FRONTEND_ABSENT
-        ):
-            if self.run_step(
-                "Prettier Docs",
-                [
-                    "npx",
-                    "prettier",
-                    "--check",
-                    "**/*.md",
-                    "--ignore-path",
-                    ".gitignore",
-                ],
-            ):
-                self._set_metric("prettier_docs", STATUS_PASS)
+        self._frontend_npm_check_step("lint", "Oxlint", ["npm", "run", "lint"])
+        self._frontend_npm_check_step("biome", "Biome Check", ["npm", "run", "format"])
+        self._frontend_npm_check_step(
+            "prettier_docs", "Prettier Docs", _PRETTIER_DOCS_CMD
+        )
 
         if not self._maybe_skip_for_stack(
             "tsc", "TSC", self.package_json, SKIP_FRONTEND_ABSENT
