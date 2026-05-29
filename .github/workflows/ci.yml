@@ -2,10 +2,10 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, svelte-main]
     types: [opened, edited, synchronize, reopened]
   push:
-    branches: [main]
+    branches: [main, svelte-main]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -49,9 +49,19 @@ jobs:
         with:
           fetch-depth: 0
       - name: Validate every commit in the PR
+        # base_ref is the PR's target branch (main or svelte-main). Passed
+        # via env, never interpolated into the script, to avoid injection.
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          set -u
-          BASE=$(git merge-base HEAD origin/main)
+          # No `set -e`: the loop collects every commit's violations rather
+          # than aborting on the first. pipefail catches genuine pipe errors.
+          set -uo pipefail
+          : "${BASE_REF:?base_ref is empty — this job runs only on pull_request events}"
+          BASE=$(git merge-base HEAD "origin/$BASE_REF") || {
+            echo "::error::cannot resolve merge-base against origin/$BASE_REF"
+            exit 1
+          }
           FAIL=0
           REGEX='^(feat|fix|docs|test|chore|refactor|ci)(\([^)]+\))?!?: .+'
           # --no-merges skips the synthetic merge commit GitHub creates at
