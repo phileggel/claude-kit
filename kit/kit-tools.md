@@ -101,12 +101,13 @@ Skills that directly drive or support the spec → contract → plan → test-fi
 
 Generic lifecycle tools. No direct SDD connection — included because they must run somewhere in any project's lifecycle.
 
-| Skill          | Command         | Description                                                                                                                                                                                       |
-| -------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `dep-audit`    | `/dep-audit`    | Audit npm + Cargo dependencies for outdated versions and CVEs; run before every release                                                                                                           |
-| `prune`        | `/prune [path]` | Audit the project for dead code, pass-through methods, verbose patterns, and duplicate definitions; coverage report mandatory, read-only output                                                   |
-| `visual-proof` | `/visual-proof` | Capture and commit visual proof screenshots for any `.tsx`/`.css` change. Auto-discovers config on first run. Generates a complete preview for all component states and captures with Playwright. |
-| `techdebt`     | `/techdebt`     | Produces a normalized tech-debt entry (date + git context + observation) for the main agent to persist; convention is `docs/techdebt.md`; output-only, no writes                                  |
+| Skill             | Command            | Description                                                                                                                                                                                       |
+| ----------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dep-audit`       | `/dep-audit`       | Audit npm + Cargo dependencies for outdated versions and CVEs; run before every release                                                                                                           |
+| `prune`           | `/prune [path]`    | Audit the project for dead code, pass-through methods, verbose patterns, and duplicate definitions; coverage report mandatory, read-only output                                                   |
+| `visual-proof`    | `/visual-proof`    | Capture and commit visual proof screenshots for any `.tsx`/`.css` change. Auto-discovers config on first run. Generates a complete preview for all component states and captures with Playwright. |
+| `techdebt`        | `/techdebt`        | Produces a normalized tech-debt entry (date + git context + observation) for the main agent to persist; convention is `docs/techdebt.md`; output-only, no writes                                  |
+| `session-reflect` | `/session-reflect` | End-of-session CLAUDE.md rule audit: scans git log, memory mtimes, and CLAUDE.md diff; proposes promote/trim/remember decisions; output-only, main agent applies. Complements `/whats-next`       |
 
 ### Kit sync
 
