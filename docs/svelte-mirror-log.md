@@ -6,6 +6,34 @@ This file lives on `svelte-main` only — never cherry-picked back to `main`.
 
 ---
 
+## svelte-v0.10.0+4.15.0 → svelte-v0.11.0+4.16.0
+
+Baseline: `+4.15.0`. New baseline: `+4.16.0`. v4.16 substance is **maintenance skill + lineage release infra + gh#67 completion** — session-reflect (new end-of-session CLAUDE.md rule-audit skill), CI now gates `svelte-main` PRs (base-aware commit-msg job), `release-kit.py` refuses svelte-lineage tags cleanly, gh#67 reviewer verification-handoff (reviewers surface doubt + route to `/dep-audit` or a named command; stay output-only/network-free). Cherry-picked `7ad18b5..b44b53a` (4 commits, dropped `chore: release v4.16.0` per usual).
+
+### Mirrored to `-svelte` variants
+
+- `kit/agents/reviewer-frontend-svelte.md` — applied the gh#67 verification-handoff clause verbatim, extending the existing humility rule (#9). Framework-neutral (about how to report external-state doubt: route to `/dep-audit` or name a command; never self-verify). Identical wording to the React canonical.
+- `kit/agents/reviewer-security-svelte.md` — same clause, extending the humility rule (#11). Identical wording across both -svelte forks and the 5 React reviewers on `main`. No `gh api` example block (that's infra-only; infra has no -svelte fork).
+
+### Shared (cherry-pick applies as-is)
+
+- `kit/agents/reviewer-arch.md`, `kit/agents/reviewer-backend.md`, `kit/agents/reviewer-infra.md` — gh#67 handoff cherry-picked into React canonicals; no Svelte fork exists for these so they ARE the svelte-main version. infra carries the `gh api` handoff example.
+- `kit/skills/session-reflect/SKILL.md` (+ `.claude/` mirror) — new skill; framework-neutral, no Svelte variant needed.
+- `kit/kit-tools.md` — session-reflect inventory row; framework-neutral.
+- `scripts/mirror-local.sh` — session-reflect added to the local mirror table.
+- `scripts/release-kit.py` — svelte-tag refusal guard + clean ValueError; framework-neutral and now governs this very lineage's release discipline.
+- `.github/workflows/ci.yml` — `svelte-main` added to trigger branches + base-aware commit-msg validation; framework-neutral.
+
+### Skipped (React-specific)
+
+None this cycle.
+
+### Custom
+
+None this cycle.
+
+---
+
 ## svelte-v0.9.0+4.14.0 → svelte-v0.10.0+4.15.0
 
 Baseline: `+4.14.0`. New baseline: `+4.15.0`. v4.15 substance is **kit hardening + reviewer hygiene** — gh#68 (markdown drift detection in `--fast`), `check.py` `--strict` toggle for release-time enforcement (sqlx conditional on `migrations/`), helper extract (`_frontend_npm_check_step`), partial-stack `npm` guards in `common.just`, gh#67 partial (Prong 2 humility rule across 5 reviewers), TODO trim. Cherry-picked `76ca394..c0de943` (6 commits, dropped `chore: release v4.15.0` per usual).
