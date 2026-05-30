@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.17.0] - 2026-05-30
+
+### Added
+
+- add agent/skill design gold standard
+
+### Changed
+
+- replace Step 1 discovery pipeline with filter
+- replace run-pipelines with Glob/Grep tool calls
+- add When-to-use, correct idempotency claim
+- remove unused retro-spec, scope tools-walk
+- fold branch-files/changed-files into branch.sh files
+
 ## [v4.16.0] - 2026-05-29
 
 ### Added
