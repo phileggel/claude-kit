@@ -6,6 +6,45 @@ This file lives on `svelte-main` only — never cherry-picked back to `main`.
 
 ---
 
+## svelte-v0.11.0+4.16.0 → svelte-v0.12.0+4.17.0
+
+Baseline: `+4.16.0`. New baseline: `+4.17.0`. v4.17 substance is the **tools-walk** (invocability audit of 6 one-shot skills + retro-spec removal + branch.sh files consolidation) plus the new **`CONVENTIONS.md` § Agent & Skill Design** gold-standard doc grounded in the 2026 Anthropic sub-agents/skills sources, with `ai-reviewer` now referencing it. Cherry-picked `430e125..957c97a` (8 commits, dropped `chore: release v4.17.0` per usual). Three commits carried React-specific values that were hand-adjusted to Svelte equivalents during the pick.
+
+### Mirrored to `-svelte` variants
+
+- `kit/agents/reviewer-frontend-svelte.md` — migrated all `bash scripts/branch-files.sh [--filter]` calls to `bash scripts/branch.sh files [--filter]`. Mechanical mirror of the `e2a69c6` migration in the React canonical; necessary because that cherry-pick deletes `branch-files.sh` and the `-svelte` reviewer would have called a non-existent script.
+- `kit/agents/reviewer-security-svelte.md` — same migration (3 call-sites including the `.env` pipe form). Identical to the React canonical.
+
+### Adjusted at cherry-pick (React → Svelte lineage)
+
+- `e2a69c6` refactor(scripts) — `kit/scripts/branch.sh` + mirrored `scripts/branch.sh`: swapped every `.tsx` filter value AND header-comment mention to `.svelte` in the new `--frontend` / `--arch` / `--security` filters (the React commit shipped `\.(ts|tsx)$` etc; svelte-main needs `\.(ts|svelte)$`). Also merged `kit/kit-tools.md` content conflict (kept svelte-only `list-fe-test-targets.py` row from HEAD; dropped the removed `branch-files.sh` / `changed-files.sh` rows from the cherry-pick).
+- `5c322d2` refactor(prune) — Step 2 Glob-discovery hint `**/*.tsx` → `**/*.svelte`; Step 3 Category D label `TypeScript/TSX` → `TypeScript/Svelte` and `glob: "*.{ts,tsx}"` → `"*.{ts,svelte}"`. Same intent (cross-file definition discovery) with the right Svelte extension.
+
+### Shared (cherry-pick applies as-is)
+
+- `kit/agents/reviewer-arch.md`, `reviewer-backend.md`, `reviewer-e2e.md`, `reviewer-infra.md`, `reviewer-sql.md`, `spec-checker.md` — `branch-files.sh` → `branch.sh files` migration; framework-neutral text, no Svelte fork exists for these.
+- `kit/agents/retro-spec.md` — removed; was unused on both lineages.
+- `kit/skills/setup-e2e/SKILL.md` — When-to-use section added + idempotency claim corrected; framework-neutral (Tauri WebDriver setup is identical on both lineages).
+- `kit/skills/visual-proof/SKILL.md` — Step 1 discovery pipeline replaced with `branch.sh files --frontend` filter. The skill on svelte-main is still React-flavored (`.tsx` / `react-dom` / `ReactDOM.createRoot`) — the `.tsx` filter is intentionally kept; see Open question below.
+- `kit/skills/spec-writer/SKILL.md` — retro-spec cross-refs repointed; framework-neutral.
+- `kit/kit-tools.md` — inventory updates (retro-spec row dropped, branch.sh row updated to mention `files`); merged with svelte-only rows preserved.
+- `kit/skills/prune/SKILL.md` — pipeline→Glob/Grep migration; framework-neutral except for the Category D regex covered above.
+- `.claude/agents/ai-reviewer.md` — Step 2 pointer + References entry for the new `CONVENTIONS.md`; kit-internal, framework-neutral.
+- `.claude/skills/preflight/SKILL.md` — SDD-role table: retro-spec entry removed; kit-internal.
+- `CLAUDE.md` — branch-files.sh prose mention updated to `branch.sh files`; framework-neutral.
+- `CONVENTIONS.md` — new gold-standard doc (artifact-type taxonomy, canonical skeleton, frontmatter rules, output discipline, bash ergonomics). Reads as platform-neutral; no React-only examples to adjust.
+- `docs/TODO.md` — v4.17 planning entry added (430e125) then removed on release (957c97a). `docs/TODO-svelte.md` is additive, not a 1:1 fork — React TODO changes flow through.
+
+### Skipped (React-specific)
+
+None this cycle. Every touched file either applied cleanly, was adjusted at cherry-pick, or had a `-svelte` fork updated in the mirror commit.
+
+### Open question (not blocking this tag)
+
+- `kit/skills/visual-proof/SKILL.md` on svelte-main remains React-flavored (`.tsx`, `react-dom`, `ReactDOM.createRoot`) — there is no `visual-proof-svelte.md` fork. If/when a Svelte preview workflow is needed, decide: fork the skill (Svelte-side flavor) or rewrite in place. v4.17 takes no position; the cherry-pick preserved the React shape.
+
+---
+
 ## svelte-v0.10.0+4.15.0 → svelte-v0.11.0+4.16.0
 
 Baseline: `+4.15.0`. New baseline: `+4.16.0`. v4.16 substance is **maintenance skill + lineage release infra + gh#67 completion** — session-reflect (new end-of-session CLAUDE.md rule-audit skill), CI now gates `svelte-main` PRs (base-aware commit-msg job), `release-kit.py` refuses svelte-lineage tags cleanly, gh#67 reviewer verification-handoff (reviewers surface doubt + route to `/dep-audit` or a named command; stay output-only/network-free). Cherry-picked `7ad18b5..b44b53a` (4 commits, dropped `chore: release v4.16.0` per usual).
