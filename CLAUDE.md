@@ -18,7 +18,7 @@ _Use for: Bug fixes, dependency updates, minor maintenance (no new business rule
 - **Always work on a feature branch**: Never commit directly to `main`. Create a branch for every change and merge via PR.
   - ✅ Correct: `git checkout -b feat/your-feature` → implement → `/smart-commit` → merge to main
   - ❌ Wrong: committing directly to `main` (the pre-commit hook will hard-block it)
-  - _Why it's critical:_ Review agents use branch scope (`branch-files.sh`) to discover all modified files. On `main`, the branch base equals HEAD and agents see nothing.
+  - _Why it's critical:_ Review agents use branch scope (`branch.sh files`) to discover all modified files. On `main`, the branch base equals HEAD and agents see nothing.
 
 - **Always use `just`**: Never suggest or execute native commands if a corresponding recipe exists in `justfile`.
 
@@ -86,8 +86,7 @@ kit/                        ← everything synced downstream
   common.just               → common.just
   scripts/
     sync.sh                 ephemeral sync logic (runs from $TMP, never copied)
-    branch-files.sh         → scripts/
-    changed-files.sh        → scripts/
+    branch.sh                → scripts/
     report-path.sh          → scripts/
     validate-sync.sh        → scripts/
     whats-next.py           → scripts/
