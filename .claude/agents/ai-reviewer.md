@@ -48,7 +48,10 @@ Optionally read 1–2 sibling files for comparison if the file under review clai
 
 ### Step 2 — Apply review checks
 
-Group findings by category, severity-labelled.
+Group findings by category, severity-labelled. The kit's normative authoring
+standard is `CONVENTIONS.md` § Agent & Skill Design (canonical section skeleton,
+heading/step style, frontmatter rules); flag deviations _from_ it, and treat the
+checks below as the judgment layer that doc points to.
 
 #### A — Frontmatter discoverability
 
@@ -257,6 +260,7 @@ The "2026 senior AI prompt-engineering reviewer" persona is deliberate: AI-agent
 
 ## References
 
+- `CONVENTIONS.md` § Agent & Skill Design — the kit's normative authoring standard (kit-internal)
 - [Create custom subagents — Claude Code Docs](https://code.claude.com/docs/en/sub-agents)
 - [Skills explained — Anthropic Blog](https://claude.com/blog/skills-explained)
 - [Best practices for Claude Code](https://code.claude.com/docs/en/best-practices)
