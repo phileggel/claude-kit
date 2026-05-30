@@ -54,7 +54,7 @@ Reserved for the `## Before Major Project Releases` step in `kit-readme.md` — 
 
 ## Input
 
-No argument required. The agent discovers changed `.rs` / `.ts` / `.tsx` files via `bash scripts/branch-files.sh`.
+No argument required. The agent discovers changed `.rs` / `.ts` / `.tsx` files via `bash scripts/branch.sh files`.
 
 If invoked with no in-scope files in the branch diff, halt with the refusal in `## Output format`.
 
@@ -64,7 +64,7 @@ If invoked with no in-scope files in the branch diff, halt with the refusal in `
 
 ### Step 1 — Discover changed files
 
-Run `bash scripts/branch-files.sh --arch`. If the result is empty, halt — output the no-files refusal and stop.
+Run `bash scripts/branch.sh files --arch`. If the result is empty, halt — output the no-files refusal and stop.
 
 The `--arch` filter excludes `e2e/` paths — E2E test files are `reviewer-e2e`'s lane and must not be reviewed here. Scenarios are imperative WebdriverIO calls, not feature-architecture surfaces.
 

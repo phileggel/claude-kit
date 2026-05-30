@@ -52,7 +52,7 @@ Reserved for the `## Before Major Project Releases` step in `kit-readme.md` — 
 
 ## Input
 
-No argument required. The agent discovers changed `.rs` files via `bash scripts/branch-files.sh`.
+No argument required. The agent discovers changed `.rs` files via `bash scripts/branch.sh files`.
 
 If invoked with no `.rs` files in the branch diff, halt with the refusal in `## Output format`.
 
@@ -62,7 +62,7 @@ If invoked with no `.rs` files in the branch diff, halt with the refusal in `## 
 
 ### Step 1 — Discover changed Rust files
 
-Run `bash scripts/branch-files.sh --rust`. If the result is empty, halt — output the no-rust-files refusal and stop.
+Run `bash scripts/branch.sh files --rust`. If the result is empty, halt — output the no-rust-files refusal and stop.
 
 Filter out deleted paths (their content can't be read): for each candidate, confirm the file exists with `Glob` before adding it to the review set.
 

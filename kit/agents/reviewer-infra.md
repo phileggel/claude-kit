@@ -38,7 +38,7 @@ Reserved for the `## Before Major Project Releases` step in `kit-readme.md` — 
 
 ## When to use
 
-- **After a change touches CI, config, capability, script, or hook files** — `branch-files.sh` discovery picks them up
+- **After a change touches CI, config, capability, script, or hook files** — `branch.sh files` discovery picks them up
 - **For a release-sweep audit** (invoke with the literal `release-sweep` phrase — see `## Scope`) — final audit on cumulative infra surface; invoke `/dep-audit` separately for CVEs
 - **Before opening a PR that modifies build, packaging, or release infrastructure** — catch drift before it ships
 
@@ -58,7 +58,7 @@ Reserved for the `## Before Major Project Releases` step in `kit-readme.md` — 
 
 ## Input
 
-No argument required. The agent discovers changed infra files via `bash scripts/branch-files.sh`.
+No argument required. The agent discovers changed infra files via `bash scripts/branch.sh files`.
 
 If invoked with no in-scope files in the branch diff, halt with the refusal in `## Output format`.
 
@@ -68,7 +68,7 @@ If invoked with no in-scope files in the branch diff, halt with the refusal in `
 
 ### Step 1 — Discover changed infra files
 
-Run `bash scripts/branch-files.sh` and filter to the in-scope paths listed in `## Files in scope` below. If the result is empty, halt — output the no-files refusal and stop.
+Run `bash scripts/branch.sh files` and filter to the in-scope paths listed in `## Files in scope` below. If the result is empty, halt — output the no-files refusal and stop.
 
 Filter out deleted paths: confirm each candidate exists with `Glob` before adding it to the review set. Deletes are out of scope.
 

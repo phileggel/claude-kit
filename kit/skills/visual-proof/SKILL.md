@@ -61,7 +61,7 @@ Write `.claude/visual-proof.json`:
 ## Step 1 — Identify the target component
 
 ```bash
-bash scripts/branch-files.sh | grep -E '\.tsx$'
+bash scripts/branch.sh files | grep -E '\.tsx$'
 ```
 
 - **One result** → use it automatically.
