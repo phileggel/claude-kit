@@ -68,7 +68,7 @@ These have no security delta worth a fresh audit — the security review that ad
 
 ## Input
 
-No argument required. The agent discovers changed security-relevant files via `bash scripts/branch-files.sh`.
+No argument required. The agent discovers changed security-relevant files via `bash scripts/branch.sh files`.
 
 If invoked with no in-scope files in the branch diff, halt with the refusal in `## Output format`.
 
@@ -78,7 +78,7 @@ If invoked with no in-scope files in the branch diff, halt with the refusal in `
 
 ### Step 1 — Discover security-relevant files
 
-Run `bash scripts/branch-files.sh --security`. If the result is empty, halt — output the no-files refusal and stop.
+Run `bash scripts/branch.sh files --security`. If the result is empty, halt — output the no-files refusal and stop.
 
 Filter out deleted paths: confirm each candidate exists with `Glob` before adding it to the review set. Deletes are out of scope — a removed file cannot host security issues on lines that no longer exist.
 
@@ -205,7 +205,7 @@ Look for any of the following patterns on added/changed lines:
 ### 🟡 Warning patterns
 
 - Secret-looking values passed through `format!()` into log messages
-- `.env` file committed to the repository (check via `bash scripts/branch-files.sh | grep -E '\.env$'`)
+- `.env` file committed to the repository (check via `bash scripts/branch.sh files | grep -E '\.env$'`)
 
 ---
 
