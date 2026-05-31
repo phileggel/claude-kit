@@ -103,10 +103,11 @@ _KIT_CONFIG="$PROJECT_ROOT/.claude/kit.config.json"
 if [ ! -f "$_KIT_CONFIG" ]; then
     cat >"$_KIT_CONFIG" <<'JSON'
 {
-  "framework": "react"
+  "framework": "react",
+  "database": true
 }
 JSON
-    echo -e "${BLUE}ℹ Created .claude/kit.config.json (default: framework=react)${NC}"
+    echo -e "${BLUE}ℹ Created .claude/kit.config.json (default: framework=react, database=true)${NC}"
 fi
 _record ".claude/kit.config.json"
 KIT_FRAMEWORK=$(
@@ -121,6 +122,26 @@ except Exception:
 PY
 )
 echo -e "${BLUE}🎯 Framework: ${KIT_FRAMEWORK}${NC}"
+
+# ── Database detection ─────────────────────────────────────────────────────────
+# Projects with no database declare {"database": false} in kit.config.json to
+# exclude DB-only artifacts (the reviewer-sql agent, and the migrate /
+# prepare-sqlx / clean-db recipes) from the sync. The key is OPTIONAL: an absent
+# key, an explicit `true`, or a malformed value all resolve to `true`, so every
+# project predating this flag keeps receiving all DB artifacts. Only an explicit
+# JSON `false` disables them. DB-flavored artifacts (reviewer-backend,
+# test-writer-backend, etc.) always ship — they degrade gracefully without a DB.
+KIT_DATABASE=$(
+    python3 - "$_KIT_CONFIG" <<'PY'
+import json, sys
+try:
+    data = json.load(open(sys.argv[1]))
+    print("false" if data.get("database", True) is False else "true")
+except Exception:
+    print("true")
+PY
+)
+echo -e "${BLUE}🗄️  Database artifacts: ${KIT_DATABASE}${NC}"
 
 # Strip `-svelte` from a file's `name:` frontmatter and write to destination.
 # Args: $1=source file, $2=destination file
