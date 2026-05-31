@@ -157,6 +157,24 @@ _strip_svelte_name() {
     ' "$1" >"$2"
 }
 
+# DB-only artifacts excluded from sync when database=false (kit.config.json).
+# These have zero value to a project with no database. DB-FLAVORED artifacts
+# (reviewer-backend, test-writer-backend, …) always ship — see docs/TODO.md.
+# Compared against the source basename, so the guard stays correct even if a
+# `-svelte` variant is ever added.
+DB_ONLY_AGENTS=("reviewer-sql.md")
+
+# Membership test: _in_list <needle> <item>... → 0 if needle is in the list.
+_in_list() {
+    local needle="$1"
+    shift
+    local x
+    for x in "$@"; do
+        [ "$x" = "$needle" ] && return 0
+    done
+    return 1
+}
+
 # ── Kit index & readme ────────────────────────────────────────────────────────
 echo -e "${BLUE}📁 Syncing kit index and readme...${NC}"
 cp "$TMP/kit/kit-tools.md" "$PROJECT_ROOT/.claude/"
@@ -170,6 +188,12 @@ mkdir -p "$PROJECT_ROOT/.claude/agents"
 for agent in "$TMP/kit/agents/"*.md; do
     [ -f "$agent" ] || continue
     name=$(basename "$agent")
+    # Skip DB-only agents on no-database projects (before the framework case so
+    # it short-circuits both react and svelte, and before any _record so the
+    # file never enters the manifest — keeping validate-sync.sh consistent).
+    if [ "$KIT_DATABASE" = "false" ] && _in_list "$name" "${DB_ONLY_AGENTS[@]}"; then
+        continue
+    fi
     case "$KIT_FRAMEWORK" in
     svelte)
         if [[ "$name" == *-svelte.md ]]; then
