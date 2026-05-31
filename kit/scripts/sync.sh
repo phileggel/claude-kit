@@ -163,6 +163,7 @@ _strip_svelte_name() {
 # Compared against the source basename, so the guard stays correct even if a
 # `-svelte` variant is ever added.
 DB_ONLY_AGENTS=("reviewer-sql.md")
+DB_ONLY_RECIPES=("migrate" "prepare-sqlx" "clean-db")
 
 # Membership test: _in_list <needle> <item>... → 0 if needle is in the list.
 _in_list() {
@@ -259,16 +260,23 @@ for _f in "$PROJECT_ROOT"/*.just "$PROJECT_ROOT"/justfile; do
 done
 _local_recipes=$(printf '%s' "$_local_recipes" | sort -u | sed '/^$/d')
 
+# Drop-set = recipes skipped from the synced common.just: locally-overridden
+# recipes (always) plus the DB-only recipes when database=false.
+_drop_recipes="$_local_recipes"
+if [ "$KIT_DATABASE" = "false" ]; then
+    _drop_recipes=$(printf '%s\n' "$_local_recipes" "${DB_ONLY_RECIPES[@]}" | sort -u | sed '/^$/d')
+fi
+
 _record "common.just"
-if [ -z "$_local_recipes" ]; then
+if [ -z "$_drop_recipes" ]; then
     cp "$TMP/kit/common.just" "$PROJECT_ROOT/common.just"
 else
     KIT_COMMON="$TMP/kit/common.just" \
         DEST_COMMON="$PROJECT_ROOT/common.just" \
-        LOCAL_RECIPES="$_local_recipes" \
+        DROP_RECIPES="$_drop_recipes" \
         python3 <<'PY'
 import os, re, sys
-locals_set = set(os.environ['LOCAL_RECIPES'].split())
+drop_set = set(os.environ['DROP_RECIPES'].split())
 src = open(os.environ['KIT_COMMON']).read()
 recipe_re = re.compile(
     r'(?:^# [^\n]*\n)*^(?P<name>[a-zA-Z_][a-zA-Z0-9_-]*)[^:\n]*:[^\n]*\n(?:[ \t][^\n]*\n)*',
@@ -276,7 +284,7 @@ recipe_re = re.compile(
 )
 skipped = []
 def _filter(m):
-    if m.group('name') in locals_set:
+    if m.group('name') in drop_set:
         skipped.append(m.group('name'))
         return ''
     return m.group(0)
@@ -284,7 +292,7 @@ out = recipe_re.sub(_filter, src)
 out = re.sub(r'\n{3,}', '\n\n', out)
 open(os.environ['DEST_COMMON'], 'w').write(out)
 for n in skipped:
-    print(f"  \033[0;34mℹ  {n} already defined locally — skipping kit default\033[0m")
+    print(f"  \033[0;34mℹ  skipping kit recipe '{n}' (locally overridden or DB-only)\033[0m")
 PY
 fi
 
