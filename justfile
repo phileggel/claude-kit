@@ -45,9 +45,12 @@ lint-scripts:
 stat:
     cloc . --vcs=git
 
-# Run kit quality checks
+# Run the full kit gate. CI invokes this exact recipe (not a separate step
+# list), so a green `just check` locally and a green CI run cannot diverge.
+# The pre-commit hook stays fast via `check.py --fast`; this is the full gate.
 check:
     python3 scripts/check.py
+    just lint-scripts
 
 # Mirror kit skills and hooks to .claude/skills/ and .githooks/ for local kit development
 mirror-local:
