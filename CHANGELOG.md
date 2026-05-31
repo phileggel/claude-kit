@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.18.0] - 2026-05-31
+
+### Added
+
+- exclude DB recipes from common.just when database=false
+- exclude reviewer-sql agent when database=false
+- read database flag from kit.config.json
+- add coverage scan to force genuine open questions
+
 ## [v4.17.0] - 2026-05-30
 
 ### Added
