@@ -86,11 +86,11 @@ class KitChecker:
         else:
             self._vprint(f"{BLUE}ℹ shellcheck not installed, skipping.{NC}")
 
-        # Kit-local tolerates missing npx (degrades to vprint-skip in
-        # non-strict mode). Downstream kit/scripts/check.py treats missing
-        # npx as a hard failure via run_step's FileNotFoundError path —
-        # asymmetric on purpose: contributor machines may lack npx; a
-        # downstream project with package.json must have it.
+        # A missing npx is a HARD FAILURE, never a silent skip. A skipped
+        # check is exactly how local `just check` diverged from CI: CI has npx
+        # and runs Prettier, a dev box without npx skipped it, so markdown
+        # format errors passed locally and failed only in CI. Failing loudly
+        # everywhere keeps the gate identical regardless of environment.
         if self._tool_exists("npx"):
             self._step(
                 "Prettier (markdown)",
@@ -103,13 +103,12 @@ class KitChecker:
                     ".gitignore",
                 ],
             )
-        elif self.strict_mode:
-            print(f"{RED}✗ Prettier not installed — required for release checks.{NC}")
-            print("  Install with: npm install -g prettier")
+        else:
+            print(f"{RED}✗ Prettier (markdown) — npx not found on PATH.{NC}")
+            print("  Mandatory check (CI runs it); skipping here would let")
+            print("  CI-only failures through. Install Node.js to provide npx.")
             self.results["Prettier (markdown)"] = False
             self.suite_failed = True
-        else:
-            self._vprint(f"{BLUE}ℹ npx not installed, skipping Prettier.{NC}")
 
         self._check_agent_inventory()
         self._check_tool_minimality()
