@@ -7,13 +7,15 @@ format:
     ruff format scripts/ kit/scripts/
     ruff check --fix scripts/ kit/scripts/
     shfmt -i 4 -w kit/scripts/ kit/githooks/ kit/sync-config.sh
-    npx --yes @biomejs/biome check --write --line-width=100 kit/scripts/
+    npx --yes @biomejs/biome check --write --line-width=100 --indent-style=space kit/scripts/
     npx prettier --write "**/*.md" --ignore-path .gitignore
 
-# Lint kit-shipped scripts against tool defaults — catches files that would
-# fail downstream linters at first sync. biome (recommended + lineWidth=100),
-# ruff (kit-default selection), shellcheck (default). No project config; CLI
-# flags only — the kit is not a Node/Python project, only ships scripts.
+# Lint kit-shipped scripts against the conventions they must satisfy downstream
+# — catches files that would fail downstream linters at first sync. biome
+# (recommended + lineWidth=100 + space indent — biome's default is tab, the
+# minority convention, so space is pinned explicitly), ruff (kit-default
+# selection), shellcheck (default). No project config; CLI flags only — the kit
+# is not a Node/Python project, only ships scripts.
 lint-scripts:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -24,9 +26,9 @@ lint-scripts:
     # as scripts/sync-config.sh but lives outside kit/scripts/.
     sh=$( { find kit/scripts -maxdepth 1 -type f -name '*.sh'; echo kit/sync-config.sh; } | sort)
     if [ -n "$mjs" ]; then
-        echo "▶ biome check (lineWidth=100): $(echo "$mjs" | wc -l) file(s)"
+        echo "▶ biome check (lineWidth=100, space indent): $(echo "$mjs" | wc -l) file(s)"
         # shellcheck disable=SC2086  # word-splitting intentional for the file list
-        npx --yes @biomejs/biome check --line-width=100 $mjs || fail=1
+        npx --yes @biomejs/biome check --line-width=100 --indent-style=space $mjs || fail=1
     fi
     if [ -n "$py" ]; then
         echo "▶ ruff check + format --check: $(echo "$py" | wc -l) file(s)"
