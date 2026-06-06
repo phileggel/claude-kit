@@ -6,6 +6,25 @@ This file lives on `svelte-main` only — never cherry-picked back to `main`.
 
 ---
 
+## svelte-v0.13.0+4.18.0 → svelte-v0.13.1+4.18.1
+
+Baseline: `+4.18.0`. New baseline: `+4.18.1`. Patch release — two fixes, no feature: **gh#73** (the `test_convention.md` "Seeding store" example contradicted F28, pointing at `@/shell/appStore` instead of the `infra/cache/` singleton) and **gh#77** (the kit's flagless biome formatted the shipped `visual-proof-capture.mjs` with tabs — biome's default — which fails every downstream's space-pinned biome on each sync). Cherry-picked `1c9ce37..87c58be` (4 commits, dropped `chore: release v4.18.1` per usual).
+
+### Mirrored to `-svelte` variants
+
+- `kit/docs/test_convention-svelte.md` — mirrored the gh#73 F28 fix to the fork, translated to the Svelte idiom: `appStore` from `@/shell/appStore.svelte` → `cacheStore` from `@/infra/cache/cacheStore.svelte` (per `frontend-rules-svelte.md` F28, `infra/cache/cacheStore.svelte.ts`), keeping the runes-store `.reset()` seeding pattern rather than React's `.setState()`. Commit `26e2669`.
+
+### Adjusted at cherry-pick (content auto-merge)
+
+- `justfile` — git auto-merged the gh#77 biome change (`--indent-style=space` added to the `format` and `lint-scripts` recipes) while preserving the Svelte-only `merge-svelte` recipe. Verified: both biome flags present, `merge-svelte` intact, no markers.
+
+### Shared — no fork, applied as-is
+
+- `kit/scripts/visual-proof-capture.mjs` — single shared file; gh#77 reindented it tabs→spaces (pure whitespace). No `-svelte` variant.
+- `docs/TODO.md` — kit-internal planning, not synced, no fork.
+
+`just check` passes green on the ported branch.
+
 ## svelte-v0.12.0+4.17.0 → svelte-v0.13.0+4.18.0
 
 Baseline: `+4.17.0`. New baseline: `+4.18.0`. v4.18 carries three themes: the **spec-writer coverage scan** (graded business-behaviour taxonomy forcing genuine open questions, with `spec-reviewer` cross-check), the **db/no-db sync selection** surface (`"database"` flag in `kit.config.json` excluding the `reviewer-sql` agent + `migrate`/`prepare-sqlx`/`clean-db` recipes when false), and **CI parity** (`just check` as the single gate shared by CI and local). Cherry-picked `c49fc25..bc8b94a` (8 commits, dropped `chore: release v4.18.0` per usual).
