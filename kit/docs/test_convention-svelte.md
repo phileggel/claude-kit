@@ -74,11 +74,11 @@ vi.mock("@/ui/components/snackbar/snackbarStore.svelte", () => ({
 For app-wide reactive state in a `.svelte.ts` module, expose a `reset()` (or test-only setter) and call it in `beforeEach`:
 
 ```ts
-import { appStore } from "@/shell/appStore.svelte";
+import { cacheStore } from "@/infra/cache/cacheStore.svelte";
 
 beforeEach(() => {
   vi.clearAllMocks();
-  appStore.reset({
+  cacheStore.reset({
     items: [{ id: "item-1", name: "Example item" }],
   });
 });
