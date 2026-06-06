@@ -6,6 +6,21 @@ This file lives on `svelte-main` only — never cherry-picked back to `main`.
 
 ---
 
+## svelte-v0.12.0+4.17.0 → svelte-v0.13.0+4.18.0
+
+Baseline: `+4.17.0`. New baseline: `+4.18.0`. v4.18 carries three themes: the **spec-writer coverage scan** (graded business-behaviour taxonomy forcing genuine open questions, with `spec-reviewer` cross-check), the **db/no-db sync selection** surface (`"database"` flag in `kit.config.json` excluding the `reviewer-sql` agent + `migrate`/`prepare-sqlx`/`clean-db` recipes when false), and **CI parity** (`just check` as the single gate shared by CI and local). Cherry-picked `c49fc25..bc8b94a` (8 commits, dropped `chore: release v4.18.0` per usual).
+
+### Mirrored to `-svelte` variants
+
+None. v4.18 touched no file that has a `-svelte` fork — the changed surfaces are backend/spec/sync/ci (`reviewer-backend`, `spec-reviewer`, `test-writer-backend`, `spec-writer`, `kit-discover`, `sync.sh`, `check.py`, `ci.yml`), while every fork is frontend/e2e/visual-proof. Zero coupling, zero mirror decisions.
+
+### Adjusted at cherry-pick (content auto-merge)
+
+- `kit/kit-tools.md` — git auto-merged the DB-recipe footnote (`† DB-only recipes omitted when database:false`) into the Svelte-structured table; HEAD's Svelte agent rows (`reviewer-frontend-svelte`, `list-fe-test-targets.py`, etc.) preserved. Verified: Svelte branding intact + 4 dagger marks present.
+- `justfile` — git auto-merged the `check:` recipe change (now runs `python3 scripts/check.py` + `just lint-scripts`) while preserving the Svelte-only `merge-svelte` recipe. Verified: both present, no markers.
+
+All other changed files (Class A — no fork) cherry-picked as-is. `just check` passes green on the ported branch.
+
 ## svelte-v0.11.0+4.16.0 → svelte-v0.12.0+4.17.0
 
 Baseline: `+4.16.0`. New baseline: `+4.17.0`. v4.17 substance is the **tools-walk** (invocability audit of 6 one-shot skills + retro-spec removal + branch.sh files consolidation) plus the new **`CONVENTIONS.md` § Agent & Skill Design** gold-standard doc grounded in the 2026 Anthropic sub-agents/skills sources, with `ai-reviewer` now referencing it. Cherry-picked `430e125..957c97a` (8 commits, dropped `chore: release v4.17.0` per usual). Three commits carried React-specific values that were hand-adjusted to Svelte equivalents during the pick.
