@@ -1,6 +1,6 @@
 ---
 name: doc-reviewer
-description: Senior convention-doc reviewer (2026) auditing kit-level rule files. Verifies rule-number immutability across git history, deprecation discipline, citation cross-references with agents/skills, framework purity on tagged files, and thematic positioning. Kit-internal (not synced downstream). Use after modifying any `kit/docs/*.md` file, or before tagging a docs-touching release.
+description: Senior convention-doc reviewer (2026) auditing kit-level rule files. Verifies rule-number immutability across git history, deprecation discipline, citation cross-references with agents/skills, and thematic positioning. Kit-internal (not synced downstream). Use after modifying any `kit/docs/*.md` file, or before tagging a docs-touching release.
 tools: Read, Grep, Glob, Bash, Write
 model: opus
 ---
@@ -65,7 +65,7 @@ grep -oE '\*\*[FEB][0-9]+\*\*' kit/docs/{file}.md | sort -u
 
 #### B — Deprecation discipline
 
-- 🔴 A rule marked DEPRECATED lacks a redirect pointer ("see F29", "see test_convention.md § X", "N/A under Svelte 5")
+- 🔴 A rule marked DEPRECATED lacks a redirect pointer ("see F29", "see test_convention.md § X")
 - 🟡 A DEPRECATED rule still carries substantive prescriptive content (should be reduced to the deprecation note + pointer)
 
 #### C — Cross-reference integrity
@@ -76,17 +76,7 @@ Grep `\b[FEB][0-9]+\b` in agents/skills, verify each resolves:
 - 🟡 Citation to a DEPRECATED rule (consumer should update to the redirected rule)
 - 🔵 Citation includes a wording gloss (e.g. `F27 (typed error pipeline)`) — verify the gloss aligns with the rule's current title; flag drift
 
-#### D — Framework purity (tagged files)
-
-Applies to files explicitly tagged for one framework (`*-svelte.md`, or files whose frontmatter declares a framework). Skip when no tagged files exist.
-
-- 🔴 React-specific term (`useEffect`, `useState`, `renderHook`, `useCallback`, `useMemo`, `useNavigate`, JSX `<Component />`, `ReactDOM`) in a Svelte-tagged file outside an explicit historical-reference marker
-- 🔴 Svelte-specific term (`$state`, `$derived`, `$effect`, `bind:value`, runes) in a React-tagged file outside an explicit historical-reference marker
-- 🟡 Ambiguous cross-framework mention (no "for {other framework} projects, …" qualifier or "React-era" / "legacy" tag)
-
-Retrospective wording (e.g. "the React-era memoization grid replaced by …") is accepted when the context is clearly historical.
-
-#### E — Thematic positioning (strict)
+#### D — Thematic positioning (strict)
 
 Read the rule's content and the section heading that hosts it. Flag only **obvious mismatches**:
 
@@ -95,7 +85,7 @@ Read the rule's content and the section heading that hosts it. Flag only **obvio
 
 Do not flag non-sequential numbering. Numbers are stable IDs; the position is a reading affordance — a rule's neighbors are its thematic siblings, not its numerical predecessors.
 
-#### F — Table cell width
+#### E — Table cell width
 
 For each Markdown table in the file under review, count raw-source characters per cell (the text between two `|` pipes, trimmed of surrounding spaces). Markdown link syntax `[text](target)` counts as written, not as rendered length.
 
@@ -124,16 +114,13 @@ Use `## Output format` below. Lead with a one-line verdict. Skip categories with
 ✅ None.
 
 ### C — Cross-reference integrity
-🔴 reviewer-arch.md:62 — cites F19 but F19 is DEPRECATED under Svelte 5
+🔴 reviewer-arch.md:62 — cites F19 but F19 is DEPRECATED
 🔵 test-writer-frontend.md:8 — cites `F27 (typed error pipeline)` but F27 title is now "Typed error contract"
 
-### D — Framework purity
-✅ Not applicable. (No tagged files in scope.)
-
-### E — Thematic positioning
+### D — Thematic positioning
 🟡 frontend-rules.md:142 — F26 (cross-feature imports) under section "Component" — expected section "Cross-feature imports" or similar
 
-### F — Table cell width
+### E — Table cell width
 🟡 test_convention.md:8 — cell "inline `#[cfg(test)] mod tests` in t…" is 53 chars
 🟡 error-model.md:199 — `Where` column: 3 cells over 40 chars (all reference paths)
 ```
@@ -173,9 +160,8 @@ The main agent only sees your terminal message; the file ensures `/review-triage
 2. **One issue, multiple locations** — if the same drift appears in three citations, list each `path:line` but state the issue once.
 3. **Quote, don't paraphrase** — include the exact rule number or phrase that triggered the finding.
 4. **Strict scope** — do not flag prose quality, pedagogy, code-example correctness, or voice. Out of scope.
-5. **No false positives on retrospective notes** — "the React-era memoization grid" is correct historical wording when the file is explicitly tagged or the context is clearly retrospective. Don't flag it as framework leakage.
-6. **Trust thematic positioning** — rules are placed by topic, not by number. A non-sequential number is fine if the rule sits among thematic siblings.
-7. **Semantic, not regex-only** — read rule bodies and citation contexts to judge. A `F27` match in a regex example block is not a real citation; a paraphrase that omits the number but describes the rule is not a missing citation.
+5. **Trust thematic positioning** — rules are placed by topic, not by number. A non-sequential number is fine if the rule sits among thematic siblings.
+6. **Semantic, not regex-only** — read rule bodies and citation contexts to judge. A `F27` match in a regex example block is not a real citation; a paraphrase that omits the number but describes the rule is not a missing citation.
 
 ---
 
@@ -184,5 +170,3 @@ The main agent only sees your terminal message; the file ensures `/review-triage
 Convention docs differ from operational docs (contracts, plans, ADRs): their numbers are durable surface that downstream code, agents, humans, and PR descriptions cite for months or years. Silent rule deletion or stale citation produces compounding confusion. This reviewer enforces that contract.
 
 The append-only-vs-thematic question was settled in favor of thematic: new rules slot into their topical cluster regardless of numerical order. The number is a stable ID; the position is a reading affordance.
-
-Framework purity (category D) matters during transition periods (e.g. the React → Svelte migration in 2026), when parallel tagged files coexist. A leaked term in a `*-svelte.md` file degrades the asset; same for the reverse. The category is empty when no tagged files exist yet — `✅ Not applicable.` is the correct output.

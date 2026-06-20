@@ -2,10 +2,10 @@ name: CI
 
 on:
   pull_request:
-    branches: [main, svelte-main]
+    branches: [main]
     types: [opened, edited, synchronize, reopened]
   push:
-    branches: [main, svelte-main]
+    branches: [main]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -49,8 +49,8 @@ jobs:
         with:
           fetch-depth: 0
       - name: Validate every commit in the PR
-        # base_ref is the PR's target branch (main or svelte-main). Passed
-        # via env, never interpolated into the script, to avoid injection.
+        # base_ref is the PR's target branch (main). Passed via env, never
+        # interpolated into the script, to avoid injection.
         env:
           BASE_REF: ${{ github.base_ref }}
         run: |

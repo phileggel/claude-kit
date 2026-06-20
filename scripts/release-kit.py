@@ -23,14 +23,9 @@ else:
     BLUE = "\033[0;34m"
     NC = "\033[0m"
 
-# Tag formats. React lineage: vX.Y.Z. Svelte lineage: svelte-vX.Y.Z+M.N.P
-# (svelte's own semver + the main version it ported). This script manages the
-# React lineage only — it commits `chore: release vX.Y.Z` and pushes origin
-# main. Svelte releases are tagged manually: the version bump is a per-cycle
-# judgment and the tag carries a hand-written annotation (see svelte-port
-# workflow). The svelte pattern is matched here purely to refuse cleanly.
-REACT_TAG_RE = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
-SVELTE_TAG_RE = re.compile(r"^svelte-v\d+\.\d+\.\d+\+\d+\.\d+\.\d+$")
+# Tag format: vX.Y.Z. This script commits `chore: release vX.Y.Z` and pushes
+# origin main.
+TAG_RE = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
 
 
 class ReleaseManager:
@@ -100,10 +95,10 @@ class ReleaseManager:
                 self.fixes += 1
 
     def calculate_new_version(self) -> str:
-        match = REACT_TAG_RE.match(self.current_version)
+        match = TAG_RE.match(self.current_version)
         if not match:
             raise ValueError(
-                f"cannot bump non-React tag {self.current_version!r} (expected vX.Y.Z)"
+                f"cannot bump malformed tag {self.current_version!r} (expected vX.Y.Z)"
             )
         major, minor, patch = (int(g) for g in match.groups())
         if self.breaking_changes > 0:
@@ -202,22 +197,6 @@ class ReleaseManager:
             return False
 
     def run(self, yes: bool = False, force_version: str = ""):
-        # Refuse svelte-lineage releases: this tool pushes origin main and
-        # writes a React-format release commit. Running it on svelte-main
-        # would tag/push the wrong lineage. Tag svelte releases manually.
-        if SVELTE_TAG_RE.match(self.current_version):
-            print(
-                f"{RED}✗ Latest tag {self.current_version} is a svelte-lineage "
-                f"release.{NC}"
-            )
-            print(
-                f"{YELLOW}release-kit.py manages the React (main) lineage only. "
-                f"Tag the svelte release manually:\n"
-                f"  git tag -a svelte-vX.Y.Z+M.N.P -m '...'\n"
-                f"  git push origin svelte-vX.Y.Z+M.N.P{NC}"
-            )
-            return
-
         # Strict quality check — files must already be well-formatted before release
         print(f"{BLUE}Running strict quality check (release mode)...{NC}")
         result = subprocess.run(
@@ -262,8 +241,8 @@ if __name__ == "__main__":
     try:
         ReleaseManager().run(yes=_yes, force_version=_version)
     except ValueError as e:
-        # A tag matching neither REACT_TAG_RE nor SVELTE_TAG_RE (malformed or
-        # future scheme) reaches calculate_new_version; surface a clean
-        # message on stderr instead of a raw traceback.
+        # A tag not matching TAG_RE (malformed or future scheme) reaches
+        # calculate_new_version; surface a clean message on stderr instead of
+        # a raw traceback.
         print(f"{RED}✗ {e}{NC}", file=sys.stderr)
         sys.exit(1)
